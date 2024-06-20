@@ -4,6 +4,9 @@ import pandas as pd
 import xml.etree.ElementTree as ET
 import os
 
+def format_number(num):
+    return f"{num:,}".replace(',', '.')
+
 # Function to extract data from an XML file
 def extract_data_from_xml(file):
     tree = ET.parse(file)
@@ -15,25 +18,31 @@ def extract_data_from_xml(file):
         thhdv = item.find('THHDVu').text if item.find('THHDVu') is not None else ''
         dvtinh = item.find('DVTinh').text if item.find('DVTinh') is not None else ''
         sluong = item.find('SLuong').text if item.find('SLuong') is not None else ''
-        dgia = item.find('DGia').text.replace(',', '.') if item.find('DGia') is not None else ''
-        thtien = item.find('ThTien').text.replace(',', '.') if item.find('ThTien') is not None else ''
+        dgia = item.find('DGia').text if item.find('DGia') is not None else ''
+        thtien = item.find('ThTien').text if item.find('ThTien') is not None else ''
         data.append([stt, thhdv, dvtinh, sluong, dgia, thtien, shdon])
     return shdon, data
 def main():
     all_data = []
     st.title('XML to Excel Converter')
     uploaded_files = st.file_uploader("Nhập XML files", accept_multiple_files=True, type='xml')
+    st.header(f'File đã tải lên: {len(uploaded_files)}')
     with st.container(border=True):
         if uploaded_files:
-            st.header(f'File đã tải lên: {len(uploaded_files)}')
             for i, uploaded_file in enumerate(uploaded_files, start=1):
                 shdon, file_data = extract_data_from_xml(uploaded_file)        
                 df = pd.DataFrame(file_data, columns=['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Số hóa đơn'])
                 all_data.append(df)
+                
                 st.subheader(f"Số hóa đơn: {shdon}")
+
                 df = df[['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền']]
-                df = df[df['Số lượng'] != None]
+                df = df[df['Số lượng'].notna()]
+                df['Đơn giá'] = df['Đơn giá'].astype(int).apply(format_number)
+                df['Thành tiền'] = df['Thành tiền'].astype(int).apply(format_number)
                 st.dataframe(df.style.hide(axis="index"))
+
+                
         
             # # Combine all dataframes
             # combined_df = pd.concat(all_data, ignore_index=True)
