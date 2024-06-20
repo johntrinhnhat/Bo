@@ -32,7 +32,7 @@ def main():
                 all_data.append(df)
                 st.subheader(f"Số hóa đơn: {shdon}")
                 df = df[['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền']]
-                df = df[df['Số lượng'] != 0]
+                df = df[df['Số lượng'] != None]
                 st.dataframe(df.style.hide(axis="index"))
         
             # # Combine all dataframes
