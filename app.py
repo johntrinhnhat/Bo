@@ -12,7 +12,11 @@ def extract_data_from_xml(file):
     tree = ET.parse(file)
     root = tree.getroot()
     shdon = root.find('.//TTChung/SHDon').text if root.find('.//TTChung/SHDon') is not None else ''
+    tendvi = root.find('.//Ten').text if root.find('.//Ten') is not None else ''
+    date = root.find('.//NLap').text if root.find('.//NLap') is not None else ''
+    tbc = root.find('.//TgTTTBChu').text if root.find('.//TgTTTBChu') is not None else ''
     data=[]
+    print(tendvi, date, tbc)
     for item in root.findall('.//HHDVu'):
         stt = item.find('STT').text if item.find('STT') is not None else ''
         thhdv = item.find('THHDVu').text if item.find('THHDVu') is not None else ''
@@ -21,26 +25,28 @@ def extract_data_from_xml(file):
         dgia = item.find('DGia').text if item.find('DGia') is not None else ''
         thtien = item.find('ThTien').text if item.find('ThTien') is not None else ''
         data.append([stt, thhdv, dvtinh, sluong, dgia, thtien, shdon])
-    return shdon, data
+    return shdon, tendvi, date, tbc, data
 def main():
     all_data = []
     st.title('XML to Excel Converter')
     uploaded_files = st.file_uploader("Nhập XML files", accept_multiple_files=True, type='xml')
-    st.header(f'File đã tải lên: {len(uploaded_files)}')
+    st.header(f'Tệp đã tải lên: {len(uploaded_files)}')
     with st.container(border=True):
         if uploaded_files:
             for i, uploaded_file in enumerate(uploaded_files, start=1):
-                shdon, file_data = extract_data_from_xml(uploaded_file)        
+                shdon, tendvi,date, tbc, file_data = extract_data_from_xml(uploaded_file)        
                 df = pd.DataFrame(file_data, columns=['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Số hóa đơn'])
                 all_data.append(df)
                 
                 st.subheader(f"Số hóa đơn: {shdon}")
-
+                st.text(f"Năm-Tháng-Ngày: {date}")
+                st.text(f"Tên đơn vị: {tendvi}")
                 df = df[['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền']]
                 df = df[df['Số lượng'].notna()]
                 df['Đơn giá'] = df['Đơn giá'].astype(int).apply(format_number)
                 df['Thành tiền'] = df['Thành tiền'].astype(int).apply(format_number)
-                st.dataframe(df.style.hide(axis="index"))
+                st.dataframe(df.style.hide(axis="index"), width=800)
+                st.text(f"Tổng thành tiền: {tbc}")
 
                 
         
