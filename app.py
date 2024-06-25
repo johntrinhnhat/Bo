@@ -3,6 +3,7 @@ import pandas as pd
 import xml.etree.ElementTree as ET
 import os
 import datetime
+import time
 import openpyxl
 from io import BytesIO
 from openpyxl import load_workbook
@@ -21,13 +22,13 @@ def convert_date_format(date_str):
 # Function to extract data from an XML file
 def extract_data_from_xml(file):
     data=[]
-    ggia = None  # Initialize ggia with a default value
+    ggia = 0  # Initialize ggia with a default value
     tree = ET.parse(file)
     root = tree.getroot()
-    shdon = root.find('.//TTChung/SHDon').text if root.find('.//TTChung/SHDon') is not None else ''
-    tendvi = root.find('.//NMua/Ten').text if root.find('.//NMua/Ten') is not None else ''
-    date = root.find('.//NLap').text if root.find('.//NLap') is not None else ''
-    tbc = root.find('.//TgTTTBChu').text if root.find('.//TgTTTBChu') is not None else ''
+    shdon = root.find('.//TTChung/SHDon').text 
+    tendvi = root.find('.//NMua/Ten').text 
+    date = root.find('.//NLap').text 
+    tbc = root.find('.//TgTTTBChu').text 
     
     for item in root.findall('.//HHDVu'):
         stt = item.find('STT').text if item.find('STT') is not None else ''
@@ -59,26 +60,26 @@ def extract_data_from_xml(file):
 
 def display_invoice(shdon, tendvi, date, tbc, ggia, data, all_data):
     columns = ['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Số hóa đơn']
-    if ggia is not None:
+    if ggia != 0:
         columns.append('Giảm giá')
 
     df = pd.DataFrame(data, columns=columns)
-
     
     all_data.append((shdon, tendvi, date, tbc, ggia, df))
 
     st.subheader(f"Số hóa đơn: {shdon}")
     st.text(f"Năm-Tháng-Ngày: {date}")
     st.text(f"Tên khách: {tendvi}")
+    df['Đơn vị tính'] = df['Đơn vị tính'].str.capitalize()
+    df['Tên hàng hóa, dịch vụ'] = df['Tên hàng hóa, dịch vụ'].str.capitalize()
 
     df = df[['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền']]
     df = df[df['Đơn vị tính'].notna()]
-    # df['Đơn giá'] = df['Đơn giá'].astype(int).apply(format_number)
-    # df['Thành tiền'] = df['Thành tiền'].astype(int).apply(format_number)
     df['Đơn giá'] = df['Đơn giá'].astype(int)
     df['Thành tiền'] = df['Thành tiền'].astype(int)
-
+    # print(df['Tên hàng hóa, dịch vụ'])
     st.dataframe(df.style.hide(axis="index"), width=800)
+    st.text(f"Giảm giá: {ggia} đồng")
     st.text(f"Tổng thành tiền: {tbc}")
 
     return df
@@ -113,49 +114,81 @@ def update_excel(wb, shdon, tendvi, date, tbc, ggia, df):
             ws.cell(row=i, column=start_column + 4, value=row_data[4])  # Đơn giá
             ws.cell(row=i, column=start_column + 5, value=row_data[5])  # Thành tiền
 
-    
+
+def create():
+    st.session_state['create_success'] = True
+
+def download():
+    st.session_state['download_success'] = True
 
 def main():
     all_data = []
-    st.title('XML to Excel Converter')
-    xml_files = st.file_uploader("Nhập XML files", accept_multiple_files=True, type='xml')
-    st.header(f'Tệp đã tải lên: {len(xml_files)}')
-
-    with st.container(border=True):
-
-        if xml_files:
-            for uploaded_file in xml_files:
-                shdon, tendvi,date, tbc, ggia, data = extract_data_from_xml(uploaded_file)
-                display_invoice(shdon, tendvi, date, tbc, ggia, data, all_data)
-            if st.button('Generate Excel File', type="primary"):
-                excel_file_path = 'excel.xlsx'
-                wb = load_workbook(excel_file_path)
-
-                for shdon, tendvi, date, tbc, ggia, df in all_data:
-                    update_excel(wb, shdon, tendvi,date, tbc, ggia, df)
-            # st.success("Excel file updated successfully!")
-                if len(wb.sheetnames) > 1:
-                    wb.active = 1  # Set any other sheet as the active one
-                    # Remove the template sheet
-                    wb.remove(wb['Template'])
+    with st.sidebar:
+        xml_files = st.file_uploader("Nhập XML files", accept_multiple_files=True, type='xml')
+        if len(xml_files) == 0:
+            st.warning("Vui lòng tải tệp XML của bạn")
+        else:
+            st.success(f'Bạn đã tải thành công {len(xml_files)} tệp')
             
-                # Save the workbook to a bytes buffer
-                buffer = BytesIO()
-                wb.save(buffer)
-                buffer.seek(0)
+    if xml_files:
+        for uploaded_file in xml_files:
+            shdon, tendvi,date, tbc, ggia, data = extract_data_from_xml(uploaded_file)
+            # print(type(data[0][2]))
+            with st.container(border=True): 
+                display_invoice(shdon, tendvi, date, tbc, ggia, data, all_data)
                 
-                # Provide download button
-                st.download_button(
-                    type="secondary",
-                    label="Download Excel File",
-                    data=buffer,
-                    file_name="PHIEU XUAT KHO QUY (0x-2024).xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    key="download_excel_unique"
-            )
-                st.success("Generate file thành công")
+        if 'create_success' not in st.session_state:
+            st.session_state['create_success'] = False
+        if 'download_success' not in st.session_state:
+            st.session_state['download_success'] = False
+
+        if st.session_state['download_success']:
+            downloading_message = 'Đang tải phiếu ...'
+            progress_bar = st.progress(0, text=downloading_message)
+            for percent_complete in range(100):
+                time.sleep(0.01)
+                progress_bar.progress(percent_complete + 1, text=downloading_message)
+            time.sleep(2)
+            st.success("Đã tải phiếu xuất kho thành công")
+            progress_bar.empty()
+            st.session_state['download_success'] = False
+
                 
+        else:
+            if not st.session_state['create_success']:
+                if st.button('Tạo phiếu xuất kho', type='primary', disabled=False, key='xk_btn', on_click=create):
+                    pass
+            else:
+                with st.spinner("Đang tạo phiếu ..."):
+                    time.sleep(2)
+                    st.success("Tạo phiếu xuất kho thành công")
+
+                    excel_file_path = 'excel.xlsx'
+                    wb = load_workbook(excel_file_path)
+
+                    for shdon, tendvi, date, tbc, ggia, df in all_data:
+                        update_excel(wb, shdon, tendvi,date, tbc, ggia, df)
+
+                    if len(wb.sheetnames) > 1:
+                        wb.active = 1  # Set any other sheet as the active one
+                        # Remove the template sheet
+                        wb.remove(wb['Template'])
                 
+                    # Save the workbook to a bytes buffer
+                    buffer = BytesIO()
+                    wb.save(buffer)
+                    buffer.seek(0)
+
+        
+                    st.download_button(
+                        on_click=download,
+                        type="primary",
+                        label="Tải phiếu xuất kho",
+                        data=buffer,
+                        file_name="PHIEU XUAT KHO QUY (0x-2024).xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        key="download_excel_unique"
+                )
                 
 
 if __name__ == "__main__":
