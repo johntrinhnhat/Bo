@@ -1,10 +1,8 @@
 import streamlit as st
 import pandas as pd
 import xml.etree.ElementTree as ET
-import os
 import datetime
 import time
-import openpyxl
 from io import BytesIO
 from openpyxl import load_workbook
 
@@ -25,7 +23,7 @@ def extract_data_from_xml(file):
     ggia = 0  # Initialize ggia with a default value
     tree = ET.parse(file)
     root = tree.getroot()
-    shdon = root.find('.//TTChung/SHDon').text 
+    shdon = int(root.find('.//TTChung/SHDon').text) 
     tendvi = root.find('.//NMua/Ten').text 
     date = root.find('.//NLap').text 
     tbc = root.find('.//TgTTTBChu').text 
@@ -43,7 +41,7 @@ def extract_data_from_xml(file):
             thtien = int(thtien.replace(',', '').replace('.', '')) if thtien else 0
             sluong = int(sluong if sluong else 0)
             stt = int(stt if stt else 0)
-
+            
         except ValueError:
             dgia = 0
             thtien = 0
@@ -70,10 +68,10 @@ def display_invoice(shdon, tendvi, date, tbc, ggia, data, all_data):
     st.subheader(f"Số hóa đơn: {shdon}")
     st.text(f"Năm-Tháng-Ngày: {date}")
     st.text(f"Tên khách: {tendvi}")
-    df['Đơn vị tính'] = df['Đơn vị tính'].str.capitalize()
-    df['Tên hàng hóa, dịch vụ'] = df['Tên hàng hóa, dịch vụ'].str.capitalize()
 
     df = df[['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền']]
+    df['Đơn vị tính'] = df['Đơn vị tính'].str.capitalize()
+    df['Tên hàng hóa, dịch vụ'] = df['Tên hàng hóa, dịch vụ'].str.capitalize()
     df = df[df['Đơn vị tính'].notna()]
     df['Đơn giá'] = df['Đơn giá'].astype(int)
     df['Thành tiền'] = df['Thành tiền'].astype(int)
@@ -129,14 +127,14 @@ def main():
             st.warning("Vui lòng tải tệp XML của bạn")
         else:
             st.success(f'Bạn đã tải thành công {len(xml_files)} tệp')
+        st.divider()
             
     if xml_files:
         for uploaded_file in xml_files:
             shdon, tendvi,date, tbc, ggia, data = extract_data_from_xml(uploaded_file)
-            # print(type(data[0][2]))
             with st.container(border=True): 
                 display_invoice(shdon, tendvi, date, tbc, ggia, data, all_data)
-                
+
         if 'create_success' not in st.session_state:
             st.session_state['create_success'] = False
         if 'download_success' not in st.session_state:
@@ -148,7 +146,7 @@ def main():
             for percent_complete in range(100):
                 time.sleep(0.01)
                 progress_bar.progress(percent_complete + 1, text=downloading_message)
-            time.sleep(2)
+            time.sleep(1)
             st.success("Đã tải phiếu xuất kho thành công")
             progress_bar.empty()
             st.session_state['download_success'] = False
@@ -189,7 +187,6 @@ def main():
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         key="download_excel_unique"
                 )
-                
-
+                    
 if __name__ == "__main__":
     main()
