@@ -68,10 +68,11 @@ def display_invoice(shdon, tendvi, date, tbc, ggia, data, all_data):
     st.subheader(f"Số hóa đơn: {shdon}")
     st.text(f"Năm-Tháng-Ngày: {date}")
     st.text(f"Tên khách: {tendvi}")
+    df.loc[:, 'Tên hàng hóa, dịch vụ'] = df['Tên hàng hóa, dịch vụ'].str.capitalize()
+    df.loc[:, 'Đơn vị tính'] = df['Đơn vị tính'].str.capitalize()
+    
 
     df = df[['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền']]
-    df['Đơn vị tính'] = df['Đơn vị tính'].str.capitalize()
-    df['Tên hàng hóa, dịch vụ'] = df['Tên hàng hóa, dịch vụ'].str.capitalize()
     df = df[df['Đơn vị tính'].notna()]
     df['Đơn giá'] = df['Đơn giá'].astype(int)
     df['Thành tiền'] = df['Thành tiền'].astype(int)
@@ -139,54 +140,54 @@ def main():
             st.session_state['create_success'] = False
         if 'download_success' not in st.session_state:
             st.session_state['download_success'] = False
+        with st.sidebar:
+            if st.session_state['download_success']:
+                downloading_message = 'Đang tải phiếu ...'
+                progress_bar = st.progress(0, text=downloading_message)
+                for percent_complete in range(100):
+                    time.sleep(0.01)
+                    progress_bar.progress(percent_complete + 1, text=downloading_message)
+                time.sleep(1)
+                st.success("Đã tải phiếu xuất kho thành công")
+                progress_bar.empty()
+                st.session_state['download_success'] = False
 
-        if st.session_state['download_success']:
-            downloading_message = 'Đang tải phiếu ...'
-            progress_bar = st.progress(0, text=downloading_message)
-            for percent_complete in range(100):
-                time.sleep(0.01)
-                progress_bar.progress(percent_complete + 1, text=downloading_message)
-            time.sleep(1)
-            st.success("Đã tải phiếu xuất kho thành công")
-            progress_bar.empty()
-            st.session_state['download_success'] = False
-
-                
-        else:
-            if not st.session_state['create_success']:
-                if st.button('Tạo phiếu xuất kho', type='primary', disabled=False, key='xk_btn', on_click=create):
-                    pass
+                    
             else:
-                with st.spinner("Đang tạo phiếu ..."):
-                    time.sleep(2)
-                    st.success("Tạo phiếu xuất kho thành công")
+                if not st.session_state['create_success']:
+                    if st.button('Tạo phiếu xuất kho', type='primary', disabled=False, key='xk_btn', on_click=create):
+                        pass
+                else:
+                    with st.spinner("Đang tạo phiếu ..."):
+                        time.sleep(2)
+                        st.success("Tạo phiếu xuất kho thành công")
 
-                    excel_file_path = 'excel.xlsx'
-                    wb = load_workbook(excel_file_path)
+                        excel_file_path = 'excel.xlsx'
+                        wb = load_workbook(excel_file_path)
 
-                    for shdon, tendvi, date, tbc, ggia, df in all_data:
-                        update_excel(wb, shdon, tendvi,date, tbc, ggia, df)
+                        for shdon, tendvi, date, tbc, ggia, df in all_data:
+                            update_excel(wb, shdon, tendvi,date, tbc, ggia, df)
 
-                    if len(wb.sheetnames) > 1:
-                        wb.active = 1  # Set any other sheet as the active one
-                        # Remove the template sheet
-                        wb.remove(wb['Template'])
-                
-                    # Save the workbook to a bytes buffer
-                    buffer = BytesIO()
-                    wb.save(buffer)
-                    buffer.seek(0)
+                        if len(wb.sheetnames) > 1:
+                            wb.active = 1  # Set any other sheet as the active one
+                            # Remove the template sheet
+                            wb.remove(wb['Template'])
+                    
+                        # Save the workbook to a bytes buffer
+                        buffer = BytesIO()
+                        wb.save(buffer)
+                        buffer.seek(0)
 
-        
-                    st.download_button(
-                        on_click=download,
-                        type="primary",
-                        label="Tải phiếu xuất kho",
-                        data=buffer,
-                        file_name="PHIEU XUAT KHO QUY (0x-2024).xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        key="download_excel_unique"
-                )
+            
+                        st.download_button(
+                            on_click=download,
+                            type="primary",
+                            label="Tải phiếu xuất kho",
+                            data=buffer,
+                            file_name="PHIEU XUAT KHO QUY (0x-2024).xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            key="download_excel_unique"
+                    )
                     
 if __name__ == "__main__":
     main()
