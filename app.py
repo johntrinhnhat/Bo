@@ -1,8 +1,13 @@
+import io
+import os
+import shutil
+import tempfile
 import streamlit as st
 import pandas as pd
 import xml.etree.ElementTree as ET
 import datetime
 import time
+import zipfile
 from io import BytesIO
 from openpyxl import load_workbook
 
@@ -16,6 +21,33 @@ def convert_date_format(date_str):
     # Format the date in the desired format
     formatted_date = f"Ngày {date_obj.day:02} tháng {date_obj.month:02} năm {date_obj.year}"
     return formatted_date
+
+def extract_zipfile(zip_file, extract_to):
+    extracted_files = []
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        for file in zip_ref.namelist():
+            if file.endswith(".xml"):
+                extracted_files.append(file)
+                zip_ref.extract(file, extract_to)
+    return extracted_files
+
+
+def zip_folder(folder_path, output_zip):
+    with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for root, dirs, files in os.walk(folder_path):
+            for file in files:
+                zipf.write(os.path.join(root, file),
+                           os.path.relpath(os.path.join(root, file),
+                           os.path.join(folder_path, '..')))
+
+def extract_number(string):
+    # Find the position of the last underscore and the '.zip' extension
+    last_underscore_pos = string.rfind('_')
+    dot_zip_pos = string.find('.zip')
+    
+    # Extract the number between the last underscore and '.zip'
+    number = string[last_underscore_pos + 1:dot_zip_pos]
+    return number
 
 # Function to extract data from an XML file
 def extract_data_from_xml(file):
@@ -130,64 +162,99 @@ def main():
             st.success(f'Bạn đã tải thành công {len(xml_files)} tệp')
         st.divider()
             
-    if xml_files:
-        for uploaded_file in xml_files:
-            shdon, tendvi,date, tbc, ggia, data = extract_data_from_xml(uploaded_file)
-            with st.container(border=True): 
-                display_invoice(shdon, tendvi, date, tbc, ggia, data, all_data)
 
-        if 'create_success' not in st.session_state:
-            st.session_state['create_success'] = False
-        if 'download_success' not in st.session_state:
-            st.session_state['download_success'] = False
-        with st.sidebar:
-            if st.session_state['download_success']:
-                downloading_message = 'Đang tải phiếu ...'
-                progress_bar = st.progress(0, text=downloading_message)
-                for percent_complete in range(100):
-                    time.sleep(0.01)
-                    progress_bar.progress(percent_complete + 1, text=downloading_message)
-                time.sleep(1)
-                st.success("Đã tải phiếu xuất kho thành công")
-                progress_bar.empty()
+    tab1, tab2 = st.tabs(['Phiếu xuất kho', 'Zip'])
+    with tab1:
+        if xml_files:
+            for uploaded_file in xml_files:
+                shdon, tendvi,date, tbc, ggia, data = extract_data_from_xml(uploaded_file)
+                with st.container(border=True): 
+                    display_invoice(shdon, tendvi, date, tbc, ggia, data, all_data)
+
+            if 'create_success' not in st.session_state:
+                st.session_state['create_success'] = False
+            if 'download_success' not in st.session_state:
                 st.session_state['download_success'] = False
+            with st.sidebar:
+                if st.session_state['download_success']:
+                    downloading_message = 'Đang tải phiếu ...'
+                    progress_bar = st.progress(0, text=downloading_message)
+                    for percent_complete in range(100):
+                        time.sleep(0.01)
+                        progress_bar.progress(percent_complete + 1, text=downloading_message)
+                    time.sleep(1)
+                    st.success("Đã tải phiếu xuất kho thành công")
+                    progress_bar.empty()
+                    st.session_state['download_success'] = False
 
-                    
-            else:
-                if not st.session_state['create_success']:
-                    if st.button('Tạo phiếu xuất kho', type='primary', disabled=False, key='xk_btn', on_click=create):
-                        pass
+                        
                 else:
-                    with st.spinner("Đang tạo phiếu ..."):
-                        time.sleep(2)
-                        st.success("Tạo phiếu xuất kho thành công")
+                    if not st.session_state['create_success']:
+                        if st.button('Tạo phiếu xuất kho', type='primary', disabled=False, key='xk_btn', on_click=create):
+                            pass
+                    else:
+                        with st.spinner("Đang tạo phiếu ..."):
+                            time.sleep(1.5)
+                            st.success("Tạo phiếu xuất kho thành công")
 
-                        excel_file_path = 'excel.xlsx'
-                        wb = load_workbook(excel_file_path)
+                            excel_file_path = 'excel.xlsx'
+                            wb = load_workbook(excel_file_path)
 
-                        for shdon, tendvi, date, tbc, ggia, df in all_data:
-                            update_excel(wb, shdon, tendvi,date, tbc, ggia, df)
+                            for shdon, tendvi, date, tbc, ggia, df in all_data:
+                                update_excel(wb, shdon, tendvi,date, tbc, ggia, df)
 
-                        if len(wb.sheetnames) > 1:
-                            wb.active = 1  # Set any other sheet as the active one
-                            # Remove the template sheet
-                            wb.remove(wb['Template'])
-                    
-                        # Save the workbook to a bytes buffer
-                        buffer = BytesIO()
-                        wb.save(buffer)
-                        buffer.seek(0)
+                            if len(wb.sheetnames) > 1:
+                                wb.active = 1  # Set any other sheet as the active one
+                                # Remove the template sheet
+                                wb.remove(wb['Template'])
+                        
+                            # Save the workbook to a bytes buffer
+                            buffer = BytesIO()
+                            wb.save(buffer)
+                            buffer.seek(0)
 
-            
-                        st.download_button(
-                            on_click=download,
-                            type="primary",
-                            label="Tải phiếu xuất kho",
-                            data=buffer,
-                            file_name="PHIEU XUAT KHO QUY (0x-2024).xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            key="download_excel_unique"
-                    )
-                    
+                
+                            st.download_button(
+                                on_click=download,
+                                type="primary",
+                                label="Tải phiếu xuất kho",
+                                data=buffer,
+                                file_name="PHIEU XUAT KHO QUY (0x-2024).xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                key="download_excel_unique"
+                        )
+    with tab2:
+        st.title("zip")
+
+        # File uploader
+        uploaded_files = st.file_uploader("Choose a ZIP file", type="zip", accept_multiple_files=True)
+
+        if not uploaded_files:
+            st.warning("Vui lòng tải tệp Zip của bạn")
+        else:
+            st.success(f"Bạn đã tải thành công {len(uploaded_files)} zip")
+            all_xml_files = []
+            temp_folder = tempfile.mkdtemp()
+
+            for zip_files in uploaded_files:
+                shd = extract_number(zip_files.name)
+                original_in_zip_file = extract_zipfile(zip_files, temp_folder)
+                for file in original_in_zip_file:
+                    xml_file = shd + file[file.index('.xml'):]
+                    all_xml_files.append((xml_file, file))
+                    os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+
+            shutil.make_archive(temp_folder, 'tar', temp_folder)
+            with open(temp_folder + '.tar', 'rb') as f:
+                if st.download_button("Tải thư mục XML", f, file_name="extracted_xml_files.tar"):
+                    downloading_message = 'Đang tải thư mục ...'
+                    progress_bar = st.progress(0, text=downloading_message)
+                    for percent_complete in range(100):
+                        time.sleep(0.01)
+                        progress_bar.progress(percent_complete + 1, text=downloading_message)
+                    time.sleep(1)
+                    st.success("Đã tải thư mục XML thành công")
+
+    
 if __name__ == "__main__":
     main()
