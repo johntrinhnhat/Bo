@@ -44,7 +44,11 @@ def pxk_data_from_xml(file):
     tree = ET.parse(file)
     root = tree.getroot()
     shdon = int(root.find('.//TTChung/SHDon').text) 
-    tendvi = root.find('.//NMua/Ten').text 
+    nmua = root.find('.//NMua/Ten').text 
+    nmua_dc = root.find('.//NMua/DChi').text
+    nban = (root.find('.//NBan/Ten').text).replace('HỘ KINH DOANH', '').strip().title()
+    nban_mst = root.find('.//NBan/MST').text
+    nban_dc = (root.find('.//NBan/DChi').text).replace(', Bà Rịa - Vũng Tàu', '').strip()
     date = convert_date_format(root.find('.//NLap').text) 
     tbc = root.find('.//TgTTTBChu').text 
     ts = int(root.find('.//TgTTTBSo').text)
@@ -62,9 +66,9 @@ def pxk_data_from_xml(file):
         else:
             data.append([stt, thhdv, dvtinh, sluong, dgia, thtien, shdon])
 
-    return  shdon, tendvi, date, tbc, ts, ggia, data
+    return  shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data
 
-def display_pxk(shdon, tendvi, date, tbc, ts, ggia, data, all_data):
+def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data, all_data):
     columns = ['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Số hóa đơn']
     if ggia:
         columns.append('Giảm giá')
@@ -83,11 +87,11 @@ def display_pxk(shdon, tendvi, date, tbc, ts, ggia, data, all_data):
         'Thành tiền'
     ]]
 
-    all_data.append((shdon, tendvi, date, tbc, ts, ggia, df))
+    all_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df))
 
     st.subheader(f"Số hóa đơn: {shdon}")
     st.text(f"Ngày-Tháng-Năm: {date}")
-    st.text(f"Tên khách: {tendvi}")
+    st.text(f"Tên khách: {nmua}")
 
 
     st.dataframe(
@@ -103,31 +107,39 @@ def display_pxk(shdon, tendvi, date, tbc, ts, ggia, data, all_data):
 
     return df
 
-def display_ptt(shdon, tendvi, date, tbc, ts):
+def display_ptt(shdon, nmua, date, tbc, ts):
     st.subheader(f"Số hóa đơn: {shdon}")
     st.text(f"Ngày-Tháng-Năm: {date}")
-    st.text(f"Tên khách: {tendvi}")
+    st.text(f"Tên khách: {nmua}")
     st.text(f"Tổng tiền: {ts} đồng")
     st.text(f"Tổng iền bằng chữ: {tbc}")
 
-def ptt_excel(wb, shdon, tendvi, date, tbc, ts):
+def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
     template_sheet = wb['Template']
     # Create a new sheet by copying the template sheet
     new_sheet_name = f"{shdon}"  # Ensure the sheet name is within 31 characters
     wb.copy_worksheet(template_sheet).title = new_sheet_name
     ws = wb[new_sheet_name]
-    print(type(shdon))
+
+    if 'Địa chỉ' in template_sheet['A2'].value:
+        parts = template_sheet['A2'].value.split('\n', 1) 
+        new_value = f"{parts[0].strip()} {nban_dc}\n{parts[1].strip()} {nban_mst}"
+    ws['A7'] = f"Địa chỉ: {nmua_dc}"
+    ws['A2'] = new_value
+    ws['A1'] = f"Hộ kinh doanh: {nban}"
+    ws['A17'] = nban
+    ws['C17'] = nban
     ws['B4'] = date
     ws['F14'] = date
-    ws['D6'] = tendvi
-    ws['D12'] = shdon
     ws['C10'] = tbc
     ws['C24'] = tbc
     ws['B9'] = ts
     ws['C23'] = ts
+    ws['D6'] = nmua
+    ws['D12'] = shdon
 
 
-def pxk_excel(wb, shdon, tendvi, date, tbc, ggia, df):
+def pxk_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ggia, df):
     template_sheet = wb['Template']
     
     # Create a new sheet by copying the template sheet
@@ -135,10 +147,17 @@ def pxk_excel(wb, shdon, tendvi, date, tbc, ggia, df):
     wb.copy_worksheet(template_sheet).title = new_sheet_name
     ws = wb[new_sheet_name]
 
+    if 'Địa chỉ' in template_sheet['A2'].value:
+        parts = template_sheet['A2'].value.split('\n', 1) 
+        new_value = f"{parts[0].strip()} {nban_dc}\n{parts[1].strip()} {nban_mst}"
+    ws['A2'] = new_value
+    ws['A1'] = f"Hộ kinh doanh: {nban}"
     ws['A4'] = date
     ws['C41'] = shdon
+    ws['C45'] = nban
+    ws['F45'] = nban
     ws['C40'] = tbc
-    ws['A6'] = f"Tên đơn vị mua hàng: {tendvi}"
+    ws['A6'] = f"Tên đơn vị mua hàng: {nmua}"
 
     if ggia:
         ws['D39'] = ggia 
@@ -180,17 +199,20 @@ def main():
 
     tab1.title("Phiếu xuất kho")
     tab2.title("Phiếu thu tiền")
+    tab3.title("Zip => XML")
+
     ## TAB 1
     with tab1:
         if xml_files:
             for uploaded_file in xml_files:
-                shdon, tendvi,date, tbc, ts, ggia, data= pxk_data_from_xml(uploaded_file)
+                
+                shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data= pxk_data_from_xml(uploaded_file)
                 with st.container(border=True): 
-                    display_pxk(shdon, tendvi, date, tbc, ts, ggia, data, all_data)
+                    display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data, all_data)
                 ## TAB 2
                 with tab2:
                     with st.container(border=True):
-                        display_ptt(shdon, tendvi, date, tbc, ts)
+                        display_ptt(shdon, nmua, date, tbc, ts)
 
             if 'create_success' not in st.session_state:
                 st.session_state['create_success'] = False
@@ -237,9 +259,9 @@ def main():
                         ptt_wb = load_workbook(ptt_file_path)
 
 
-                        for shdon, tendvi, date, tbc, ts, ggia, df in all_data:
-                            pxk_excel(pxk_wb, shdon, tendvi,date, tbc, ggia, df)
-                            ptt_excel(ptt_wb, shdon, tendvi,date, tbc, ts)
+                        for shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in all_data:
+                            pxk_excel(pxk_wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ggia, df)
+                            ptt_excel(ptt_wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts)
 
 
                         if len(pxk_wb.sheetnames) > 1:
@@ -282,49 +304,37 @@ def main():
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                             key="ptt"
                         )
-                            
-    
-    #     if xml_files:
-    #         print(type(xml_files))
-    #         for uploaded_file in xml_files:
-    #             print(uploaded_file)
-    #             timing, shd, tdv, ts, tc = ptt_data_from_xml(uploaded_file)
-                # print(timing, shd, tdv, ts, tc)
-            #     with st.container(border=True): 
-            #         display_ptt(shdon, tendvi, date, tbc, ggia, data, all_data)
 
 
-    # with tab3:
-    #     st.title("Zip => XML")
+    with tab3:
+        # File uploader
+        uploaded_files = st.file_uploader("Nhập Zip files", type="zip", accept_multiple_files=True)
 
-    #     # File uploader
-    #     uploaded_files = st.file_uploader("Nhập Zip files", type="zip", accept_multiple_files=True)
+        if not uploaded_files:
+            st.warning("Vui lòng tải tệp Zip của bạn")
+        else:
+            st.success(f"Bạn đã tải thành công {len(uploaded_files)} zip")
+            all_xml_files = []
+            temp_folder = tempfile.mkdtemp()
 
-    #     if not uploaded_files:
-    #         st.warning("Vui lòng tải tệp Zip của bạn")
-    #     else:
-    #         st.success(f"Bạn đã tải thành công {len(uploaded_files)} zip")
-    #         all_xml_files = []
-    #         temp_folder = tempfile.mkdtemp()
+            for zip_files in uploaded_files:
+                shd = extract_number(zip_files.name)
+                original_in_zip_file = extract_zipfile(zip_files, temp_folder)
+                for file in original_in_zip_file:
+                    xml_file = shd + file[file.index('.xml'):]
+                    all_xml_files.append((xml_file, file))
+                    os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
 
-    #         for zip_files in uploaded_files:
-    #             shd = extract_number(zip_files.name)
-    #             original_in_zip_file = extract_zipfile(zip_files, temp_folder)
-    #             for file in original_in_zip_file:
-    #                 xml_file = shd + file[file.index('.xml'):]
-    #                 all_xml_files.append((xml_file, file))
-    #                 os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
-
-    #         shutil.make_archive(temp_folder, 'tar', temp_folder)
-    #         with open(temp_folder + '.tar', 'rb') as f:
-    #             if st.download_button("Tải thư mục XML", f, file_name="extracted_xml_files.tar"):
-    #                 downloading_message = 'Đang tải thư mục ...'
-    #                 progress_bar = st.progress(0, text=downloading_message)
-    #                 for percent_complete in range(100):
-    #                     time.sleep(0.01)
-    #                     progress_bar.progress(percent_complete + 1, text=downloading_message)
-    #                 time.sleep(1)
-    #                 st.success("Đã tải thư mục XML thành công")
+            shutil.make_archive(temp_folder, 'tar', temp_folder)
+            with open(temp_folder + '.tar', 'rb') as f:
+                if st.download_button("Tải thư mục XML", f, file_name="extracted_xml_files.tar"):
+                    downloading_message = 'Đang tải thư mục ...'
+                    progress_bar = st.progress(0, text=downloading_message)
+                    for percent_complete in range(100):
+                        time.sleep(0.01)
+                        progress_bar.progress(percent_complete + 1, text=downloading_message)
+                    time.sleep(1)
+                    st.success("Đã tải thư mục XML thành công")
     
     
 if __name__ == "__main__":
