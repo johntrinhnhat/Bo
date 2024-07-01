@@ -1,5 +1,6 @@
 import io
 import os
+import re
 import shutil
 import tempfile
 import streamlit as st
@@ -31,7 +32,6 @@ def extract_zipfile(zip_file, extract_to):
                 zip_ref.extract(file, extract_to)
     return extracted_files
 
-
 def zip_folder(folder_path, output_zip):
     with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for root, dirs, files in os.walk(folder_path):
@@ -52,7 +52,7 @@ def extract_number(string):
 # Function to extract data from an XML file
 def extract_data_from_xml(file):
     data=[]
-    ggia = 0  # Initialize ggia with a default value
+    ggia = 0
     tree = ET.parse(file)
     root = tree.getroot()
     shdon = int(root.find('.//TTChung/SHDon').text) 
@@ -61,55 +61,56 @@ def extract_data_from_xml(file):
     tbc = root.find('.//TgTTTBChu').text 
     
     for item in root.findall('.//HHDVu'):
-        stt = item.find('STT').text if item.find('STT') is not None else ''
-        thhdv = item.find('THHDVu').text if item.find('THHDVu') is not None else ''
-        dvtinh = item.find('DVTinh').text if item.find('DVTinh') is not None else ''
-        sluong = item.find('SLuong').text if item.find('SLuong') is not None else ''
-        dgia = item.find('DGia').text if item.find('DGia') is not None else ''
-        thtien = item.find('ThTien').text if item.find('ThTien') is not None else ''
-
-        try:
-            dgia = int(dgia.replace(',', '').replace('.', '')) if dgia else 0
-            thtien = int(thtien.replace(',', '').replace('.', '')) if thtien else 0
-            sluong = int(sluong if sluong else 0)
-            stt = int(stt if stt else 0)
-            
-        except ValueError:
-            dgia = 0
-            thtien = 0
+        stt = int(item.find('STT').text) if item.find('STT') is not None else ""
+        thhdv = item.find('THHDVu').text if item.find('THHDVu') is not None else ""
+        dvtinh = item.find('DVTinh').text if item.find('DVTinh') is not None else ""
+        sluong = float(item.find('SLuong').text.replace(',', '')) if item.find('SLuong') is not None and item.find('SLuong').text else ""
+        dgia = int(item.find('DGia').text.replace(',', '').replace('.', '')) if item.find('DGia') is not None and item.find('DGia').text else ""
+        thtien = int(item.find('ThTien').text.replace(',', '').replace('.', '')) if item.find('ThTien') is not None and item.find('ThTien').text else ""
         
-        if 'Đã giảm' not in thhdv:  # Check if Sluong is not empty or None
-            data.append([stt, thhdv, dvtinh, sluong, dgia, thtien, shdon])
-        else:
-            ggia = thhdv[8:14].replace('.', '')
-            ggia = int(ggia)
+        if "Đã giảm" in thhdv:
+            ggia_number = re.search(r'(\d{1,3}(?:\.\d{3})*)\s+đồng', thhdv)
+            ggia = int(ggia_number.group(1).replace('.', ''))
             data.append([stt, thhdv, dvtinh, sluong, dgia, thtien, shdon, ggia])
+        else:
+            data.append([stt, thhdv, dvtinh, sluong, dgia, thtien, shdon])
 
         
     return  shdon, tendvi, date, tbc, ggia, data
-
+ 
 def display_invoice(shdon, tendvi, date, tbc, ggia, data, all_data):
     columns = ['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Số hóa đơn']
-    if ggia != 0:
+    if ggia:
         columns.append('Giảm giá')
 
     df = pd.DataFrame(data, columns=columns)
-    
+    df = df[df['Thành tiền'] != 0]
+    df.loc[:, 'Tên hàng hóa, dịch vụ'] = df['Tên hàng hóa, dịch vụ'].str.capitalize()
+    df.loc[:, 'Đơn vị tính'] = df['Đơn vị tính'].str.capitalize()
+
+    df = df[[
+        'STT', 
+        'Tên hàng hóa, dịch vụ', 
+        'Đơn vị tính', 
+        'Số lượng', 
+        'Đơn giá', 
+        'Thành tiền'
+    ]]
+
     all_data.append((shdon, tendvi, date, tbc, ggia, df))
 
     st.subheader(f"Số hóa đơn: {shdon}")
     st.text(f"Năm-Tháng-Ngày: {date}")
     st.text(f"Tên khách: {tendvi}")
-    df.loc[:, 'Tên hàng hóa, dịch vụ'] = df['Tên hàng hóa, dịch vụ'].str.capitalize()
-    df.loc[:, 'Đơn vị tính'] = df['Đơn vị tính'].str.capitalize()
-    
 
-    df = df[['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền']]
-    df = df[df['Đơn vị tính'].notna()]
-    df['Đơn giá'] = df['Đơn giá'].astype(int)
-    df['Thành tiền'] = df['Thành tiền'].astype(int)
-    # print(df['Tên hàng hóa, dịch vụ'])
-    st.dataframe(df.style.hide(axis="index"), width=800)
+    st.dataframe(
+        df.style.format({
+        'Số lượng': lambda x: f'{x:.1f}'.replace('.', ','),
+        'Đơn giá': lambda x: f"{x:,.0f}".replace(',', '.'),
+        'Thành tiền': lambda x: f"{x:,.0f}".replace(',', '.')}),
+        width=800
+    )
+    
     st.text(f"Giảm giá: {ggia} đồng")
     st.text(f"Tổng thành tiền: {tbc}")
 
@@ -119,7 +120,7 @@ def update_excel(wb, shdon, tendvi, date, tbc, ggia, df):
     template_sheet = wb['Template']
     
     # Create a new sheet by copying the template sheet
-    new_sheet_name = f"Hóa đơn_{shdon}"  # Ensure the sheet name is within 31 characters
+    new_sheet_name = f"{shdon}"  # Ensure the sheet name is within 31 characters
     wb.copy_worksheet(template_sheet).title = new_sheet_name
     ws = wb[new_sheet_name]
 
@@ -167,7 +168,7 @@ def main():
     with tab1:
         if xml_files:
             for uploaded_file in xml_files:
-                shdon, tendvi,date, tbc, ggia, data = extract_data_from_xml(uploaded_file)
+                shdon, tendvi,date, tbc, ggia, data= extract_data_from_xml(uploaded_file)
                 with st.container(border=True): 
                     display_invoice(shdon, tendvi, date, tbc, ggia, data, all_data)
 
@@ -197,7 +198,7 @@ def main():
                             time.sleep(1.5)
                             st.success("Tạo phiếu xuất kho thành công")
 
-                            excel_file_path = 'excel.xlsx'
+                            excel_file_path = 'Template.xlsx'
                             wb = load_workbook(excel_file_path)
 
                             for shdon, tendvi, date, tbc, ggia, df in all_data:
@@ -224,10 +225,10 @@ def main():
                                 key="download_excel_unique"
                         )
     with tab2:
-        st.title("zip")
+        st.title("Zip => XML")
 
         # File uploader
-        uploaded_files = st.file_uploader("Choose a ZIP file", type="zip", accept_multiple_files=True)
+        uploaded_files = st.file_uploader("Nhập Zip files", type="zip", accept_multiple_files=True)
 
         if not uploaded_files:
             st.warning("Vui lòng tải tệp Zip của bạn")
