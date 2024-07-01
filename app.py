@@ -64,10 +64,10 @@ def extract_data_from_xml(file):
         stt = int(item.find('STT').text) if item.find('STT') is not None else ""
         thhdv = item.find('THHDVu').text if item.find('THHDVu') is not None else ""
         dvtinh = item.find('DVTinh').text if item.find('DVTinh') is not None else ""
-        sluong = float(item.find('SLuong').text.replace(',', '')) if item.find('SLuong') is not None and item.find('SLuong').text else ""
-        dgia = int(item.find('DGia').text.replace(',', '').replace('.', '')) if item.find('DGia') is not None and item.find('DGia').text else ""
-        thtien = int(item.find('ThTien').text.replace(',', '').replace('.', '')) if item.find('ThTien') is not None and item.find('ThTien').text else ""
-        
+        sluong = float(item.find('SLuong').text.replace(',', '')) if item.find('SLuong') is not None and item.find('SLuong').text else 0
+        dgia = int(item.find('DGia').text.replace(',', '').replace('.', '')) if item.find('DGia') is not None and item.find('DGia').text else 0
+        thtien = int(item.find('ThTien').text.replace(',', '').replace('.', '')) if item.find('ThTien') is not None and item.find('ThTien').text else 0
+        print(type(dgia))
         if "Đã giảm" in thhdv:
             ggia_number = re.search(r'(\d{1,3}(?:\.\d{3})*)\s+đồng', thhdv)
             ggia = int(ggia_number.group(1).replace('.', ''))
@@ -102,6 +102,7 @@ def display_invoice(shdon, tendvi, date, tbc, ggia, data, all_data):
     st.subheader(f"Số hóa đơn: {shdon}")
     st.text(f"Năm-Tháng-Ngày: {date}")
     st.text(f"Tên khách: {tendvi}")
+
 
     st.dataframe(
         df.style.format({
