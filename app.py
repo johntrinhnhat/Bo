@@ -1,4 +1,3 @@
-import io
 import os
 import re
 import shutil
@@ -11,9 +10,6 @@ import time
 import zipfile
 from io import BytesIO
 from openpyxl import load_workbook
-
-def format_number(num): 
-    return f"{num:,}".replace(',', '.')
 
 def convert_date_format(date_str):
     # Parse the date string
@@ -31,14 +27,6 @@ def extract_zipfile(zip_file, extract_to):
                 extracted_files.append(file)
                 zip_ref.extract(file, extract_to)
     return extracted_files
-
-def zip_folder(folder_path, output_zip):
-    with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for root, dirs, files in os.walk(folder_path):
-            for file in files:
-                zipf.write(os.path.join(root, file),
-                           os.path.relpath(os.path.join(root, file),
-                           os.path.join(folder_path, '..')))
 
 def extract_number(string):
     # Find the position of the last underscore and the '.zip' extension
