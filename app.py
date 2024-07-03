@@ -18,7 +18,6 @@ def convert_date_format(date_str):
     # Format the date in the desired format
     formatted_date = f"Ngày {date_obj.day:02} tháng {date_obj.month:02} năm {date_obj.year}"
     return formatted_date
-
 def extract_zipfile(zip_file, extract_to):
     extracted_files = []
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
@@ -38,6 +37,7 @@ def extract_number(string):
     return number
 
 # Function to extract data from an XML file
+@st.cache_data
 def pxk_data_from_xml(file):
     data=[]
     ggia = 0
@@ -68,6 +68,7 @@ def pxk_data_from_xml(file):
 
     return  shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data
 
+@st.cache_data
 def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data, all_data):
     columns = ['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Số hóa đơn']
     if ggia:
@@ -138,7 +139,6 @@ def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
     ws['D6'] = nmua
     ws['D12'] = shdon
 
-
 def pxk_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ggia, df):
     template_sheet = wb['Template']
     
@@ -153,6 +153,7 @@ def pxk_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ggia
     ws['A2'] = new_value
     ws['A1'] = f"Hộ kinh doanh: {nban}"
     ws['A4'] = date
+    ws['A8'] = f"Địa điểm xuất kho: {nban_dc}"
     ws['C41'] = shdon
     ws['C45'] = nban
     ws['F45'] = nban
