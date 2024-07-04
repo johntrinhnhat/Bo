@@ -209,6 +209,7 @@ def download_auto(driver, action):
                     time.sleep(2)
                     download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
                     download_button.click()
+                    
                     time.sleep(1.5)
 
                     close_button = driver.find_element(By.XPATH, "//button[@aria-label='Close']")
@@ -442,17 +443,16 @@ def main():
                     st.write("Đang tải tệp Zip ...")
                     download_auto(driver, action)
                     status.update(label="Đã tải tệp Zip", state="complete", expanded=False)
-                    print("No next page")
+
                 else:
-                    print(f"Available next page: {[page.get_attribute("aria-label") for page in next_pages]}")
                     st.write("Đang tải tệp Zip ...")
                     download_auto(driver, action)
                     for page in next_pages:
+                        page_name = page.get_attribute("aria-label")
                         st.write("Đang tìm trang mới")
                         page.click()
                         download_auto(driver, action)
-                        print(f"DATA IS DOWNLOADED IN {page.get_attribute("aria-label")}")
-                        
+                        print(f"Đã tải 100 Zip ở {page_name}")                        
 
 
                 time.sleep(10)
