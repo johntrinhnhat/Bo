@@ -17,7 +17,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import StaleElementReferenceException 
+from selenium.common.exceptions import StaleElementReferenceException
+from webdriver_manager.chrome import ChromeDriverManager
+
 
 def convert_date_format(date_str):
     # Parse the date string
@@ -379,8 +381,8 @@ def main():
         if st.button("Tải tệp tự động"):
             with st.status("Đang tải Zip ...", expanded=True) as status:
 
-                PATH = r"C:\Program Files (x86)\chromedriver.exe"
-                service = Service(PATH)
+                # PATH = r"C:\Program Files (x86)\chromedriver.exe"
+                service = Service(ChromeDriverManager().install())
                 driver = webdriver.Chrome(service=service)
                 action=ActionChains(driver,10)
                 wait = WebDriverWait(driver, 10)
