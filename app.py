@@ -10,15 +10,6 @@ import time
 import zipfile
 from io import BytesIO
 from openpyxl import load_workbook
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import StaleElementReferenceException
-from webdriver_manager.chrome import ChromeDriverManager
 
 
 def convert_date_format(date_str):
@@ -79,7 +70,7 @@ def pxk_data_from_xml(file):
     return  shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data
 
 @st.cache_data
-def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data, all_data):
+def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data):
     columns = ['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Số hóa đơn']
     if ggia:
         columns.append('Giảm giá')
@@ -98,7 +89,7 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
         'Thành tiền'
     ]]
 
-    all_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df))
+    # all_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df))
 
     st.subheader(f"Số hóa đơn: {shdon}")
     st.text(f"Ngày-Tháng-Năm: {date}")
@@ -148,7 +139,7 @@ def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
     ws['D6'] = nmua
     ws['D12'] = shdon
 
-def pxk_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ggia, df):
+def pxk_excel(wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df):
     template_sheet = wb['Template']
     
     # Create a new sheet by copying the template sheet
@@ -192,35 +183,8 @@ def download():
 def download_ptt():
     st.session_state['download_success_ptt'] = True
     
-def download_auto(driver, action):
-                icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
-                icons = icons[:len(icons)//2]
-                print(len(icons))
-
-                for icon in icons:
-                    try:
-                        action.move_to_element(icon).perform()
-                        driver.implicitly_wait(2)
-                    except StaleElementReferenceException:
-                        icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
-                        action.move_to_element(icon).perform()
-                        print("MOVED TO ELEMENT AFTER RE-FINDING")
-
-
-                    driver.execute_script("arguments[0].click();", icon)
-                    time.sleep(2)
-                    download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-                    download_button.click()
-                    
-                    time.sleep(1.5)
-
-                    close_button = driver.find_element(By.XPATH, "//button[@aria-label='Close']")
-                    close_button.click()
-                    time.sleep(1.5)
-
 
 def main():
-    all_data = []
     with st.sidebar:
         xml_files = st.file_uploader("Nhập XML files", accept_multiple_files=True, type='xml')
         if len(xml_files) == 0:
@@ -239,15 +203,21 @@ def main():
     ## TAB 1
     with tab1:
         if xml_files:
+            all_data = []
             for uploaded_file in xml_files:
                 
                 shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data= pxk_data_from_xml(uploaded_file)
+
                 with st.container(border=True): 
-                    display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data, all_data)
+                    df = display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data)
+                    all_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts ,ggia, df))
+                    
                 ## TAB 2
                 with tab2:
                     with st.container(border=True):
                         display_ptt(shdon, nmua, date, tbc, ts)
+
+            print(len(all_data))
 
             if 'create_success' not in st.session_state:
                 st.session_state['create_success'] = False
@@ -280,7 +250,7 @@ def main():
                     st.session_state['download_success_ptt'] = False
 
                 if not st.session_state['create_success']:
-                    if st.button('Tạo phiếu xuất kho và thu tiền', type='primary', key='xk_btn', on_click=create):
+                    if st.button('Tạo phiếu xuất kho và thu tiền', type='primary', key='btn', on_click=create):
                         pass
                 else:
                     with st.spinner("Đang tạo phiếu ..."):
@@ -293,11 +263,11 @@ def main():
                         pxk_wb = load_workbook(pxk_file_path)
                         ptt_wb = load_workbook(ptt_file_path)
 
+                        for shdon, nmua, _ , nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in all_data:
+                            pxk_excel(pxk_wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df)
 
-                        for shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in all_data:
-                            pxk_excel(pxk_wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ggia, df)
+                        for shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in all_data:    
                             ptt_excel(ptt_wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts)
-
 
                         if len(pxk_wb.sheetnames) > 1:
                             pxk_wb.active = 1  # Set any other sheet as the active one
@@ -371,94 +341,6 @@ def main():
                     time.sleep(1)
                     st.success("Đã tải thư mục XML thành công")
     
-    with tab4:
-        col1, col2 = st.columns(2)
-        with col1:
-            start_date = (st.date_input("Từ", format="DD/MM/YYYY")).strftime("%d/%m/%Y")
-        with col2:
-            end_date = (st.date_input("Đến", format="DD/MM/YYYY")).strftime("%d/%m/%Y")
-        
-        if st.button("Tải tệp tự động"):
-            with st.status("Đang tải Zip ...", expanded=True) as status:
-
-                # PATH = r"C:\Program Files (x86)\chromedriver.exe"
-                service = Service(ChromeDriverManager().install())
-                driver = webdriver.Chrome(service=service)
-                action=ActionChains(driver,10)
-                wait = WebDriverWait(driver, 10)
-                st.write("Đang tìm kiếm trang đăng nhập ...")
-                driver.get('https://hkd.vnpt.vn/Account/Login')
-
-                driver.implicitly_wait(2)
-                # Wait for the login page to load and find the username and password fields
-                wait.until(
-                    EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
-                )
-
-                username = driver.find_element(By.NAME, 'UserName')
-                password = driver.find_element(By.NAME, 'Password')
-
-                st.write("Đang đăng nhập ...")
-                username.send_keys('hokinhdoanhhuaboivan@gmail.com')
-                password.send_keys('Abc@1234')
-                password.send_keys(Keys.RETURN)
-                driver.implicitly_wait(2)
-
-                nav_link = wait.until(
-                    EC.presence_of_element_located((By.XPATH, "//a[@href='/DashBoard/QuanLyHoaDon']"))
-                )
-
-                nav_link.click()
-                st.write("Đang chuyển đến quản lý hóa đơn ... ")
-                time.sleep(2)
-
-
-                qlhd = wait.until(
-                    EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
-                )
-
-                qlhd.click()
-                driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
-                time.sleep(2)
-
-                date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
-                date_btn[0].clear()
-                date_btn[0].send_keys(start_date)
-                date_btn[1].clear()
-                date_btn[1].send_keys(end_date)
-
-                search_btn = wait.until(
-                    EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
-                )
-                search_btn[3].click()
-                time.sleep(2)
-
-                page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 100 items on page']")
-                
-                page_size.click()
-                time.sleep(2)
-
-                all_pages = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
-                next_pages = all_pages.find_elements(By.XPATH, "//div[@class='dx-page']")
-
-                if not next_pages:
-                    st.write("Đang tải tệp Zip ...")
-                    download_auto(driver, action)
-                    status.update(label="Đã tải tệp Zip", state="complete", expanded=False)
-
-                else:
-                    st.write("Đang tải tệp Zip ...")
-                    download_auto(driver, action)
-                    for page in next_pages:
-                        page_name = page.get_attribute("aria-label")
-                        st.write("Đang tìm trang mới")
-                        page.click()
-                        download_auto(driver, action)
-                        print(f"Đã tải 100 Zip ở {page_name}")                        
-
-
-                time.sleep(10)
-
 
 if __name__ == "__main__":
     main()
