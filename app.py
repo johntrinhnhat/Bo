@@ -45,7 +45,7 @@ def download_zip(driver, action):
 
                     driver.implicitly_wait(3)
 
-                    close_button = driver.find_element(By.XPATH, "//button[@aria-label='Close']")
+                    close_button = driver.find_element(By.XPATH, "//button[@class='close']")
                     close_button.click()
                     driver.implicitly_wait(3)
 
