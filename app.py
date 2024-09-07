@@ -407,16 +407,16 @@ def main():
             password.send_keys(os.getenv('password'))
             password.send_keys(Keys.RETURN)
 
-            driver.implicitly_wait(2)
+            driver.implicitly_wait(5)
 
             nav_link = wait.until(
-                EC.element_to_be_clickable((By.XPATH, "//a[@href='/DashBoard/QuanLyHoaDon']"))
+                EC.presence_of_element_located((By.XPATH, "//a[@href='/DashBoard/QuanLyHoaDon']"))
             )
             st.write(nav_link)
 
             nav_link.click()
 
-            driver.implicitly_wait(2)
+            driver.implicitly_wait(5)
 
 
             qlhd = wait.until(
