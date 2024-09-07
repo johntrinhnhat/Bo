@@ -22,33 +22,34 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 def download_zip(driver, action):
-                icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
-                icons = icons[:len(icons)//2]
-                st.write(f"Icon len: {len(icons)}")
+    icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+    icons = icons[:len(icons)//2]
+    st.write(f"Icon len: {len(icons)}")
 
-                for icon in icons:
-                    try:
-                        action.move_to_element(icon).perform()
-                        driver.implicitly_wait(2)
-                        # print(f"MOVED TO ELEMENT")
-                    except StaleElementReferenceException:
-                        icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
-                        action.move_to_element(icon).perform()
-                        print("MOVED TO ELEMENT AFTER RE-FINDING")
+    for icon in icons:
+        try:
+            action.move_to_element(icon).perform()
+            driver.implicitly_wait(2)
+            # print(f"MOVED TO ELEMENT")
+        except StaleElementReferenceException:
+            icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+            action.move_to_element(icon).perform()
+            print("MOVED TO ELEMENT AFTER RE-FINDING")
 
 
-                    driver.execute_script("arguments[0].click();", icon)
-                    driver.implicitly_wait(10)
-                    download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-                    # download_button.click()
-                    driver.execute_script("arguments[0].click();", download_button)
-                    driver.implicitly_wait(3)
-                    st.write("Downloaded")
+        driver.execute_script("arguments[0].click();", icon)
+        driver.implicitly_wait(10)
+        
+        download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+        # download_button.click()
+        driver.execute_script("arguments[0].click();", download_button)
+        driver.implicitly_wait(3)
+        st.write("Downloaded")
 
-                    # close_button = driver.find_element(By.XPATH, "//button[@class='close' and @aria-label='Close']")
-                    # # close_button.click()
-                    # st.write(close_button)
-                    driver.implicitly_wait(3)
+        # close_button = driver.find_element(By.XPATH, "//button[@class='close' and @aria-label='Close']")
+        # # close_button.click()
+        # st.write(close_button)
+        driver.implicitly_wait(3)
 
 def convert_date_format(date_str):
     # Parse the date string
@@ -388,6 +389,10 @@ def main():
             chrome_options.add_argument("--headless")
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument("--disable-dev-shm-usage")
+
+            prefs = {"download.default_directory": os.getcwd(),
+             "download.prompt_for_download": False}
+            chrome_options.add_experimental_option("prefs", prefs)
 
             # Point the browser to the correct location
             chrome_options.binary_location = "/usr/bin/chromium"
