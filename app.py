@@ -45,7 +45,7 @@ def download_zip(driver, action):
                     driver.implicitly_wait(3)
                     st.write("Downloaded")
 
-                    close_button = driver.find_element(By.XPATH, "//button[@class='close']")
+                    close_button = driver.find_element(By.XPATH, "//button[@class='close' and @aria-label='Close']")
                     # close_button.click()
                     st.write(close_button)
                     driver.implicitly_wait(3)
@@ -385,7 +385,7 @@ def main():
 
         if st.button("Tải Zip tự động"):
             chrome_options = webdriver.ChromeOptions()
-            chrome_options.add_argument("--headless")
+            # chrome_options.add_argument("--headless")
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument("--disable-dev-shm-usage")
 
