@@ -24,7 +24,7 @@ from selenium.webdriver.common.keys import Keys
 def download_zip(driver, action):
                 icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
                 icons = icons[:len(icons)//2]
-                print(len(icons))
+                st.write(len(icons))
 
                 for icon in icons:
                     try:
@@ -40,8 +40,8 @@ def download_zip(driver, action):
                     driver.execute_script("arguments[0].click();", icon)
                     driver.implicitly_wait(10)
                     download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-                    # download_button.click()
-                    driver.execute_script("arguments[0].click();", download_button)
+                    download_button.click()
+                    # driver.execute_script("arguments[0].click();", download_button)
 
                     driver.implicitly_wait(3)
 
@@ -397,7 +397,6 @@ def main():
             wait = WebDriverWait(driver, 10)
 
             driver.get('https://hkd.vnpt.vn/Account/Login')
-            st.write("Go to log in website ...")
             driver.implicitly_wait(2)
             # Wait for the login page to load and find the username and password fields
             wait.until(
@@ -405,29 +404,17 @@ def main():
             )
             username = driver.find_element(By.NAME, 'UserName')
             password = driver.find_element(By.NAME, 'Password')
-            st.write("Passing username and password ...")
             username.send_keys(os.getenv('username'))
             password.send_keys(os.getenv('password'))
             password.send_keys(Keys.RETURN)
-            st.write("Signing in ...")
 
             driver.implicitly_wait(5)
-
-            # nav_link = wait.until(
-            #     EC.presence_of_element_located((By.XPATH, "//a[@href='/DashBoard/QuanLyHoaDon']"))
-            # )
-            # nav_link.click()
-            # st.write("Nav link clicked")
-            # driver.implicitly_wait(5)
-
 
             qlhd = wait.until(
                 EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
             )
-            st.write(f"Found qlhd link: {qlhd}")
 
             driver.execute_script("arguments[0].click();", qlhd)
-            st.write("Clicked qlhd")
             driver.implicitly_wait(2)
 
             driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
@@ -437,17 +424,14 @@ def main():
             date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
             date_btn[0].clear()
             date_btn[0].send_keys(start_date)
-            st.write("Import start date")
             date_btn[1].clear()
             date_btn[1].send_keys(end_date)
-            st.write("Import end date")
 
 
             search_btn = wait.until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
             )
             search_btn[3].click()
-            st.write("Clicked search button")
             time.sleep(3)
 
             page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 25 items on page']")
@@ -455,7 +439,6 @@ def main():
             #     EC.presence_of_element_located((By.XPATH, "//div[@aria-label='Display 25 items on page']"))
             # )
             page_size.click()
-            st.write("Clicked page size")
             time.sleep(5)
 
             
