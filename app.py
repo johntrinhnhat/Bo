@@ -386,13 +386,16 @@ def main():
 
         if st.button("Tải Zip tự động"):
             chrome_options = webdriver.ChromeOptions()
-            chrome_options.add_argument("--headless")
+            # chrome_options.add_argument("--headless")
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument("--disable-dev-shm-usage")
-
-            prefs = {"download.default_directory": os.getcwd(),
-             "download.prompt_for_download": False}
-            chrome_options.add_experimental_option("prefs", prefs)
+            chrome_options.add_experimental_option("prefs", {
+                "download.default_directory": r"C:\Users\Khoi\Downloads",
+                "download.prompt_for_download": False,
+                "download.directory_upgrade": True,
+                "safebrowsing.enabled": True
+            })
+            
 
             # Point the browser to the correct location
             chrome_options.binary_location = "/usr/bin/chromium"
