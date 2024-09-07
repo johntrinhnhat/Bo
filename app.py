@@ -382,7 +382,7 @@ def main():
 
         if st.button("Tải Zip tự động"):
             chrome_options = Options()
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager(driver_version="127.0.6533.89").install()), options=chrome_options)
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
             action=ActionChains(driver,10)
             wait = WebDriverWait(driver, 10)
 
