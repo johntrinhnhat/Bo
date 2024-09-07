@@ -376,9 +376,9 @@ def main():
     with tab4:
         date_start, date_end = st.columns(2)
         with date_start:
-            start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY")
+            start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY").strftime("%d-%m-%Y")
         with date_end:
-            end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY")
+            end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY").strftime("%d-%m-%Y")
 
         if st.button("Tải Zip tự động"):
             chrome_options = webdriver.ChromeOptions()
