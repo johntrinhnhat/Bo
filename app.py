@@ -46,9 +46,9 @@ def download_zip(driver, action):
         driver.implicitly_wait(3)
         st.write("Downloaded")
 
-        # close_button = driver.find_element(By.XPATH, "//button[@class='close' and @aria-label='Close']")
-        # # close_button.click()
-        # st.write(close_button)
+        close_button = driver.find_element(By.XPATH, "//button[@aria-label='Close']")
+        close_button.click()
+        st.write(close_button)
         driver.implicitly_wait(3)
 
 def convert_date_format(date_str):
