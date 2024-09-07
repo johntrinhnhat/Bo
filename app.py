@@ -49,7 +49,7 @@ def download_zip(driver, action, wait):
         st.write("Downloaded")
 
         close_button = wait.until(
-            EC.element_to_be_clickable((By.XPATH, "//button[@aria-label='Close']")))
+            EC.presence_of_element_located((By.XPATH, "//button[@aria-label='Close']")))
         close_button.click()
         st.write(close_button)
         driver.implicitly_wait(3)
