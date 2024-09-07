@@ -24,7 +24,7 @@ from selenium.webdriver.common.keys import Keys
 def download_zip(driver, action):
                 icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
                 icons = icons[:len(icons)//2]
-                st.write(len(icons))
+                st.write(f"Icon len: {len(icons)}")
 
                 for icon in icons:
                     try:
@@ -40,13 +40,14 @@ def download_zip(driver, action):
                     driver.execute_script("arguments[0].click();", icon)
                     driver.implicitly_wait(10)
                     download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-                    download_button.click()
-                    # driver.execute_script("arguments[0].click();", download_button)
-
+                    # download_button.click()
+                    driver.execute_script("arguments[0].click();", download_button)
                     driver.implicitly_wait(3)
+                    st.write("Downloaded")
 
                     close_button = driver.find_element(By.XPATH, "//button[@class='close']")
-                    close_button.click()
+                    # close_button.click()
+                    st.write(close_button)
                     driver.implicitly_wait(3)
 
 def convert_date_format(date_str):
