@@ -392,7 +392,7 @@ def main():
             # Use chromedriver installed by the system package manager
             driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
             action=ActionChains(driver,10)
-            wait = WebDriverWait(driver, 10)
+            wait = WebDriverWait(driver, 20)
 
             driver.get('https://hkd.vnpt.vn/Account/Login')
             driver.implicitly_wait(2)
@@ -412,6 +412,7 @@ def main():
             nav_link = wait.until(
                 EC.element_to_be_clickable((By.XPATH, "//a[@href='/DashBoard/QuanLyHoaDon']"))
             )
+            st.write(nav_link)
 
             nav_link.click()
 
