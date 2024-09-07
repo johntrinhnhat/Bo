@@ -21,7 +21,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-def download(driver, action):
+def download_zip(driver, action):
                 icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
                 icons = icons[:len(icons)//2]
                 print(len(icons))
@@ -460,19 +460,19 @@ def main():
 
             all_pages = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             available_next_pages = all_pages.find_elements(By.XPATH, "//div[@class='dx-page']")
-            st.write(f"All available next pages: {available_next_pages}")
+            st.write(f"All available next pages: {len(available_next_pages)}")
 
             if available_next_pages:
                 print(f"Available next page: {[page.get_attribute('aria-label') for page in available_next_pages]}")
-                download(driver, action)
+                download_zip(driver, action)
                 for next_page in available_next_pages:
                     next_page.click()
                     time.sleep(5)
-                    download(driver, action)
+                    download_zip(driver, action)
                     print(f"DATA IS DOWNLOADED IN {next_page.get_attribute('aria-label')}")
                     
             else:
-                download(driver, action)
+                download_zip(driver, action)
                 print("No next page")
         else:
             pass
