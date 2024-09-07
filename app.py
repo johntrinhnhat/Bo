@@ -392,9 +392,10 @@ def main():
             # Use chromedriver installed by the system package manager
             driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
             action=ActionChains(driver,10)
-            wait = WebDriverWait(driver, 20)
+            wait = WebDriverWait(driver, 10)
 
             driver.get('https://hkd.vnpt.vn/Account/Login')
+            st.write("Go to log in website ...")
             driver.implicitly_wait(2)
             # Wait for the login page to load and find the username and password fields
             wait.until(
@@ -402,20 +403,21 @@ def main():
             )
             username = driver.find_element(By.NAME, 'UserName')
             password = driver.find_element(By.NAME, 'Password')
-
+            st.write("Passing username and password ...")
             username.send_keys(os.getenv('username'))
             password.send_keys(os.getenv('password'))
             password.send_keys(Keys.RETURN)
+            st.write("Signing in ...")
 
             driver.implicitly_wait(5)
 
             nav_link = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//a[@href='/DashBoard/QuanLyHoaDon']"))
             )
-            st.write(nav_link)
+            st.write(f"Found nav link: {nav_link}")
 
             nav_link.click()
-
+            st.write("Nav link clicked")
             driver.implicitly_wait(5)
 
 
