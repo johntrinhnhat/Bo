@@ -411,12 +411,10 @@ def main():
 
             driver.implicitly_wait(5)
 
-            nav_link = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//a[@href='/DashBoard/QuanLyHoaDon']"))
-            )
-            st.write(f"Found nav link: {nav_link}")
-
-            nav_link.click()
+            # nav_link = wait.until(
+            #     EC.presence_of_element_located((By.XPATH, "//a[@href='/DashBoard/QuanLyHoaDon']"))
+            # )
+            # nav_link.click()
             st.write("Nav link clicked")
             driver.implicitly_wait(5)
 
@@ -424,6 +422,7 @@ def main():
             qlhd = wait.until(
                 EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
             )
+            st.write(f"Found qlhd link: {qlhd}")
 
             qlhd.click()
             driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
