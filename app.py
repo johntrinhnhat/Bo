@@ -382,6 +382,8 @@ def main():
 
         if st.button("Tải Zip tự động"):
             chrome_options = Options()
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--disable-dev-shm-usage')
             driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
             action=ActionChains(driver,10)
             wait = WebDriverWait(driver, 10)
