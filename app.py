@@ -11,6 +11,8 @@ import zipfile
 from io import BytesIO
 from openpyxl import load_workbook
 from selenium import webdriver
+from pathlib import Path
+
 # from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 # from selenium.webdriver.chrome.options import Options
@@ -21,7 +23,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-def download_zip(driver, action):
+def download_zip(driver, action, wait):
     icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
     icons = icons[:len(icons)//2]
     st.write(f"Icon len: {len(icons)}")
@@ -46,7 +48,8 @@ def download_zip(driver, action):
         driver.implicitly_wait(3)
         st.write("Downloaded")
 
-        close_button = driver.find_element(By.XPATH, "//button[@aria-label='Close']")
+        close_button = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[@aria-label='Close']")))
         close_button.click()
         st.write(close_button)
         driver.implicitly_wait(3)
@@ -390,7 +393,7 @@ def main():
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_experimental_option("prefs", {
-                "download.default_directory": r"C:\Users\Khoi\Downloads",
+                "download.default_directory": str(Path.home() / "Downloads"),
                 "download.prompt_for_download": False,
                 "download.directory_upgrade": True,
                 "safebrowsing.enabled": True
@@ -458,15 +461,15 @@ def main():
 
             if available_next_pages:
                 print(f"Available next page: {[page.get_attribute('aria-label') for page in available_next_pages]}")
-                download_zip(driver, action)
+                download_zip(driver, action, wait)
                 for next_page in available_next_pages:
                     next_page.click()
                     time.sleep(5)
-                    download_zip(driver, action)
+                    download_zip(driver, action, wait)
                     print(f"DATA IS DOWNLOADED IN {next_page.get_attribute('aria-label')}")
                     
             else:
-                download_zip(driver, action)
+                download_zip(driver, action, wait)
                 print("No next page")
         else:
             pass
