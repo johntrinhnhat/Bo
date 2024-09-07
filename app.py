@@ -447,7 +447,7 @@ def main():
             available_next_pages = all_pages.find_elements(By.XPATH, "//div[@class='dx-page']")
 
             if available_next_pages:
-                print(f"Available next page: {[page.get_attribute("aria-label") for page in available_next_pages]}")
+                print(f"Available next page: {[page.get_attribute('aria-label') for page in available_next_pages]}")
                 download(driver, action)
                 for next_page in available_next_pages:
                     next_page.click()
