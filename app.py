@@ -453,7 +453,7 @@ def main():
                     next_page.click()
                     time.sleep(5)
                     download(driver, action)
-                    print(f"DATA IS DOWNLOADED IN {next_page.get_attribute("aria-label")}")
+                    print(f"DATA IS DOWNLOADED IN {next_page.get_attribute('aria-label')}")
                     
             else:
                 download(driver, action)
