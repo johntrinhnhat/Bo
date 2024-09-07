@@ -10,7 +10,42 @@ import time
 import zipfile
 from io import BytesIO
 from openpyxl import load_workbook
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import StaleElementReferenceException 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
+def download(driver, action):
+                icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+                icons = icons[:len(icons)//2]
+                print(len(icons))
+
+                for icon in icons:
+                    try:
+                        action.move_to_element(icon).perform()
+                        driver.implicitly_wait(2)
+                        # print(f"MOVED TO ELEMENT")
+                    except StaleElementReferenceException:
+                        icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+                        action.move_to_element(icon).perform()
+                        print("MOVED TO ELEMENT AFTER RE-FINDING")
+
+
+                    driver.execute_script("arguments[0].click();", icon)
+                    driver.implicitly_wait(10)
+                    download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+                    download_button.click()
+                    driver.implicitly_wait(3)
+
+                    close_button = driver.find_element(By.XPATH, "//button[@aria-label='Close']")
+                    close_button.click()
+                    driver.implicitly_wait(3)
 
 def convert_date_format(date_str):
     # Parse the date string
@@ -269,14 +304,11 @@ def main():
                         for shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in all_data:    
                             ptt_excel(ptt_wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts)
 
-                        if len(pxk_wb.sheetnames) > 1:
-                            pxk_wb.active = 1  # Set any other sheet as the active one
+                        if len(pxk_wb.sheetnames) > 1 and len(ptt_wb.sheetnames) > 1:
+                            pxk_wb.active = 1  
+                            ptt_wb.active = 1  
                             # Remove the template sheet
                             pxk_wb.remove(pxk_wb['Template'])
-
-                        if len(ptt_wb.sheetnames) > 1:
-                            ptt_wb.active = 1  # Set any other sheet as the active one
-                            # Remove the template sheet
                             ptt_wb.remove(ptt_wb['Template'])
                     
                         # Save the workbook to a bytes buffer
@@ -341,6 +373,97 @@ def main():
                     time.sleep(1)
                     st.success("Đã tải thư mục XML thành công")
     
+    with tab4:
+        date_start, date_end = st.columns(2)
+        with date_start:
+            start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY")
+        with date_end:
+            end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY")
+
+        if st.button("Tải Zip tự động"):
+            chrome_options = Options()
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager("127.0.6533.89").install()), options=chrome_options)
+            action=ActionChains(driver,10)
+            wait = WebDriverWait(driver, 10)
+
+            driver.get('https://hkd.vnpt.vn/Account/Login')
+            driver.implicitly_wait(2)
+            # Wait for the login page to load and find the username and password fields
+            wait.until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
+            )
+            username = driver.find_element(By.NAME, 'UserName')
+            password = driver.find_element(By.NAME, 'Password')
+
+            username.send_keys(os.getenv('username'))
+            password.send_keys(os.getenv('password'))
+            password.send_keys(Keys.RETURN)
+
+            driver.implicitly_wait(2)
+
+            nav_link = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//a[@href='/DashBoard/QuanLyHoaDon']"))
+            )
+
+            nav_link.click()
+
+            driver.implicitly_wait(1)
+
+
+            qlhd = wait.until(
+                EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
+            )
+
+            qlhd.click()
+            driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
+
+            driver.implicitly_wait(2)
+
+            # start_date = os.getenv('start_date_download')
+            # end_date = os.getenv('end_date_download')
+
+            date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
+            date_btn[0].clear()
+            date_btn[0].send_keys(start_date)
+            date_btn[1].clear()
+            date_btn[1].send_keys(end_date)
+
+            search_btn = wait.until(
+                EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
+            )
+            search_btn[3].click()
+            time.sleep(3)
+
+            page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 25 items on page']")
+            # page_size = wait.until(
+            #     EC.presence_of_element_located((By.XPATH, "//div[@aria-label='Display 25 items on page']"))
+            # )
+            page_size.click()
+            time.sleep(5)
+
+            
+
+            all_pages = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
+            available_next_pages = all_pages.find_elements(By.XPATH, "//div[@class='dx-page']")
+
+            if available_next_pages:
+                print(f"Available next page: {[page.get_attribute("aria-label") for page in available_next_pages]}")
+                download(driver, action)
+                for next_page in available_next_pages:
+                    next_page.click()
+                    time.sleep(5)
+                    download(driver, action)
+                    print(f"DATA IS DOWNLOADED IN {next_page.get_attribute("aria-label")}")
+                    
+            else:
+                download(driver, action)
+                print("No next page")
+        else:
+            pass
+
+            time.sleep(10)
+
+            
 
 if __name__ == "__main__":
     main()
