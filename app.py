@@ -376,9 +376,9 @@ def main():
     with tab4:
         date_start, date_end = st.columns(2)
         with date_start:
-            start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY").strftime("%d-%m-%Y")
+            start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY").strftime("%d/%m/%Y")
         with date_end:
-            end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY").strftime("%d-%m-%Y")
+            end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
 
         if st.button("Tải Zip tự động"):
             chrome_options = webdriver.ChromeOptions()
@@ -425,25 +425,27 @@ def main():
             st.write(f"Found qlhd link: {qlhd}")
 
             driver.execute_script("arguments[0].click();", qlhd)
+            st.write("Clicked qlhd")
             driver.implicitly_wait(2)
 
             driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
 
             driver.implicitly_wait(2)
 
-            # start_date = os.getenv('start_date_download')
-            # end_date = os.getenv('end_date_download')
-
             date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
             date_btn[0].clear()
             date_btn[0].send_keys(start_date)
+            st.write("Import start date")
             date_btn[1].clear()
             date_btn[1].send_keys(end_date)
+            st.write("Import end date")
+
 
             search_btn = wait.until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
             )
             search_btn[3].click()
+            st.write("Clicked search button")
             time.sleep(3)
 
             page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 25 items on page']")
@@ -451,12 +453,14 @@ def main():
             #     EC.presence_of_element_located((By.XPATH, "//div[@aria-label='Display 25 items on page']"))
             # )
             page_size.click()
+            st.write("Clicked page size")
             time.sleep(5)
 
             
 
             all_pages = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             available_next_pages = all_pages.find_elements(By.XPATH, "//div[@class='dx-page']")
+            st.write(f"All available next pages: {available_next_pages}")
 
             if available_next_pages:
                 print(f"Available next page: {[page.get_attribute('aria-label') for page in available_next_pages]}")
