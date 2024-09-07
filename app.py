@@ -40,7 +40,9 @@ def download_zip(driver, action):
                     driver.execute_script("arguments[0].click();", icon)
                     driver.implicitly_wait(10)
                     download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-                    download_button.click()
+                    # download_button.click()
+                    driver.execute_script("arguments[0].click();", download_button)
+
                     driver.implicitly_wait(3)
 
                     close_button = driver.find_element(By.XPATH, "//button[@aria-label='Close']")
