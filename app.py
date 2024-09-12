@@ -205,7 +205,7 @@ def download_zip(driver, action, wait, download_path):
             time.sleep(3)
 
             downloaded_file = wait_for_download(download_path)
-
+            st.write(downloaded_file)
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
             time.sleep(2)
@@ -495,6 +495,8 @@ def main():
                         st.write(f"Tổng số trang: {len(all_pages)}")
                         for i, page in enumerate(all_pages):
                             st.write(download_path)
+                            st.write(type(download_path))
+                            st.write(len(download_path))
                             st.write(f"Đang tải hóa đơn ở trang số {i + 1} ...")
                             download_zip(driver, action, wait, download_path)
                             page.click()
