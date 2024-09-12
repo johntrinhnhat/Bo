@@ -417,7 +417,7 @@ def main():
                     st.success("Đã tải thư mục XML thành công")
     
     with tab4:
-        with st.form():
+        with st.container():
             st.subheader(f":orange[Tên tài khoản: Trần Minh Đạt]", divider="gray")
             date_start, date_end = st.columns(2)
             with date_start:
