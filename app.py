@@ -15,7 +15,6 @@ from pathlib import Path
 
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
-# from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
@@ -23,7 +22,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-def download_zip(driver, action, wait, download_path):
+def download_zip(driver, action, download_path):
     icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
     icons = icons[:len(icons)//2]
     st.write(f"Số lượng hóa đơn: {len(icons)}")
@@ -42,10 +41,6 @@ def download_zip(driver, action, wait, download_path):
             time.sleep(3)
 
             downloaded_file = wait_for_download(download_path)
-            if downloaded_file:
-                st.write(f"Đã tải xuống: {downloaded_file}")
-                if os.path.exists(downloaded_file):
-                    st.write(f"Tệp hợp lệ: {downloaded_file}")
             
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             
@@ -56,7 +51,6 @@ def download_zip(driver, action, wait, download_path):
             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
             action.move_to_element(icon).perform()
         
-
 def wait_for_download(download_path, timeout=30):
     """Wait for a file to be downloaded to the download path"""
     start_time = time.time()
@@ -73,7 +67,6 @@ def wait_for_download(download_path, timeout=30):
         time.sleep(1)
 
     return None
-
 
 def convert_date_format(date_str):
     # Parse the date string
@@ -256,7 +249,6 @@ def main():
             st.success(f'Bạn đã tải thành công {len(xml_files)} tệp')
         st.divider()
             
-
     tab1, tab2, tab3, tab4 = st.tabs(['Phiếu xuất kho', 'Phiếu thu tiền', 'Zip', 'VNPT'])
 
     tab1.title("Phiếu xuất kho")
@@ -370,7 +362,6 @@ def main():
                             key="ptt"
                         )
 
-
     with tab3:
         # File uploader
         uploaded_files = st.file_uploader("Nhập Zip files", type="zip", accept_multiple_files=True)
@@ -409,19 +400,7 @@ def main():
             end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
 
         if st.button("Tải Zip tự động"):
-            with st.status("Đang tải Zip tự động ...", expanded=True) as status:
-                st.write("Đang đăng nhập ...")
-                time.sleep(2)
-                st.write("Đã đăng nhập ...")
-                time.sleep(2)
-                st.write("Đang tìm hóa đơn ...")
-                time.sleep(5)
-                st.write("Đang tải hóa đơn Zip ...")
-                time.sleep(60)
-                status.update(
-                    label="Đã tải xong !!!", state="complete", expanded=False
-                )
-
+        
             download_path = tempfile.mkdtemp()
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument("--headless")
@@ -440,85 +419,88 @@ def main():
             driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
             action=ActionChains(driver,10)
             wait = WebDriverWait(driver, 10)
-            try:
-                driver.get('https://hkd.vnpt.vn/Account/Login')
-                driver.implicitly_wait(2)
-                # Wait for the login page to load and find the username and password fields
-                wait.until(
-                    EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
-                )
+            with st.status("Đang tải Zip tự động ...", expanded=True) as status:
+                try:
+                    driver.get('https://hkd.vnpt.vn/Account/Login')
+                    driver.implicitly_wait(2)
+                    # Wait for the login page to load and find the username and password fields
+                    wait.until(
+                        EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
+                    )
 
-                username = driver.find_element(By.NAME, 'UserName')
-                password = driver.find_element(By.NAME, 'Password')
+                    username = driver.find_element(By.NAME, 'UserName')
+                    password = driver.find_element(By.NAME, 'Password')
+                    st.write("Đang đăng nhập ...")
+                    time.sleep(3)
+                    username.send_keys(os.getenv('username'))
+                    password.send_keys(os.getenv('password'))
+                    password.send_keys(Keys.RETURN)
 
-                username.send_keys(os.getenv('username'))
-                password.send_keys(os.getenv('password'))
-                password.send_keys(Keys.RETURN)
+                    driver.implicitly_wait(5)
 
-                driver.implicitly_wait(5)
+                    qlhd = wait.until(
+                        EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
+                    )
+                    st.write("Đang vào mục Quản Lý Hóa Đơn")
+                    time.sleep(2)
+                    driver.execute_script("arguments[0].click();", qlhd)
+                    driver.implicitly_wait(2)
 
-                qlhd = wait.until(
-                    EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
-                )
+                    driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
 
-                driver.execute_script("arguments[0].click();", qlhd)
-                driver.implicitly_wait(2)
+                    driver.implicitly_wait(2)
 
-                driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
-
-                driver.implicitly_wait(2)
-
-                date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
-                date_btn[0].clear()
-                date_btn[0].send_keys(start_date)
-                date_btn[1].clear()
-                date_btn[1].send_keys(end_date)
+                    date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
+                    date_btn[0].clear()
+                    date_btn[0].send_keys(start_date)
+                    date_btn[1].clear()
+                    date_btn[1].send_keys(end_date)
 
 
-                search_btn = wait.until(
-                    EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
-                )
-                search_btn[3].click()
-                time.sleep(3)
+                    search_btn = wait.until(
+                        EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
+                    )
+                    search_btn[3].click()
+                    time.sleep(3)
 
-                page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 25 items on page']")
-                page_size.click()
-                time.sleep(5)
-                
+                    page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 25 items on page']")
+                    page_size.click()
+                    time.sleep(5)
+                    
 
-                all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
-                st.write(f"Tổng số trang: {len(all_pages) + 1}")
+                    all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
+                    st.write(f"Tổng số trang: {len(all_pages) + 1}")
 
-                if len(all_pages) < 1:
-                    download_zip(driver, action, wait, download_path)
-                else:
-                    for page in all_pages:
-                        download_zip(driver, action, wait, download_path)
-                        page.click()
-                        time.sleep(5)
+                    if len(all_pages) < 1:
+                        download_zip(driver, action, download_path)
+                    else:
+                        for page in all_pages:
+                            download_zip(driver, action, download_path)
+                            page.click()
+                            time.sleep(5)
 
-                # Zip the downloaded files into one file and offer it for download
-                zip_buffer = BytesIO()
-                with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-                    for root, _, files in os.walk(download_path):
-                        for file in files:
-                            file_path = os.path.join(root, file)
-                            zip_file.write(file_path, arcname=file)
+                    # Zip the downloaded files into one file and offer it for download
+                    zip_buffer = BytesIO()
+                    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+                        for root, _, files in os.walk(download_path):
+                            for file in files:
+                                file_path = os.path.join(root, file)
+                                zip_file.write(file_path, arcname=file)
 
-                zip_buffer.seek(0)
+                    zip_buffer.seek(0)
 
-                # Create a download button for the user
-                st.download_button(
-                    label="Tải file ZIP đã tải xuống",
-                    data=zip_buffer,
-                    file_name="downloaded_files.zip",
-                    mime="application/zip"
-                )
-                st.success("Tải file ZIP thành công!")
-            except Exception as e:
-                st.error(f"Lỗi: {e}")
-            finally:
-                driver.quit()
+                    # Create a download button for the user
+                    st.download_button(
+                        label="Tải file ZIP đã tải xuống",
+                        data=zip_buffer,
+                        file_name="downloaded_files.zip",
+                        mime="application/zip"
+                    )
+                    st.success("Tải file ZIP thành công!")
+                except Exception as e:
+                    st.error(f"Lỗi: {e}")
+                finally:
+                    driver.quit()
 
 
          
