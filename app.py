@@ -25,8 +25,6 @@ from selenium.webdriver.common.keys import Keys
 def download_zip(driver, action, download_path):
     icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
     icons = icons[:len(icons)//2]
-    st.write(f"Số lượng hóa đơn: {len(icons)}")
-
     for icon in icons:
         try:
             action.move_to_element(icon).perform()
@@ -429,13 +427,14 @@ def main():
 
                     username = driver.find_element(By.NAME, 'UserName')
                     password = driver.find_element(By.NAME, 'Password')
+
                     username.send_keys(os.getenv('username'))
                     password.send_keys(os.getenv('password'))
                     password.send_keys(Keys.RETURN)
+                    driver.implicitly_wait(5)
 
                     st.write("Đang đăng nhập ...")
                     time.sleep(2)
-                    driver.implicitly_wait(5)
 
                     qlhd = wait.until(
                         EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
@@ -451,12 +450,12 @@ def main():
                     date_btn[0].clear()
                     date_btn[0].send_keys(start_date)
                     st.write(f"Đang nhập ngày bắt đầu: {start_date}")
-                    time.sleep(1)
+                    time.sleep(2)
 
                     date_btn[1].clear()
                     date_btn[1].send_keys(end_date)
                     st.write(f"Đang nhập ngày kết thúc: {end_date}")
-                    time.sleep(1)
+                    time.sleep(2)
 
 
                     search_btn = wait.until(
@@ -469,23 +468,21 @@ def main():
                     page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 25 items on page']")
                     page_size.click()
                     st.write("Chọn hiển thị 25 hóa đơn ...")
-                    time.sleep(3)
+                    time.sleep(2)
                     
 
                     all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
                     st.write(f"Tổng số trang: {len(all_pages) + 1}")
                     time.sleep(1)
 
-                    if len(all_pages) < 1:
+                    for i, page in enumerate(all_pages):
+                        st.write(f"Đang tải 25 hóa đơn ở trang số {i + 1}")
                         download_zip(driver, action, download_path)
-                    else:
-                        for i, page in enumerate(all_pages):
-                            st.write(f"Đang tải 25 hóa đơn ở trang số {i + 1}")
-                            download_zip(driver, action, download_path)
-                            page.click()
-                            st.write(f"Đang tìm hóa đơn trang tiếp theo ...")
-                            time.sleep(3)
-
+                        page.click()
+                        st.write(f"Đang tìm hóa đơn trang tiếp theo ...")
+                        time.sleep(3)
+                    status.update(label=f"Tải thành công", status="complete", expanded=False)
+                    
                     # Zip the downloaded files into one file and offer it for download
                     zip_buffer = BytesIO()
                     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
