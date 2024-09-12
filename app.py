@@ -9,7 +9,6 @@ import datetime
 import time
 import zipfile
 import tarfile
-
 from io import BytesIO
 from openpyxl import load_workbook
 from selenium import webdriver
@@ -489,7 +488,7 @@ def main():
                         st.write("Không có trang nào được tìm thấy")
                     
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
-                    st.write(f"Tổng số hóa đơn: {len(final_xml_files)}")
+                    st.write(f":red[Tổng số hóa đơn: {len(final_xml_files)}]")
                     time.sleep(3)
                     
                 except Exception as e:
@@ -510,7 +509,7 @@ def main():
 
             # Provide download of the tar file
             with open(tar_path, 'rb') as f:
-                if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar"):
+                if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar", type="primary"):
                     downloading_message = 'Đang tải thư mục ...'
                     progress_bar = st.progress(0, text=downloading_message)
                     for percent_complete in range(100):
