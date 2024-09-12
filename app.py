@@ -409,6 +409,19 @@ def main():
             end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
 
         if st.button("Tải Zip tự động"):
+            with st.status("Đang tải Zip tự động ...", expanded=True) as status:
+                st.write("Đang đăng nhập ...")
+                time.sleep(2)
+                st.write("Đã đăng nhập ...")
+                time.sleep(2)
+                st.write("Đang tìm hóa đơn ...")
+                time.sleep(5)
+                st.write("Đang tải hóa đơn Zip ...")
+                time.sleep(60)
+                status.update(
+                    label="Đã tải xong !!!", state="complete", expanded=False
+                )
+
             download_path = tempfile.mkdtemp()
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument("--headless")
@@ -434,8 +447,10 @@ def main():
                 wait.until(
                     EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
                 )
+
                 username = driver.find_element(By.NAME, 'UserName')
                 password = driver.find_element(By.NAME, 'Password')
+
                 username.send_keys(os.getenv('username'))
                 password.send_keys(os.getenv('password'))
                 password.send_keys(Keys.RETURN)
@@ -472,17 +487,15 @@ def main():
                 
 
                 all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
-                st.write(f"Tổng số trang: {len(all_pages)}")
+                st.write(f"Tổng số trang: {len(all_pages) + 1}")
 
-                # Set the download path to a temporary directory
-
-                for page in all_pages:
+                if len(all_pages) < 1:
                     download_zip(driver, action, wait, download_path)
-                    page.click()
-                    time.sleep(5)
-
-                if not all_pages:
-                    download_zip(driver, action, wait, download_path)
+                else:
+                    for page in all_pages:
+                        download_zip(driver, action, wait, download_path)
+                        page.click()
+                        time.sleep(5)
 
                 # Zip the downloaded files into one file and offer it for download
                 zip_buffer = BytesIO()
