@@ -229,6 +229,7 @@ def download_zip(driver, action, wait, download_path):
             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
             action.move_to_element(icon).perform()
 
+    return all_xml_files
     
         
 def wait_for_download(download_path, timeout=30):
@@ -293,8 +294,7 @@ def main():
 
     tab1.title("Phiếu xuất kho")
     tab2.title("Phiếu thu tiền")
-    tab3.title("Zip => XML")
-    tab4.title("Tải zip VNPT")
+    tab3.title("Tải zip VNPT")
 
     with tab1:
         if xml_files:
@@ -401,41 +401,11 @@ def main():
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                             key="ptt"
                         )
-
-    with tab3:
-        # File uploader
-        uploaded_files = st.file_uploader("Nhập Zip files", type="zip", accept_multiple_files=True)
-
-        if not uploaded_files:
-            st.warning("Vui lòng tải tệp Zip của bạn")
-        else:
-            st.success(f"Bạn đã tải thành công {len(uploaded_files)} zip")
-            all_xml_files = []
-            temp_folder = tempfile.mkdtemp()
-
-            for zip_files in uploaded_files:
-                shd = extract_number(zip_files.name)
-                original_in_zip_file = extract_zipfile(zip_files, temp_folder)
-                for file in original_in_zip_file:
-                    xml_file = shd + file[file.index('.xml'):]
-                    all_xml_files.append((xml_file, file))
-                    os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
-
-            shutil.make_archive(temp_folder, 'tar', temp_folder)
-            with open(temp_folder + '.tar', 'rb') as f:
-                if st.download_button("Tải thư mục XML", f, file_name="extracted_xml_files.tar"):
-                    downloading_message = 'Đang tải thư mục ...'
-                    progress_bar = st.progress(0, text=downloading_message)
-                    for percent_complete in range(100):
-                        time.sleep(0.01)
-                        progress_bar.progress(percent_complete + 1, text=downloading_message)
-                    time.sleep(1)
-                    st.success("Đã tải thư mục XML thành công")
     
-    with tab4:
+    with tab3:
         user = st.radio(
-            "Tài khoản:",
-            ["Trần Minh Đạt", "Nguyễn Thanh Thúy"]
+            "Hộ kinh doanh:",
+            ["Trần Minh Đạt", "Tuyết Oanh"]
         )
 
         date_start, date_end = st.columns(2)
@@ -511,7 +481,7 @@ def main():
                         st.write(f"Tổng số trang: {len(all_pages)}")
                         for i, page in enumerate(all_pages):
                             st.write(f"Đang tải hóa đơn ở trang số {i + 1} ...")
-                            download_zip(driver, action, wait, download_path)
+                            all_xml_files = download_zip(driver, action, wait, download_path)
                             page.click()
                             time.sleep(3)
                     else:
@@ -529,12 +499,13 @@ def main():
             
             # Create the tar archive with only XML files in the download path
             with tarfile.open(tar_path, 'w') as tar:
-                for file in filter(lambda f: f.endswith('.xml'), os.listdir(download_path)):  # Filter XML files only
+                # Filter XML files only
+                for file in filter(lambda f: f.endswith('.xml'), os.listdir(download_path)):  
                     tar.add(os.path.join(download_path, file), arcname=file)
 
             # Provide download of the tar file
             with open(tar_path, 'rb') as f:
-                if st.download_button("Tải thư mục XML", f, file_name="extracted_xml_files.tar"):
+                if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar"):
                     downloading_message = 'Đang tải thư mục ...'
                     progress_bar = st.progress(0, text=downloading_message)
                     for percent_complete in range(100):
@@ -542,5 +513,6 @@ def main():
                         progress_bar.progress(percent_complete + 1, text=downloading_message)
                     time.sleep(1)
                     st.success("Đã tải thư mục XML thành công")
+
 if __name__ == "__main__":
     main()
