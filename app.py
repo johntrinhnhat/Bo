@@ -44,11 +44,11 @@ def download_zip(driver, action, wait, download_path):
             downloaded_file = wait_for_download(download_path)
             if downloaded_file:
                 st.write(f"Đã tải xuống: {downloaded_file}")
-
+                if os.path.exists(downloaded_file):
+                    st.write(f"Tệp hợp lệ: {downloaded_file}")
             
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
-            if close_button:
-                st.write(f"Found close button: {close_button}")
+            
             driver.execute_script("arguments[0].click();", close_button)
             time.sleep(2)
 
@@ -409,11 +409,17 @@ def main():
             end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
 
         if st.button("Tải Zip tự động"):
+            download_path = tempfile.mkdtemp()
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument("--headless")
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument("--disable-dev-shm-usage")
-
+            chrome_options.add_experimental_option("prefs", {
+                "download.default_directory": download_path,  # Ensure this path matches your temp dir
+                "download.prompt_for_download": False, 
+                "download.directory_upgrade": True,
+                "safebrowsing.enabled": True
+            })
             # Point the browser to the correct location
             chrome_options.binary_location = "/usr/bin/chromium"
 
@@ -469,7 +475,6 @@ def main():
                 st.write(f"Tổng số trang: {len(all_pages)}")
 
                 # Set the download path to a temporary directory
-                download_path = tempfile.mkdtemp()
 
                 for page in all_pages:
                     download_zip(driver, action, wait, download_path)
