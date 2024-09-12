@@ -446,11 +446,12 @@ def main():
                     if user == "Trần Minh Đạt":
                         username.send_keys(os.getenv('username'))
                         password.send_keys(os.getenv('password'))
+                        password.send_keys(Keys.RETURN)
                     else:
                         username.send_keys(os.getenv('username_2'))
                         password.send_keys(os.getenv('password_2'))
+                        password.send_keys(Keys.RETURN)
                         
-                    password.send_keys(Keys.RETURN)
                     driver.implicitly_wait(5)
 
                     st.write(f"Đang đăng nhập tài khoản {user}...")
