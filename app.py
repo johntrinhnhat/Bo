@@ -423,9 +423,9 @@ def main():
 
         date_start, date_end = st.columns(2)
         with date_start:
-            start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY").strftime("%d/%m/%Y")
+            start_date = st.date_input("Ngày bắt đầu:", format="DD/MM/YYYY").strftime("%d/%m/%Y")
         with date_end:
-            end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
+            end_date = st.date_input("Ngày kết thúc:",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
 
         if st.button("Tải Zip tự động"):
             download_path = tempfile.mkdtemp()
@@ -489,11 +489,11 @@ def main():
                     time.sleep(2)
                     
 
-                    # all_page_indexes = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
-                    all_pages_indexes = wait.until(
-                        EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
-                    )
-                    all_pages = all_pages_indexes.find_elements(By.XPATH, "//div[@class='dx-page']")
+                    all_page_indexes = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
+                    # all_page_indexes = wait.until(
+                    #     EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
+                    # )
+                    all_pages = all_page_indexes.find_elements(By.XPATH, "//div[@class='dx-page']")
                     if all_pages:
                         st.write(f"Tổng số trang: {len(all_pages) + 1}")
                         for i, page in enumerate(all_pages):
