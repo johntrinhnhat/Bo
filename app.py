@@ -8,6 +8,8 @@ import xml.etree.ElementTree as ET
 import datetime
 import time
 import zipfile
+import tarfile
+
 from io import BytesIO
 from openpyxl import load_workbook
 from selenium import webdriver
@@ -515,45 +517,30 @@ def main():
                     else:
                         st.write("Không có trang nào được tìm thấy")
 
-
-                    # Create a tar archive of the extracted XML files
-                    shutil.make_archive(download_path, 'tar', download_path)
-                    
-                    # Provide download of the tar file
-                    with open(download_path + '.tar', 'rb') as f:
-                        if st.download_button("Tải thư mục XML", f, file_name="extracted_xml_files.tar"):
-                            downloading_message = 'Đang tải thư mục ...'
-                            progress_bar = st.progress(0, text=downloading_message)
-                            for percent_complete in range(100):
-                                time.sleep(0.01)
-                                progress_bar.progress(percent_complete + 1, text=downloading_message)
-                            time.sleep(1)
-                            st.success("Đã tải thư mục XML thành công")
-                    # # Zip the downloaded files into one file and offer it for download
-                    # zip_buffer = BytesIO()
-                    # with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-                    #     for root, _, files in os.walk(download_path):
-                    #         for file in files:
-                    #             file_path = os.path.join(root, file)
-                    #             zip_file.write(file_path, arcname=file)
-
-                    # zip_buffer.seek(0)
-
-                    # # Create a download button for the user
-                    # st.download_button(
-                    #     label="Nhận Zip",
-                    #     data=zip_buffer,
-                    #     file_name="Zip_tự_động_hóa.zip",
-                    #     mime="application/zip",
-                    #     type="primary"
-                    # )
-                    # st.success("Bố nhớ giải nén tệp zip này !!!")
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
                 finally:
                     if driver:
                         driver.quit()  # Close the driver if it was initialized
-                    status.update(label="Tải thành công !!!", expanded=False)
+                    status.update(label="Tải thành công !!!", expanded=True)
                     
+            # Define the tar archive path
+            tar_path = os.path.join(download_path, 'extracted_xml_files.tar')
+            
+            # Create the tar archive with only XML files in the download path
+            with tarfile.open(tar_path, 'w') as tar:
+                for file in filter(lambda f: f.endswith('.xml'), os.listdir(download_path)):  # Filter XML files only
+                    tar.add(os.path.join(download_path, file), arcname=file)
+
+            # Provide download of the tar file
+            with open(tar_path, 'rb') as f:
+                if st.download_button("Tải thư mục XML", f, file_name="extracted_xml_files.tar"):
+                    downloading_message = 'Đang tải thư mục ...'
+                    progress_bar = st.progress(0, text=downloading_message)
+                    for percent_complete in range(100):
+                        time.sleep(0.01)
+                        progress_bar.progress(percent_complete + 1, text=downloading_message)
+                    time.sleep(1)
+                    st.success("Đã tải thư mục XML thành công")
 if __name__ == "__main__":
     main()
