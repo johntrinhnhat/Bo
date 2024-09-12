@@ -189,7 +189,7 @@ def extract_zipfile(zip_file, extract_to):
 
 ###TAB 4 FUNCTIONS
 def download_zip(driver, action, wait, download_path):
-    all_xml_files = []
+    xml_files = []
     # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
     icons = wait.until(
         EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
@@ -217,7 +217,7 @@ def download_zip(driver, action, wait, download_path):
                 # Rename and store the extracted XML files in the list
                 for file in extracted_files:
                     xml_file = shd + file[file.index('.xml'):]
-                    all_xml_files.append((xml_file, file))
+                    xml_files.append((xml_file, file))
                     os.rename(os.path.join(download_path, file), os.path.join(download_path, xml_file))
             
 
@@ -229,7 +229,7 @@ def download_zip(driver, action, wait, download_path):
             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
             action.move_to_element(icon).perform()
 
-    return all_xml_files
+    return xml_files
     
         
 def wait_for_download(download_path, timeout=30):
@@ -475,18 +475,23 @@ def main():
                     st.write("Chọn hiển thị 50 hóa đơn ...")
                     time.sleep(2)
                     
-
+                    final_xml_files = []
                     all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
                     if all_pages:
                         st.write(f"Tổng số trang: {len(all_pages)}")
                         for i, page in enumerate(all_pages):
                             st.write(f"Đang tải hóa đơn ở trang số {i + 1} ...")
-                            all_xml_files = download_zip(driver, action, wait, download_path)
+                            xml_files = download_zip(driver, action, wait, download_path)
+                            final_xml_files.append(xml_files)
                             page.click()
                             time.sleep(3)
                     else:
                         st.write("Không có trang nào được tìm thấy")
-
+                    
+                    final_xml_files = [item for sublist in final_xml_files for item in sublist]
+                    st.write(f"Tổng số hóa đơn: {len(final_xml_files)}")
+                    time.sleep(3)
+                    
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
                 finally:
