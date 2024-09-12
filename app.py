@@ -493,7 +493,7 @@ def main():
                         page.click()
                         time.sleep(3)
 
-                    status.update(label=f"Tải thành công", status="complete", expanded=False)
+                    status.update(label="Tải thành công !!!", expanded=False)
                     # Zip the downloaded files into one file and offer it for download
                     zip_buffer = BytesIO()
                     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
