@@ -497,7 +497,7 @@ def main():
                     st.write(len(all_pages))
                     # all_pages = all_page_indexes.find_elements(By.XPATH, "//div[@class='dx-page']")
                     if all_pages:
-                        st.write(f"Tổng số trang: {len(all_pages) + 1}")
+                        st.write(f"Tổng số trang: {len(all_pages)}")
                         for i, page in enumerate(all_pages):
                             download_zip(driver, action, wait, download_path)
                             st.write(f"Đang tải hóa đơn ở trang số {i + 1} ...")
