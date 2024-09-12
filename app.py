@@ -43,7 +43,7 @@ def download_zip(driver, action, wait, download_path):
         
         invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
         if invoice_form:
-            print(f"Found invoice form: {invoice_form}")
+            st.write(f"Found invoice form: {invoice_form}")
 
         download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
         driver.execute_script("arguments[0].click();", download_button)
@@ -56,7 +56,7 @@ def download_zip(driver, action, wait, download_path):
 
         # close_button = wait.until(
         #     EC.presence_of_element_located((By.XPATH, "//button[@aria-label='Close']")))
-        close_button = driver.find_element(By.XPATH, "//button[@aria-label='Close']")
+        close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
         close_button.click()
         st.write(close_button)
         driver.implicitly_wait(3)
