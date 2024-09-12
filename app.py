@@ -38,9 +38,9 @@ def download_zip(driver, action, download_path):
             time.sleep(3)
 
             downloaded_file = wait_for_download(download_path)
-            
+            time.sleep(2)
+
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
-            
             driver.execute_script("arguments[0].click();", close_button)
             time.sleep(2)
 
@@ -499,7 +499,8 @@ def main():
                         label="Nhận Zip",
                         data=zip_buffer,
                         file_name="Zip_tự_động_hóa.zip",
-                        mime="application/zip"
+                        mime="application/zip",
+                        type="primary"
                     )
                     st.success("Bố nhớ giải nén tệp zip này !!!")
                 except Exception as e:
@@ -507,7 +508,7 @@ def main():
                 finally:
                     if driver:
                         driver.quit()  # Close the driver if it was initialized
-                    status.update(label="Tải thành công", status="complete", expanded=False)
+                    status.update(label="Tải thành công", state="complete", expanded=False)
                     
 if __name__ == "__main__":
     main()
