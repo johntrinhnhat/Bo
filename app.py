@@ -37,7 +37,6 @@ def download_zip(driver, action, download_path):
 
             download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
             driver.execute_script("arguments[0].click();", download_button)
-            st.write("Đang tải xuống tệp Zip...")
             time.sleep(3)
 
             downloaded_file = wait_for_download(download_path)
@@ -430,54 +429,62 @@ def main():
 
                     username = driver.find_element(By.NAME, 'UserName')
                     password = driver.find_element(By.NAME, 'Password')
-                    st.write("Đang đăng nhập ...")
-                    time.sleep(3)
                     username.send_keys(os.getenv('username'))
                     password.send_keys(os.getenv('password'))
                     password.send_keys(Keys.RETURN)
 
+                    st.write("Đang đăng nhập ...")
+                    time.sleep(2)
                     driver.implicitly_wait(5)
 
                     qlhd = wait.until(
                         EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
                     )
-                    st.write("Đang vào mục Quản Lý Hóa Đơn")
-                    time.sleep(2)
                     driver.execute_script("arguments[0].click();", qlhd)
-                    driver.implicitly_wait(2)
-
-                    driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
-
-                    driver.implicitly_wait(2)
-
+                    st.write("Đang vào mục Quản Lý Hóa Đơn ...")
+                    time.sleep(2)
+                    # driver.implicitly_wait(2)
+                    # driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
+                    # driver.implicitly_wait(2)
                     date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
+
                     date_btn[0].clear()
                     date_btn[0].send_keys(start_date)
+                    st.write(f"Đang nhập ngày bắt đầu: {start_date}")
+                    time.sleep(1)
+
                     date_btn[1].clear()
                     date_btn[1].send_keys(end_date)
+                    st.write(f"Đang nhập ngày kết thúc: {end_date}")
+                    time.sleep(1)
 
 
                     search_btn = wait.until(
                         EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
                     )
                     search_btn[3].click()
+                    st.write("Đang tìm hóa đơn ...")
                     time.sleep(3)
 
                     page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 25 items on page']")
                     page_size.click()
-                    time.sleep(5)
+                    st.write("Chọn hiển thị 25 hóa đơn ...")
+                    time.sleep(3)
                     
 
                     all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
                     st.write(f"Tổng số trang: {len(all_pages) + 1}")
+                    time.sleep(1)
 
                     if len(all_pages) < 1:
                         download_zip(driver, action, download_path)
                     else:
-                        for page in all_pages:
+                        for i, page in enumerate(all_pages):
+                            st.write(f"Đang tải 25 hóa đơn ở trang số {i + 1}")
                             download_zip(driver, action, download_path)
                             page.click()
-                            time.sleep(5)
+                            st.write(f"Đang tìm hóa đơn trang tiếp theo ...")
+                            time.sleep(3)
 
                     # Zip the downloaded files into one file and offer it for download
                     zip_buffer = BytesIO()
@@ -491,12 +498,12 @@ def main():
 
                     # Create a download button for the user
                     st.download_button(
-                        label="Tải file ZIP đã tải xuống",
+                        label="Nhận Zip",
                         data=zip_buffer,
-                        file_name="downloaded_files.zip",
+                        file_name="Zip_tự_động_hóa.zip",
                         mime="application/zip"
                     )
-                    st.success("Tải file ZIP thành công!")
+                    st.success("Bố nhớ giải nén tệp zip này !!!")
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
                 finally:
