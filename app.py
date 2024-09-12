@@ -22,8 +22,11 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-def download_zip(driver, action, download_path):
-    icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+def download_zip(driver, action, wait, download_path):
+    # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+    icons = wait.until(
+        EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
+    )
     icons = icons[:len(icons)//2]
     for icon in icons:
         try:
@@ -478,7 +481,7 @@ def main():
                     time.sleep(2)
 
                     for i, page in enumerate(all_pages):
-                        icons = download_zip(driver, action, download_path)
+                        icons = download_zip(driver, action, wait, download_path)
                         st.write(f"Đang tải {len(icons) + 1} hóa đơn ở trang số {i + 1} ...")
                         page.click()
                         time.sleep(3)
