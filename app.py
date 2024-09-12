@@ -417,6 +417,8 @@ def main():
                     st.success("Đã tải thư mục XML thành công")
     
     with tab4:
+
+        st.title(f":orange[Tài Khoản: hkdtranminhdat156@gmail.com]")
         date_start, date_end = st.columns(2)
         with date_start:
             start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY").strftime("%d/%m/%Y")
@@ -493,7 +495,6 @@ def main():
                         page.click()
                         time.sleep(3)
 
-                    status.update(label="Tải thành công !!!", expanded=False)
                     # Zip the downloaded files into one file and offer it for download
                     zip_buffer = BytesIO()
                     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
@@ -518,7 +519,7 @@ def main():
                 finally:
                     if driver:
                         driver.quit()  # Close the driver if it was initialized
-                    status.update(label="Tải thành công", state="complete", expanded=False)
+                    status.update(label="Tải thành công !!!", expanded=False)
                     
 if __name__ == "__main__":
     main()
