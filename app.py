@@ -31,40 +31,31 @@ def download_zip(driver, action, wait, download_path):
     for icon in icons:
         try:
             action.move_to_element(icon).perform()
-            driver.implicitly_wait(2)
+            driver.execute_script("arguments[0].click();", icon)
+            time.sleep(3)
+            
+            invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
+
+            download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
+            driver.execute_script("arguments[0].click();", download_button)
+            st.write("Đang tải xuống tệp Zip...")
+            time.sleep(3)
+
+            downloaded_file = wait_for_download(download_path)
+            if downloaded_file:
+                st.write(f"Đã tải xuống: {downloaded_file}")
+
+            
+            close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
+            if close_button:
+                st.write(f"Found close button: {close_button}")
+            driver.execute_script("arguments[0].click();", close_button)
+            time.sleep(2)
+
         except StaleElementReferenceException:
             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
             action.move_to_element(icon).perform()
-
-
-        driver.execute_script("arguments[0].click();", icon)
-        # driver.implicitly_wait(10)
-        time.sleep(3)
         
-        invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
-        if invoice_form:
-            st.write(f"Found invoice form: {invoice_form}")
-
-        download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
-        if download_button:
-            st.write(f"Found download button: {download_button}")
-        driver.execute_script("arguments[0].click();", download_button)
-        st.write("Đang tải xuống tệp Zip...")
-        # driver.implicitly_wait(3)
-        time.sleep(3)
-
-        downloaded_file = wait_for_download(download_path)
-        if downloaded_file:
-            st.write(f"Đã tải xuống: {downloaded_file}")
-
-        # close_button = wait.until(
-        #     EC.presence_of_element_located((By.XPATH, "//button[@aria-label='Close']")))
-        close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
-        if close_button:
-            st.write(f"Found close button: {close_button}")
-        driver.execute_script("arguments[0].click();", close_button)
-
-        time.sleep(2)
 
 def wait_for_download(download_path, timeout=30):
     """Wait for a file to be downloaded to the download path"""
@@ -72,10 +63,13 @@ def wait_for_download(download_path, timeout=30):
     while time.time() - start_time < timeout:
         files = os.listdir(download_path)
         if files:
-            # Check if the file is fully downloaded by ensuring its size remains constant
+            # Get the most recently downloaded file
             latest_file = max([os.path.join(download_path, f) for f in files], key=os.path.getctime)
-            if not latest_file.endswith('.crdownload'):  # Incomplete downloads in Chrome have .crdownload extension
+            
+            # Ensure the file is fully downloaded (not a .crdownload file)
+            if not latest_file.endswith('.crdownload') and os.path.getsize(latest_file) > 0:
                 return latest_file
+        
         time.sleep(1)
 
     return None
@@ -471,19 +465,18 @@ def main():
                 time.sleep(5)
                 
 
-                all_pages = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
-                available_next_pages = all_pages.find_elements(By.XPATH, "//div[@class='dx-page']")
-                st.write(f"Tổng số trang: {len(available_next_pages)}")
+                all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
+                st.write(f"Tổng số trang: {len(all_pages)}")
 
                 # Set the download path to a temporary directory
                 download_path = tempfile.mkdtemp()
 
-                for next_page in available_next_pages:
+                for page in all_pages:
                     download_zip(driver, action, wait, download_path)
-                    next_page.click()
+                    page.click()
                     time.sleep(5)
 
-                if not available_next_pages:
+                if not all_pages:
                     download_zip(driver, action, wait, download_path)
 
                 # Zip the downloaded files into one file and offer it for download
@@ -508,13 +501,9 @@ def main():
                 st.error(f"Lỗi: {e}")
             finally:
                 driver.quit()
-    
-
-        else:
-            pass
 
 
-            
+         
 
 if __name__ == "__main__":
     main()
