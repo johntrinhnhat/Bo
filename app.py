@@ -19,9 +19,9 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-"""
+'''
 TAB 1 FUNCTIONS
-"""
+'''
 def convert_date_format(date_str):
     # Parse the date string
     date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
@@ -136,9 +136,9 @@ def pxk_excel(wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df):
             ws.cell(row=i, column=start_column + 4, value=row_data[4])  # Đơn giá
             ws.cell(row=i, column=start_column + 5, value=row_data[5])  # Thành tiền
 
-"""
+'''
 TAB 2 FUNCTIONS
-"""
+'''
 @st.cache_data
 def display_ptt(shdon, nmua, date, tbc, ts):
     st.subheader(f"Số hóa đơn: {shdon}")
@@ -170,9 +170,9 @@ def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
     ws['D6'] = nmua
     ws['D12'] = shdon
 
-"""
+'''
 TAB 3 FUNCTIONS
-"""
+'''
 def extract_number(string):
     # Find the position of the last underscore and the '.zip' extension
     last_underscore_pos = string.rfind('_')
@@ -191,9 +191,9 @@ def extract_zipfile(zip_file, extract_to):
                 zip_ref.extract(file, extract_to)
     return extracted_files
 
-"""
+'''
 TAB 4 FUNCTIONS
-"""
+'''
 def download_zip(driver, action, wait, download_path):
     # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
     icons = wait.until(
@@ -224,7 +224,7 @@ def download_zip(driver, action, wait, download_path):
     return icons
         
 def wait_for_download(download_path, timeout=30):
-    """Wait for a file to be downloaded to the download path"""
+    '''Wait for a file to be downloaded to the download path'''
     start_time = time.time()
     while time.time() - start_time < timeout:
         files = os.listdir(download_path)
@@ -260,9 +260,9 @@ def selenium_web_driver(download_path):
     wait = WebDriverWait(driver, 10)
     
     return driver, action, wait
-"""
+'''
 Streamlit state
-"""
+'''
 def create():
     st.session_state['create_success'] = True
 
@@ -272,9 +272,9 @@ def download():
 def download_ptt():
     st.session_state['download_success_ptt'] = True
     
-"""
+'''
 MAIN FUNCTION
-"""
+'''
 
 def main():
     with st.sidebar:
@@ -444,7 +444,7 @@ def main():
                 try:
                     driver.get('https://hkd.vnpt.vn/Account/Login')
                     driver.implicitly_wait(2)
-                    
+
                     wait.until(
                         EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
                     )
