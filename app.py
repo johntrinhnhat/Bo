@@ -41,12 +41,14 @@ def download_zip(driver, action, wait, download_path):
         driver.execute_script("arguments[0].click();", icon)
         driver.implicitly_wait(10)
         
-        download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-        # download_button.click()
-        driver.execute_script("arguments[0].click();", download_button)
-        driver.implicitly_wait(3)
-        st.write("Downloaded")
+        invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
+        if invoice_form:
+            print(f"Found invoice form: {invoice_form}")
 
+        download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+        driver.execute_script("arguments[0].click();", download_button)
+        st.write("Đang tải xuống tệp Zip...")
+        driver.implicitly_wait(3)
 
         downloaded_file = wait_for_download(download_path)
         if downloaded_file:
