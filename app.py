@@ -187,10 +187,12 @@ def extract_zipfile(zip_file, extract_to):
 
 ###TAB 4 FUNCTIONS
 def download_zip(driver, action, wait, download_path):
-    icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
-    # icons = wait.until(
-    #     EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
-    # )
+    all_xml_files = []
+    temp_folder = tempfile.mkdtemp()
+    # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+    icons = wait.until(
+        EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
+    )
     icons = icons[:len(icons)//2]
     for icon in icons:
         try:
