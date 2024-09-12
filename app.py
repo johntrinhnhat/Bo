@@ -418,7 +418,7 @@ def main():
     
     with tab4:
 
-        st.header(f":orange[Tên tài khoản: Trần Minh Đạt]")
+        st.subheader(f":orange[Tên tài khoản: Trần Minh Đạt]", divider=True)
         date_start, date_end = st.columns(2)
         with date_start:
             start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY").strftime("%d/%m/%Y")
