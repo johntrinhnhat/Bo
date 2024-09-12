@@ -187,10 +187,10 @@ def extract_zipfile(zip_file, extract_to):
 
 ###TAB 4 FUNCTIONS
 def download_zip(driver, action, wait, download_path):
-    icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
-    # icons = wait.until(
-    #     EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
-    # )
+    # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+    icons = wait.until(
+        EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
+    )
     icons = icons[:len(icons)//2]
     for icon in icons:
         try:
@@ -206,6 +206,8 @@ def download_zip(driver, action, wait, download_path):
 
             downloaded_file = wait_for_download(download_path)
             st.write(downloaded_file)
+            st.write(type(downloaded_file))
+
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
             time.sleep(2)
@@ -494,9 +496,6 @@ def main():
                     if all_pages:
                         st.write(f"Tổng số trang: {len(all_pages)}")
                         for i, page in enumerate(all_pages):
-                            st.write(download_path)
-                            st.write(type(download_path))
-                            st.write(len(download_path))
                             st.write(f"Đang tải hóa đơn ở trang số {i + 1} ...")
                             download_zip(driver, action, wait, download_path)
                             page.click()
