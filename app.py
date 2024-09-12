@@ -11,9 +11,6 @@ import zipfile
 from io import BytesIO
 from openpyxl import load_workbook
 from selenium import webdriver
-from pathlib import Path
-
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -22,53 +19,9 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-def download_zip(driver, action, wait, download_path):
-    # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
-    icons = wait.until(
-        EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
-    )
-    icons = icons[:len(icons)//2]
-    for icon in icons:
-        try:
-            action.move_to_element(icon).perform()
-            driver.execute_script("arguments[0].click();", icon)
-            time.sleep(3)
-            
-            invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
-
-            download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
-            driver.execute_script("arguments[0].click();", download_button)
-            time.sleep(3)
-
-            downloaded_file = wait_for_download(download_path)
-            time.sleep(2)
-
-            close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
-            driver.execute_script("arguments[0].click();", close_button)
-            time.sleep(2)
-
-        except StaleElementReferenceException:
-            icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
-            action.move_to_element(icon).perform()
-    return icons
-        
-def wait_for_download(download_path, timeout=30):
-    """Wait for a file to be downloaded to the download path"""
-    start_time = time.time()
-    while time.time() - start_time < timeout:
-        files = os.listdir(download_path)
-        if files:
-            # Get the most recently downloaded file
-            latest_file = max([os.path.join(download_path, f) for f in files], key=os.path.getctime)
-            
-            # Ensure the file is fully downloaded (not a .crdownload file)
-            if not latest_file.endswith('.crdownload') and os.path.getsize(latest_file) > 0:
-                return latest_file
-        
-        time.sleep(1)
-
-    return None
-
+"""
+TAB 1 FUNCTIONS
+"""
 def convert_date_format(date_str):
     # Parse the date string
     date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
@@ -76,25 +29,7 @@ def convert_date_format(date_str):
     # Format the date in the desired format
     formatted_date = f"Ngày {date_obj.day:02} tháng {date_obj.month:02} năm {date_obj.year}"
     return formatted_date
-def extract_zipfile(zip_file, extract_to):
-    extracted_files = []
-    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-        for file in zip_ref.namelist():
-            if file.endswith(".xml"):
-                extracted_files.append(file)
-                zip_ref.extract(file, extract_to)
-    return extracted_files
 
-def extract_number(string):
-    # Find the position of the last underscore and the '.zip' extension
-    last_underscore_pos = string.rfind('_')
-    dot_zip_pos = string.find('.zip')
-    
-    # Extract the number between the last underscore and '.zip'
-    number = string[last_underscore_pos + 1:dot_zip_pos]
-    return number
-
-# Function to extract data from an XML file
 @st.cache_data
 def pxk_data_from_xml(file):
     data=[]
@@ -166,36 +101,6 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
 
     return df
 
-def display_ptt(shdon, nmua, date, tbc, ts):
-    st.subheader(f"Số hóa đơn: {shdon}")
-    st.text(f"Ngày-Tháng-Năm: {date}")
-    st.text(f"Tên khách: {nmua}")
-    st.text(f"Tổng tiền: {ts} đồng")
-    st.text(f"Tổng iền bằng chữ: {tbc}")
-
-def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
-    template_sheet = wb['Template']
-    new_sheet_name = f"{shdon}"  
-    wb.copy_worksheet(template_sheet).title = new_sheet_name
-    ws = wb[new_sheet_name]
-
-    if 'Địa chỉ' in template_sheet['A2'].value:
-        parts = template_sheet['A2'].value.split('\n', 1) 
-        new_value = f"{parts[0].strip()} {nban_dc}\n{parts[1].strip()} {nban_mst}"
-    ws['A7'] = f"Địa chỉ: {nmua_dc}"
-    ws['A2'] = new_value
-    ws['A1'] = f"Hộ kinh doanh: {nban}"
-    ws['A17'] = nban
-    ws['C17'] = nban
-    ws['B4'] = date
-    ws['F14'] = date
-    ws['C10'] = tbc
-    ws['C24'] = tbc
-    ws['B9'] = ts
-    ws['C23'] = ts
-    ws['D6'] = nmua
-    ws['D12'] = shdon
-
 def pxk_excel(wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df):
     template_sheet = wb['Template']
     
@@ -231,6 +136,133 @@ def pxk_excel(wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df):
             ws.cell(row=i, column=start_column + 4, value=row_data[4])  # Đơn giá
             ws.cell(row=i, column=start_column + 5, value=row_data[5])  # Thành tiền
 
+"""
+TAB 2 FUNCTIONS
+"""
+@st.cache_data
+def display_ptt(shdon, nmua, date, tbc, ts):
+    st.subheader(f"Số hóa đơn: {shdon}")
+    st.text(f"Ngày-Tháng-Năm: {date}")
+    st.text(f"Tên khách: {nmua}")
+    st.text(f"Tổng tiền: {ts} đồng")
+    st.text(f"Tổng iền bằng chữ: {tbc}")
+
+def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
+    template_sheet = wb['Template']
+    new_sheet_name = f"{shdon}"  
+    wb.copy_worksheet(template_sheet).title = new_sheet_name
+    ws = wb[new_sheet_name]
+
+    if 'Địa chỉ' in template_sheet['A2'].value:
+        parts = template_sheet['A2'].value.split('\n', 1) 
+        new_value = f"{parts[0].strip()} {nban_dc}\n{parts[1].strip()} {nban_mst}"
+    ws['A7'] = f"Địa chỉ: {nmua_dc}"
+    ws['A2'] = new_value
+    ws['A1'] = f"Hộ kinh doanh: {nban}"
+    ws['A17'] = nban
+    ws['C17'] = nban
+    ws['B4'] = date
+    ws['F14'] = date
+    ws['C10'] = tbc
+    ws['C24'] = tbc
+    ws['B9'] = ts
+    ws['C23'] = ts
+    ws['D6'] = nmua
+    ws['D12'] = shdon
+
+"""
+TAB 3 FUNCTIONS
+"""
+def extract_number(string):
+    # Find the position of the last underscore and the '.zip' extension
+    last_underscore_pos = string.rfind('_')
+    dot_zip_pos = string.find('.zip')
+    
+    # Extract the number between the last underscore and '.zip'
+    number = string[last_underscore_pos + 1:dot_zip_pos]
+    return number
+
+def extract_zipfile(zip_file, extract_to):
+    extracted_files = []
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        for file in zip_ref.namelist():
+            if file.endswith(".xml"):
+                extracted_files.append(file)
+                zip_ref.extract(file, extract_to)
+    return extracted_files
+
+"""
+TAB 4 FUNCTIONS
+"""
+def download_zip(driver, action, wait, download_path):
+    # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+    icons = wait.until(
+        EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
+    )
+    icons = icons[:len(icons)//2]
+    for icon in icons:
+        try:
+            action.move_to_element(icon).perform()
+            driver.execute_script("arguments[0].click();", icon)
+            time.sleep(3)
+            
+            invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
+
+            download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
+            driver.execute_script("arguments[0].click();", download_button)
+            time.sleep(3)
+
+            downloaded_file = wait_for_download(download_path)
+
+            close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
+            driver.execute_script("arguments[0].click();", close_button)
+            time.sleep(2)
+
+        except StaleElementReferenceException:
+            icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+            action.move_to_element(icon).perform()
+    return icons
+        
+def wait_for_download(download_path, timeout=30):
+    """Wait for a file to be downloaded to the download path"""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        files = os.listdir(download_path)
+        if files:
+            # Get the most recently downloaded file
+            latest_file = max([os.path.join(download_path, f) for f in files], key=os.path.getctime)
+            
+            # Ensure the file is fully downloaded (not a .crdownload file)
+            if not latest_file.endswith('.crdownload') and os.path.getsize(latest_file) > 0:
+                return latest_file
+        
+        time.sleep(1)
+
+    return None
+
+def selenium_web_driver(download_path):
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_experimental_option("prefs", {
+        "download.default_directory": download_path,  # Ensure this path matches your temp dir
+        "download.prompt_for_download": False, 
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True
+    })
+    # Point the browser to the correct location
+    chrome_options.binary_location = "/usr/bin/chromium"
+
+    # Use chromedriver installed by the system package manager
+    driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
+    action=ActionChains(driver,10)
+    wait = WebDriverWait(driver, 10)
+    
+    return driver, action, wait
+"""
+Streamlit state
+"""
 def create():
     st.session_state['create_success'] = True
 
@@ -240,6 +272,9 @@ def download():
 def download_ptt():
     st.session_state['download_success_ptt'] = True
     
+"""
+MAIN FUNCTION
+"""
 
 def main():
     with st.sidebar:
@@ -256,7 +291,7 @@ def main():
     tab2.title("Phiếu thu tiền")
     tab3.title("Zip => XML")
     tab4.title("Tải zip VNPT")
-    ## TAB 1
+
     with tab1:
         if xml_files:
             all_data = []
@@ -403,29 +438,13 @@ def main():
         if st.button("Tải Zip tự động"):
         
             download_path = tempfile.mkdtemp()
-            chrome_options = webdriver.ChromeOptions()
-            chrome_options.add_argument("--headless")
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_experimental_option("prefs", {
-                "download.default_directory": download_path,  # Ensure this path matches your temp dir
-                "download.prompt_for_download": False, 
-                "download.directory_upgrade": True,
-                "safebrowsing.enabled": True
-            })
-            # Point the browser to the correct location
-            chrome_options.binary_location = "/usr/bin/chromium"
-
-            # Use chromedriver installed by the system package manager
-            driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
-            action=ActionChains(driver,10)
-            wait = WebDriverWait(driver, 10)
+            driver, action, wait = selenium_web_driver(download_path)            
 
             with st.status("Đang tải Zip tự động ...", expanded=True) as status:
                 try:
                     driver.get('https://hkd.vnpt.vn/Account/Login')
                     driver.implicitly_wait(2)
-                    # Wait for the login page to load and find the username and password fields
+                    
                     wait.until(
                         EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
                     )
