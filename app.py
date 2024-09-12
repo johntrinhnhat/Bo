@@ -213,7 +213,6 @@ def download_zip(driver, action, wait, download_path):
         except StaleElementReferenceException:
             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
             action.move_to_element(icon).perform()
-    return icons
         
 def wait_for_download(download_path, timeout=30):
     '''Wait for a file to be downloaded to the download path'''
@@ -421,6 +420,7 @@ def main():
             "Tài khoản:",
             ["Trần Minh Đạt", "Nguyễn Thanh Thúy"]
         )
+
         date_start, date_end = st.columns(2)
         with date_start:
             start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY").strftime("%d/%m/%Y")
@@ -428,7 +428,6 @@ def main():
             end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
 
         if st.button("Tải Zip tự động"):
-
             download_path = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(download_path)            
 
@@ -447,14 +446,14 @@ def main():
                     if user == "Trần Minh Đạt":
                         username.send_keys(os.getenv('username'))
                         password.send_keys(os.getenv('password'))
-                    elif user == "Nguyễn Thanh Thúy":
+                    else:
                         username.send_keys(os.getenv('username_2'))
                         password.send_keys(os.getenv('password_2'))
                         
                     password.send_keys(Keys.RETURN)
                     driver.implicitly_wait(5)
 
-                    st.write("Đang đăng nhập ...")
+                    st.write(f"Đang đăng nhập tài khoản {user}...")
                     time.sleep(2)
 
                     qlhd = wait.until(
@@ -493,16 +492,12 @@ def main():
                     st.write(f"Tổng số trang: {len(all_pages) + 1}")
                     time.sleep(2)
 
-                    invoice_total = []
                     for i, page in enumerate(all_pages):
-                        icons = download_zip(driver, action, wait, download_path)
-                        invoice_total.append(icons)
-                        st.write(f"Đang tải {len(icons) + 1} hóa đơn ở trang số {i + 1} ...")
+                        download_zip(driver, action, wait, download_path)
+                        st.write(f"Đang tải hóa đơn ở trang số {i + 1} ...")
                         page.click()
                         time.sleep(3)
                     
-                    st.write(f"Tổng số hóa đơn: {len(invoice_total)}")
-
                     # Zip the downloaded files into one file and offer it for download
                     zip_buffer = BytesIO()
                     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
