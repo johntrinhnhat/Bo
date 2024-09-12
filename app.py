@@ -483,6 +483,7 @@ def main():
                         page.click()
                         time.sleep(3)
 
+                    status.update(label=f"Tải thành công", status="complete", expanded=False)
                     # Zip the downloaded files into one file and offer it for download
                     zip_buffer = BytesIO()
                     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
@@ -501,15 +502,12 @@ def main():
                         mime="application/zip"
                     )
                     st.success("Bố nhớ giải nén tệp zip này !!!")
-                    status.update(label=f"Tải thành công", status="complete", expanded=False)
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
                 finally:
-                    driver.quit()
+                    if driver:
+                        driver.quit()  # Close the driver if it was initialized
+                    status.update(label="Tải thành công", status="complete", expanded=False)
                     
-
-
-         
-
 if __name__ == "__main__":
     main()
