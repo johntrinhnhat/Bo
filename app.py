@@ -489,14 +489,13 @@ def main():
                     
 
                     all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
-                    st.write(f"Tổng số trang: {len(all_pages) + 1}")
-                    time.sleep(2)
-
-                    for i, page in enumerate(all_pages):
-                        download_zip(driver, action, wait, download_path)
-                        st.write(f"Đang tải hóa đơn ở trang số {i + 1} ...")
-                        page.click()
-                        time.sleep(3)
+                    if all_pages:
+                        st.write(f"Tổng số trang: {len(all_pages) + 1}")
+                        for i, page in enumerate(all_pages):
+                            download_zip(driver, action, wait, download_path)
+                            st.write(f"Đang tải hóa đơn ở trang số {i + 1} ...")
+                            page.click()
+                            time.sleep(3)
                     
                     # Zip the downloaded files into one file and offer it for download
                     zip_buffer = BytesIO()
