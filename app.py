@@ -35,20 +35,23 @@ def download_zip(driver, action, wait, download_path):
         except StaleElementReferenceException:
             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
             action.move_to_element(icon).perform()
-            print("MOVED TO ELEMENT AFTER RE-FINDING")
 
 
         driver.execute_script("arguments[0].click();", icon)
-        driver.implicitly_wait(10)
+        # driver.implicitly_wait(10)
+        time.sleep(3)
         
         invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
         if invoice_form:
             st.write(f"Found invoice form: {invoice_form}")
 
-        download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-        driver.execute_script("arguments[0].click();", download_button)
-        st.write("Đang tải xuống tệp Zip...")
-        driver.implicitly_wait(3)
+        download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
+        if download_button:
+            st.write(f"Found download button: {download_button}")
+        # driver.execute_script("arguments[0].click();", download_button)
+        # st.write("Đang tải xuống tệp Zip...")
+        # driver.implicitly_wait(3)
+        time.sleep(3)
 
         downloaded_file = wait_for_download(download_path)
         if downloaded_file:
@@ -57,9 +60,11 @@ def download_zip(driver, action, wait, download_path):
         # close_button = wait.until(
         #     EC.presence_of_element_located((By.XPATH, "//button[@aria-label='Close']")))
         close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
-        close_button.click()
-        st.write(close_button)
-        driver.implicitly_wait(3)
+        if close_button:
+            st.write(f"Found close button: {close_button}")
+        # close_button.click()
+        # st.write(close_button)
+        # driver.implicitly_wait(3)
 
 def wait_for_download(download_path, timeout=30):
     """Wait for a file to be downloaded to the download path"""
