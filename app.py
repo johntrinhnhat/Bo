@@ -501,11 +501,12 @@ def main():
                         mime="application/zip"
                     )
                     st.success("Bố nhớ giải nén tệp zip này !!!")
+                    status.update(label=f"Tải thành công", status="complete", expanded=False)
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
                 finally:
                     driver.quit()
-                    status.update(label=f"Tải thành công", status="complete", expanded=False)
+                    
 
 
          
