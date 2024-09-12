@@ -489,7 +489,10 @@ def main():
                     time.sleep(2)
                     
 
-                    all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
+                    # all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
+                    all_pages = wait.until(
+                        EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page']"))
+                    )
                     if all_pages:
                         st.write(f"Tổng số trang: {len(all_pages) + 1}")
                         for i, page in enumerate(all_pages):
