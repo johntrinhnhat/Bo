@@ -13,7 +13,7 @@ from openpyxl import load_workbook
 from selenium import webdriver
 from pathlib import Path
 
-# from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 # from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
@@ -23,7 +23,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-def download_zip(driver, action, wait):
+def download_zip(driver, action, wait, download_path):
     icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
     icons = icons[:len(icons)//2]
     st.write(f"Icon len: {len(icons)}")
@@ -32,7 +32,6 @@ def download_zip(driver, action, wait):
         try:
             action.move_to_element(icon).perform()
             driver.implicitly_wait(2)
-            # print(f"MOVED TO ELEMENT")
         except StaleElementReferenceException:
             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
             action.move_to_element(icon).perform()
@@ -48,11 +47,27 @@ def download_zip(driver, action, wait):
         driver.implicitly_wait(3)
         st.write("Downloaded")
 
+
+        downloaded_file = wait_for_download(download_path)
+        if downloaded_file:
+            st.write(f"Downloaded: {downloaded_file}")
+
         close_button = wait.until(
             EC.presence_of_element_located((By.XPATH, "//button[@aria-label='Close']")))
         close_button.click()
         st.write(close_button)
         driver.implicitly_wait(3)
+
+def wait_for_download(download_path, timeout=30):
+    """Wait for a file to be downloaded to the download path"""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        files = os.listdir(download_path)
+        if files:
+            return files[0]  # Return the first file found
+        time.sleep(1)
+    return None
+
 
 def convert_date_format(date_str):
     # Parse the date string
@@ -392,13 +407,6 @@ def main():
             chrome_options.add_argument("--headless")
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_experimental_option("prefs", {
-                "download.default_directory": str(Path.home() / "Downloads"),
-                "download.prompt_for_download": False,
-                "download.directory_upgrade": True,
-                "safebrowsing.enabled": True
-            })
-            
 
             # Point the browser to the correct location
             chrome_options.binary_location = "/usr/bin/chromium"
@@ -447,9 +455,7 @@ def main():
             time.sleep(3)
 
             page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 25 items on page']")
-            # page_size = wait.until(
-            #     EC.presence_of_element_located((By.XPATH, "//div[@aria-label='Display 25 items on page']"))
-            # )
+           
             page_size.click()
             time.sleep(5)
 
@@ -460,16 +466,26 @@ def main():
             st.write(f"All available next pages: {len(available_next_pages)}")
 
             if available_next_pages:
-                print(f"Available next page: {[page.get_attribute('aria-label') for page in available_next_pages]}")
-                download_zip(driver, action, wait)
+                # print(f"Available next page: {[page.get_attribute('aria-label') for page in available_next_pages]}")
+                download_zip(driver, action, wait, download_path="/tmp/")
+                
                 for next_page in available_next_pages:
                     next_page.click()
                     time.sleep(5)
-                    download_zip(driver, action, wait)
-                    print(f"DATA IS DOWNLOADED IN {next_page.get_attribute('aria-label')}")
+                    download_zip(driver, action, wait, download_path="/tmp/")
+                
+                downloaded_file = os.path.join("/tmp/", "zip_automation.zip")
+                with open(downloaded_file, "rb") as f:
+                    st.download_button(
+                        label="Tải file đã tải xuống",
+                        data=f,
+                        file_name="downloaded_file.zip",
+                        mime="application/zip"
+                    )
+                    # print(f"DATA IS DOWNLOADED IN     {next_page.get_attribute('aria-label')}")
                     
             else:
-                download_zip(driver, action, wait)
+                download_zip(driver, action, wait, download_path="/tmp/")
                 print("No next page")
         else:
             pass
