@@ -48,8 +48,8 @@ def download_zip(driver, action, wait, download_path):
         download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
         if download_button:
             st.write(f"Found download button: {download_button}")
-        # driver.execute_script("arguments[0].click();", download_button)
-        # st.write("Đang tải xuống tệp Zip...")
+        driver.execute_script("arguments[0].click();", download_button)
+        st.write("Đang tải xuống tệp Zip...")
         # driver.implicitly_wait(3)
         time.sleep(3)
 
@@ -62,9 +62,9 @@ def download_zip(driver, action, wait, download_path):
         close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
         if close_button:
             st.write(f"Found close button: {close_button}")
-        # close_button.click()
-        # st.write(close_button)
-        # driver.implicitly_wait(3)
+        driver.execute_script("arguments[0].click();", close_button)
+
+        time.sleep(2)
 
 def wait_for_download(download_path, timeout=30):
     """Wait for a file to be downloaded to the download path"""
