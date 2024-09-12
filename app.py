@@ -26,7 +26,7 @@ from selenium.webdriver.common.keys import Keys
 def download_zip(driver, action, wait, download_path):
     icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
     icons = icons[:len(icons)//2]
-    st.write(f"Icon len: {len(icons)}")
+    st.write(f"Số lượng hóa đơn: {len(icons)}")
 
     for icon in icons:
         try:
@@ -50,10 +50,11 @@ def download_zip(driver, action, wait, download_path):
 
         downloaded_file = wait_for_download(download_path)
         if downloaded_file:
-            st.write(f"Downloaded: {downloaded_file}")
+            st.write(f"Đã tải xuống: {downloaded_file}")
 
-        close_button = wait.until(
-            EC.presence_of_element_located((By.XPATH, "//button[@aria-label='Close']")))
+        # close_button = wait.until(
+        #     EC.presence_of_element_located((By.XPATH, "//button[@aria-label='Close']")))
+        close_button = driver.find_element(By.XPATH, "//button[@aria-label='Close']")
         close_button.click()
         st.write(close_button)
         driver.implicitly_wait(3)
@@ -64,8 +65,12 @@ def wait_for_download(download_path, timeout=30):
     while time.time() - start_time < timeout:
         files = os.listdir(download_path)
         if files:
-            return files[0]  # Return the first file found
+            # Check if the file is fully downloaded by ensuring its size remains constant
+            latest_file = max([os.path.join(download_path, f) for f in files], key=os.path.getctime)
+            if not latest_file.endswith('.crdownload'):  # Incomplete downloads in Chrome have .crdownload extension
+                return latest_file
         time.sleep(1)
+
     return None
 
 
@@ -415,82 +420,92 @@ def main():
             driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
             action=ActionChains(driver,10)
             wait = WebDriverWait(driver, 10)
+            try:
+                driver.get('https://hkd.vnpt.vn/Account/Login')
+                driver.implicitly_wait(2)
+                # Wait for the login page to load and find the username and password fields
+                wait.until(
+                    EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
+                )
+                username = driver.find_element(By.NAME, 'UserName')
+                password = driver.find_element(By.NAME, 'Password')
+                username.send_keys(os.getenv('username'))
+                password.send_keys(os.getenv('password'))
+                password.send_keys(Keys.RETURN)
 
-            driver.get('https://hkd.vnpt.vn/Account/Login')
-            driver.implicitly_wait(2)
-            # Wait for the login page to load and find the username and password fields
-            wait.until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
-            )
-            username = driver.find_element(By.NAME, 'UserName')
-            password = driver.find_element(By.NAME, 'Password')
-            username.send_keys(os.getenv('username'))
-            password.send_keys(os.getenv('password'))
-            password.send_keys(Keys.RETURN)
+                driver.implicitly_wait(5)
 
-            driver.implicitly_wait(5)
+                qlhd = wait.until(
+                    EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
+                )
 
-            qlhd = wait.until(
-                EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
-            )
+                driver.execute_script("arguments[0].click();", qlhd)
+                driver.implicitly_wait(2)
 
-            driver.execute_script("arguments[0].click();", qlhd)
-            driver.implicitly_wait(2)
+                driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
 
-            driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
+                driver.implicitly_wait(2)
 
-            driver.implicitly_wait(2)
-
-            date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
-            date_btn[0].clear()
-            date_btn[0].send_keys(start_date)
-            date_btn[1].clear()
-            date_btn[1].send_keys(end_date)
+                date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
+                date_btn[0].clear()
+                date_btn[0].send_keys(start_date)
+                date_btn[1].clear()
+                date_btn[1].send_keys(end_date)
 
 
-            search_btn = wait.until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
-            )
-            search_btn[3].click()
-            time.sleep(3)
+                search_btn = wait.until(
+                    EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
+                )
+                search_btn[3].click()
+                time.sleep(3)
 
-            page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 25 items on page']")
-           
-            page_size.click()
-            time.sleep(5)
-
-            
-
-            all_pages = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
-            available_next_pages = all_pages.find_elements(By.XPATH, "//div[@class='dx-page']")
-            st.write(f"All available next pages: {len(available_next_pages)}")
-
-            if available_next_pages:
-                # print(f"Available next page: {[page.get_attribute('aria-label') for page in available_next_pages]}")
-                download_zip(driver, action, wait, download_path="/tmp/")
+                page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 25 items on page']")
+                page_size.click()
+                time.sleep(5)
                 
+
+                all_pages = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
+                available_next_pages = all_pages.find_elements(By.XPATH, "//div[@class='dx-page']")
+                st.write(f"Tổng số trang: {len(available_next_pages)}")
+
+                # Set the download path to a temporary directory
+                download_path = tempfile.mkdtemp()
+
                 for next_page in available_next_pages:
+                    download_zip(driver, action, wait, download_path)
                     next_page.click()
                     time.sleep(5)
-                    download_zip(driver, action, wait, download_path="/tmp/")
-                
-                downloaded_file = os.path.join("/tmp/", "zip_automation.zip")
-                with open(downloaded_file, "rb") as f:
-                    st.download_button(
-                        label="Tải file đã tải xuống",
-                        data=f,
-                        file_name="downloaded_file.zip",
-                        mime="application/zip"
-                    )
-                    # print(f"DATA IS DOWNLOADED IN     {next_page.get_attribute('aria-label')}")
-                    
-            else:
-                download_zip(driver, action, wait, download_path="/tmp/")
-                print("No next page")
+
+                if not available_next_pages:
+                    download_zip(driver, action, wait, download_path)
+
+                # Zip the downloaded files into one file and offer it for download
+                zip_buffer = BytesIO()
+                with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+                    for root, _, files in os.walk(download_path):
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            zip_file.write(file_path, arcname=file)
+
+                zip_buffer.seek(0)
+
+                # Create a download button for the user
+                st.download_button(
+                    label="Tải file ZIP đã tải xuống",
+                    data=zip_buffer,
+                    file_name="downloaded_files.zip",
+                    mime="application/zip"
+                )
+                st.success("Tải file ZIP thành công!")
+            except Exception as e:
+                st.error(f"Lỗi: {e}")
+            finally:
+                driver.quit()
+    
+
         else:
             pass
 
-            time.sleep(10)
 
             
 
