@@ -417,15 +417,15 @@ def main():
                     st.success("Đã tải thư mục XML thành công")
     
     with tab4:
+        with st.form():
+            st.subheader(f":orange[Tên tài khoản: Trần Minh Đạt]", divider="gray")
+            date_start, date_end = st.columns(2)
+            with date_start:
+                start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY").strftime("%d/%m/%Y")
+            with date_end:
+                end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
 
-        st.subheader(f":orange[Tên tài khoản: Trần Minh Đạt]", divider=True)
-        date_start, date_end = st.columns(2)
-        with date_start:
-            start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY").strftime("%d/%m/%Y")
-        with date_end:
-            end_date = st.date_input("Ngày kết thúc",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
-
-        if st.button("Tải Zip tự động"):
+            if st.button("Tải Zip tự động"):
         
             download_path = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(download_path)            
