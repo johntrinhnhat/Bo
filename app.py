@@ -490,17 +490,13 @@ def main():
                     
 
                     all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
-                    # all_page_indexes = wait.until(
-                    #     EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
-                    # )
                     st.write(all_pages)
-                    st.write(len(all_pages))
-                    # all_pages = all_page_indexes.find_elements(By.XPATH, "//div[@class='dx-page']")
                     if all_pages:
                         st.write(f"Tổng số trang: {len(all_pages)}")
                         for i, page in enumerate(all_pages):
-                            download_zip(driver, action, wait, download_path)
+                            st.write(download_path)
                             st.write(f"Đang tải hóa đơn ở trang số {i + 1} ...")
+                            download_zip(driver, action, wait, download_path)
                             page.click()
                             time.sleep(3)
                     else:
