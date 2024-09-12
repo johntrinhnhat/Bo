@@ -418,7 +418,9 @@ def main():
     
     with tab4:
         with st.container(border=True):
-            st.subheader(f":orange[Tên tài khoản: Trần Minh Đạt]", divider="gray")
+            st.subheader(f":orange[Tài khoản:]", divider="gray")
+            tmd = st.button("Trần Minh Đạt")
+            ntt = st.button("Nguyễn Thanh Thúy")
             date_start, date_end = st.columns(2)
             with date_start:
                 start_date = st.date_input("Ngày bắt đầu", format="DD/MM/YYYY").strftime("%d/%m/%Y")
@@ -442,8 +444,13 @@ def main():
                         username = driver.find_element(By.NAME, 'UserName')
                         password = driver.find_element(By.NAME, 'Password')
 
-                        username.send_keys(os.getenv('username'))
-                        password.send_keys(os.getenv('password'))
+                        if tmd:
+                            username.send_keys(os.getenv('username'))
+                            password.send_keys(os.getenv('password'))
+                        elif ntt:
+                            username.send_keys(os.getenv('username_2'))
+                            password.send_keys(os.getenv('password_2'))
+                            
                         password.send_keys(Keys.RETURN)
                         driver.implicitly_wait(5)
 
@@ -456,11 +463,8 @@ def main():
                         driver.execute_script("arguments[0].click();", qlhd)
                         st.write("Đang vào mục Quản Lý Hóa Đơn ...")
                         time.sleep(2)
-                        # driver.implicitly_wait(2)
-                        # driver.get('https://hkd.vnpt.vn/Thue/QuanLyHoaDon')
-                        # driver.implicitly_wait(2)
+                        
                         date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
-
                         date_btn[0].clear()
                         date_btn[0].send_keys(start_date)
                         st.write(f"Đang nhập ngày bắt đầu: {start_date}")
@@ -489,11 +493,15 @@ def main():
                         st.write(f"Tổng số trang: {len(all_pages) + 1}")
                         time.sleep(2)
 
+                        invoice_total = []
                         for i, page in enumerate(all_pages):
                             icons = download_zip(driver, action, wait, download_path)
+                            invoice_total.append(icons)
                             st.write(f"Đang tải {len(icons) + 1} hóa đơn ở trang số {i + 1} ...")
                             page.click()
                             time.sleep(3)
+                        
+                        st.write(f"Tổng số hóa đơn: {len(invoice_total)}")
 
                         # Zip the downloaded files into one file and offer it for download
                         zip_buffer = BytesIO()
