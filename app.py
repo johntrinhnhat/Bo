@@ -489,7 +489,7 @@ def main():
                     time.sleep(2)
                     
 
-                    all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
+                    all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
                     # all_page_indexes = wait.until(
                     #     EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
                     # )
