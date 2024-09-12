@@ -47,6 +47,7 @@ def download_zip(driver, action, download_path):
         except StaleElementReferenceException:
             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
             action.move_to_element(icon).perform()
+    return icons
         
 def wait_for_download(download_path, timeout=30):
     """Wait for a file to be downloaded to the download path"""
@@ -416,6 +417,7 @@ def main():
             driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
             action=ActionChains(driver,10)
             wait = WebDriverWait(driver, 10)
+
             with st.status("Đang tải Zip tự động ...", expanded=True) as status:
                 try:
                     driver.get('https://hkd.vnpt.vn/Account/Login')
@@ -465,24 +467,22 @@ def main():
                     st.write("Đang tìm hóa đơn ...")
                     time.sleep(3)
 
-                    page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 25 items on page']")
+                    page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 50 items on page']")
                     page_size.click()
-                    st.write("Chọn hiển thị 25 hóa đơn ...")
+                    st.write("Chọn hiển thị 50 hóa đơn ...")
                     time.sleep(2)
                     
 
                     all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
                     st.write(f"Tổng số trang: {len(all_pages) + 1}")
-                    time.sleep(1)
+                    time.sleep(2)
 
                     for i, page in enumerate(all_pages):
-                        st.write(f"Đang tải 25 hóa đơn ở trang số {i + 1}")
-                        download_zip(driver, action, download_path)
+                        icons = download_zip(driver, action, download_path)
+                        st.write(f"Đang tải {len(icons) + 1} hóa đơn ở trang số {i + 1} ...")
                         page.click()
-                        st.write(f"Đang tìm hóa đơn trang tiếp theo ...")
                         time.sleep(3)
-                    status.update(label=f"Tải thành công", status="complete", expanded=False)
-                    
+
                     # Zip the downloaded files into one file and offer it for download
                     zip_buffer = BytesIO()
                     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
@@ -505,6 +505,7 @@ def main():
                     st.error(f"Lỗi: {e}")
                 finally:
                     driver.quit()
+                    status.update(label=f"Tải thành công", status="complete", expanded=False)
 
 
          
