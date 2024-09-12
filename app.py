@@ -188,7 +188,6 @@ def extract_zipfile(zip_file, extract_to):
 ###TAB 4 FUNCTIONS
 def download_zip(driver, action, wait, download_path):
     all_xml_files = []
-    temp_folder = tempfile.mkdtemp()
     # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
     icons = wait.until(
         EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
@@ -210,10 +209,15 @@ def download_zip(driver, action, wait, download_path):
             if downloaded_file:
                 # Extract the number from the downloaded file (assuming the naming convention is the same)
                 shd = extract_number(os.path.basename(downloaded_file))
-                st.write(shd)
                 # Extract the zip file contents
                 extracted_files = extract_zipfile(downloaded_file, download_path)
-                st.write(extracted_files)
+
+                # Rename and store the extracted XML files in the list
+                for file in extracted_files:
+                    xml_file = shd + file[file.index('.xml'):]
+                    all_xml_files.append((xml_file, file))
+                    os.rename(os.path.join(download_path, file), os.path.join(download_path, xml_file))
+            
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
@@ -222,6 +226,8 @@ def download_zip(driver, action, wait, download_path):
         except StaleElementReferenceException:
             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
             action.move_to_element(icon).perform()
+
+    
         
 def wait_for_download(download_path, timeout=30):
     '''Wait for a file to be downloaded to the download path'''
@@ -508,25 +514,40 @@ def main():
                             time.sleep(3)
                     else:
                         st.write("Không có trang nào được tìm thấy")
-                    # Zip the downloaded files into one file and offer it for download
-                    zip_buffer = BytesIO()
-                    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-                        for root, _, files in os.walk(download_path):
-                            for file in files:
-                                file_path = os.path.join(root, file)
-                                zip_file.write(file_path, arcname=file)
 
-                    zip_buffer.seek(0)
 
-                    # Create a download button for the user
-                    st.download_button(
-                        label="Nhận Zip",
-                        data=zip_buffer,
-                        file_name="Zip_tự_động_hóa.zip",
-                        mime="application/zip",
-                        type="primary"
-                    )
-                    st.success("Bố nhớ giải nén tệp zip này !!!")
+                    # Create a tar archive of the extracted XML files
+                    shutil.make_archive(download_path, 'tar', download_path)
+                    
+                    # Provide download of the tar file
+                    with open(download_path + '.tar', 'rb') as f:
+                        if st.download_button("Tải thư mục XML", f, file_name="extracted_xml_files.tar"):
+                            downloading_message = 'Đang tải thư mục ...'
+                            progress_bar = st.progress(0, text=downloading_message)
+                            for percent_complete in range(100):
+                                time.sleep(0.01)
+                                progress_bar.progress(percent_complete + 1, text=downloading_message)
+                            time.sleep(1)
+                            st.success("Đã tải thư mục XML thành công")
+                    # # Zip the downloaded files into one file and offer it for download
+                    # zip_buffer = BytesIO()
+                    # with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+                    #     for root, _, files in os.walk(download_path):
+                    #         for file in files:
+                    #             file_path = os.path.join(root, file)
+                    #             zip_file.write(file_path, arcname=file)
+
+                    # zip_buffer.seek(0)
+
+                    # # Create a download button for the user
+                    # st.download_button(
+                    #     label="Nhận Zip",
+                    #     data=zip_buffer,
+                    #     file_name="Zip_tự_động_hóa.zip",
+                    #     mime="application/zip",
+                    #     type="primary"
+                    # )
+                    # st.success("Bố nhớ giải nén tệp zip này !!!")
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
                 finally:
