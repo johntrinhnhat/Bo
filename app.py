@@ -205,8 +205,13 @@ def download_zip(driver, action, wait, download_path):
             time.sleep(3)
 
             downloaded_file = wait_for_download(download_path)
-            st.write(downloaded_file)
-            st.write(type(downloaded_file))
+            if downloaded_file:
+                # Extract the number from the downloaded file (assuming the naming convention is the same)
+                shd = extract_number(os.path.basename(downloaded_file))
+                st.write(shd)
+                # Extract the zip file contents
+                extracted_files = extract_zipfile(downloaded_file, download_path)
+                st.write(extracted_files)
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
@@ -492,7 +497,6 @@ def main():
                     
 
                     all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
-                    st.write(all_pages)
                     if all_pages:
                         st.write(f"Tổng số trang: {len(all_pages)}")
                         for i, page in enumerate(all_pages):
