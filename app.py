@@ -415,9 +415,15 @@ def main():
 
         date_start, date_end = st.columns(2)
         with date_start:
-            start_date = st.date_input("Ngày bắt đầu:", format="DD/MM/YYYY").strftime("%d/%m/%Y", key='vnpt_start_date')
+            start_date = st.date_input(
+                "Ngày bắt đầu:", 
+                format="DD/MM/YYYY", 
+                key='vnpt_start_date').strftime("%d/%m/%Y")
         with date_end:
-            end_date = st.date_input("Ngày kết thúc:",  format="DD/MM/YYYY").strftime("%d/%m/%Y",key='vnpt_end_date')
+            end_date = st.date_input(
+                "Ngày kết thúc:", 
+                format="DD/MM/YYYY",
+                key='vnpt_end_date').strftime("%d/%m/%Y")
 
         if st.button("Tải Zip tự động"):
             download_path = tempfile.mkdtemp()
