@@ -300,6 +300,7 @@ def download_XML(driver, action, wait, temp_folder):
                 EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
             )
             action.move_to_element(icon).perform()
+    return xml_files
 ### Streamlit State FUNCTIONS
 def create():
     st.session_state['create_success'] = True
