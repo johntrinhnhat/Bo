@@ -607,14 +607,43 @@ def main():
                     # Optionally, dispatch a change event to simulate the user's interaction
                     # driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", select_size)
 
-                    st.write_stream(stream_data(("Chọn hiển thị 20 hóa đơn ...")))
+                    st.write_stream(stream_data(("Chọn hiển thị 10 hóa đơn ...")))
                     time.sleep(2)
 
                     all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
                     st.write(all_pages)
                     if all_pages:
                         st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+                        for i, page in enumerate(all_pages):
+                            st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
 
+                    xml_files = []
+                    # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+                    icons = wait.until(
+                        EC.presence_of_all_elements_located((By.XPATH, "//button[contains(@class, 'btn-icon')]"))
+                    )
+                    # button = driver.find_element(By.XPATH, "//button[contains(@class, 'btn-icon')]")
+
+                    st.write(len(icons))
+                    # icons = icons[:len(icons)//2]
+                    # for icon in icons:
+                    #     try:
+                    #         action.move_to_element(icon).perform()
+                    #         driver.execute_script("arguments[0].click();", icon)
+                    #         time.sleep(3)
+                            
+                    #         invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
+
+                    #         download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
+                    #         driver.execute_script("arguments[0].click();", download_button)
+                    #         time.sleep(3)
+
+                    #         downloaded_file = wait_for_download(download_path)
+                    #         if downloaded_file:
+                    #             st.write(downloaded_file)
+                    #     except StaleElementReferenceException:
+                    #         icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+                    #         action.move_to_element(icon).perform()
                 except Exception as e:  
                     st.error(f"Lỗi: {e}")
 
