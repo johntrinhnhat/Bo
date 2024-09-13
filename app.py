@@ -294,7 +294,8 @@ def download_XML(driver, action, wait, temp_folder):
             time.sleep(3)
             
             invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
-            download_button = invoice_form.find_element(By.XPATH, "//button[@class='btn btn-link']")
+            download_button = invoice_form.find_element(By.XPATH, "//button[span[text()='Tải xml']]")
+            st.write(download_button)
             driver.execute_script("arguments[0].click();", download_button)
             time.sleep(3)
 
