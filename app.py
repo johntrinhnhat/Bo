@@ -600,9 +600,12 @@ def main():
                         EC.presence_of_element_located((By.XPATH, "//select[@name='pageSize']"))
                     )
                     st.write(select_size)
-                    driver.execute_script("arguments[0].scrollIntoView(true);", select_size)
-                    select_dropdown = Select(select_size)
-                    select_dropdown.select_by_visible_text("20")
+                    # Use JavaScript to set the value
+                    driver.execute_script("arguments[0].value = '1';", select_size)  # '1' corresponds to "20" option
+
+# Optionally, dispatch a change event to simulate the user's interaction
+                    driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", select_size)
+                    
                     st.write_stream(stream_data(("Chọn hiển thị 20 hóa đơn ...")))
                     time.sleep(2)
 
