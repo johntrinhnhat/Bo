@@ -596,17 +596,17 @@ def main():
 
 
                     select_size = driver.find_element(By.XPATH, "//select[@name='pageSize']")
-                    
                     st.write(select_size)
                     select_dropdown = Select(select_size)
                     select_dropdown.select_by_visible_text("20")
                     st.write_stream(stream_data(("Chọn hiển thị 20 hóa đơn ...")))
+                    time.sleep(2)
 
                     all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
                     if all_pages:
                         st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-                        
-                except Exception as e:
+
+                except Exception as e:  
                     st.error(f"Lỗi: {e}")
 
 if __name__ == "__main__":
