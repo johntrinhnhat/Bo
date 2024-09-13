@@ -594,9 +594,11 @@ def main():
                     st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
                     time.sleep(3)
 
-                    select_size = wait.until(
-                        EC.visibility_of_element_located((By.XPATH, "//select[@name='pageSize']"))
-                    )
+                    select_size = driver.find_element(By.XPATH, "//select[@name='pageSize']")
+                    
+                    # select_size = wait.until(
+                    #     EC.visibility_of_element_located((By.XPATH, "//select[@name='pageSize']"))
+                    # )
                     select_dropdown = Select(select_size)
                     select_dropdown.select_by_visible_text("20")
                     st.write_stream(stream_data(("Chọn hiển thị 20 hóa đơn ...")))
