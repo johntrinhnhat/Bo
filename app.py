@@ -658,12 +658,13 @@ def main():
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
                     st.write(len(final_xml_files))
-                    tar_path = os.path.join(temp_folder, 'extracted_XML_files.tar')
 
+                    full_file_paths = [os.path.join(temp_folder, file) if not os.path.isabs(file) else file for file in final_xml_files]
+
+                    tar_path = os.path.join(temp_folder, 'extracted_XML_files.tar')
                     with tarfile.open(tar_path, 'w') as tar:
-                        for file in final_xml_files:
-                            # tar.add(file, arcname=os.path.basename(file))
-                            tar.add(os.path.join(temp_folder, file), arcname=os.path.basename(file))
+                        for file in full_file_paths:
+                            tar.add(file, arcname=os.path.basename(file))
 
                     with open(tar_path, 'rb') as f:
                         if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar", type="primary"):
