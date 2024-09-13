@@ -15,10 +15,12 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+
 
 def stream_data(data):
     for word in data.split(" "):
@@ -410,7 +412,7 @@ def main():
     with tab3:
         user = st.radio(
             "Hộ kinh doanh:",
-            ["Trần Minh Đạt", "Tuyết Oanh"]
+            ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
         )
 
         date_start, date_end = st.columns(2)
@@ -575,13 +577,11 @@ def main():
                     time.sleep(2)
 
                     date_btn = driver.find_elements(By.XPATH, "//input[@formcontrolname='datePicker']")
-                    st.write(date_btn[0])
                     date_btn[0].clear()
                     date_btn[0].send_keys(start_date)
                     st.write_stream(stream_data((f"Đang nhập ngày bắt đầu: {start_date}")))
                     time.sleep(2)
 
-                    st.write(date_btn[1])
                     date_btn[1].clear()
                     date_btn[1].send_keys(end_date)
                     st.write_stream(stream_data((f"Đang nhập ngày kết thúc: {end_date}")))
@@ -590,11 +590,20 @@ def main():
                     search_btn = wait.until(
                         EC.presence_of_element_located((By.XPATH, "//button[span[text()='Tìm kiếm']]"))
                     )
-                    # search_btn.click()
+                    search_btn.click()
                     st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
-                    st.write(search_btn)
                     time.sleep(3)
 
+                    select_size = wait.until(
+                        EC.presence_of_element_located((By.XPATH, "//select[@name='pageSize]"))
+                    )
+                    select_dropdown = Select(select_size)
+                    select_dropdown.select_by_visible_text("10")
+                    st.write_stream(stream_data(("Chọn hiển thị 10 hóa đơn ...")))
+
+                    all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
+                    if all_pages:
+                        st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
 
