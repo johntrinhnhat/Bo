@@ -20,6 +20,11 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
+def stream_data(data):
+    for word in data.split(" "):
+        yield word + " "
+        time.sleep(0.02)
+
 ### TAB 1 FUNCTIONS
 def convert_date_format(date_str):
     # Parse the date string
@@ -440,25 +445,25 @@ def main():
                         
                     driver.implicitly_wait(5)
 
-                    st.write(f"Đang đăng nhập tài khoản {user}...")
+                    st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
                     time.sleep(2)
 
                     qlhd = wait.until(
                         EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
                     )
                     driver.execute_script("arguments[0].click();", qlhd)
-                    st.write("Đang vào mục Quản Lý Hóa Đơn ...")
+                    st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
                     time.sleep(2)
                     
                     date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
                     date_btn[0].clear()
                     date_btn[0].send_keys(start_date)
-                    st.write(f"Đang nhập ngày bắt đầu: {start_date}")
+                    st.write_stream(stream_data((f"Đang nhập ngày bắt đầu: {start_date}")))
                     time.sleep(2)
 
                     date_btn[1].clear()
                     date_btn[1].send_keys(end_date)
-                    st.write(f"Đang nhập ngày kết thúc: {end_date}")
+                    st.write_stream(stream_data((f"Đang nhập ngày kết thúc: {end_date}")))
                     time.sleep(2)
 
 
@@ -466,29 +471,29 @@ def main():
                         EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
                     )
                     search_btn[3].click()
-                    st.write("Đang tìm hóa đơn ...")
+                    st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
                     time.sleep(3)
 
                     page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 50 items on page']")
                     page_size.click()
-                    st.write("Chọn hiển thị 50 hóa đơn ...")
+                    st.write_stream(stream_data(("Chọn hiển thị 50 hóa đơn ...")))
                     time.sleep(2)
                     
                     final_xml_files = []
                     all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
                     if all_pages:
-                        st.write(f"Tổng số trang: {len(all_pages)}")
+                        st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
                         for i, page in enumerate(all_pages):
-                            st.write(f"Đang tải hóa đơn ở trang số {i + 1} ...")
+                            st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
                             xml_files = download_zip(driver, action, wait, download_path)
                             final_xml_files.append(xml_files)
                             page.click()
                             time.sleep(3)
                     else:
-                        st.write("Không có trang nào được tìm thấy")
+                        st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
                     
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
-                    st.write(f":red[Tổng số hóa đơn: {len(final_xml_files)}]")
+                    st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
                     
                 except Exception as e:
