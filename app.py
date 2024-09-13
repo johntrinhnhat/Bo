@@ -302,6 +302,8 @@ def download_XML(driver, action, wait, temp_folder):
             if downloaded_file:
                 shd = extract_number_viettel(os.path.basename(downloaded_file))
                 xml_files.append(shd)
+            else:
+                st.write("File not found")
 
         except StaleElementReferenceException:
             icons = wait.until(
