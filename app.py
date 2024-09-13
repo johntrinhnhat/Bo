@@ -660,6 +660,10 @@ def main():
 
                     tar_path = os.path.join(temp_folder, 'extracted_XML_files.tar')
 
+                    with tarfile.open(tar_path, 'w') as tar:
+                        for file in final_xml_files:
+                            tar.add(file, arcname=os.path.basename(file))
+
                     with open(tar_path, 'rb') as f:
                         if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar", type="primary"):
                             downloading_message = 'Đang tải thư mục ...'
