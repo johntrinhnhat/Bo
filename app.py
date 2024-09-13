@@ -597,6 +597,7 @@ def main():
 
                     select_size = driver.find_element(By.XPATH, "//select[@name='pageSize']")
                     st.write(select_size)
+                    driver.execute_script("arguments[0].scrollIntoView(true);", select_size)
                     select_dropdown = Select(select_size)
                     select_dropdown.select_by_visible_text("20")
                     st.write_stream(stream_data(("Chọn hiển thị 20 hóa đơn ...")))
