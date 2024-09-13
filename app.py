@@ -532,9 +532,15 @@ def main():
 
         date_start, date_end = st.columns(2)
         with date_start:
-            start_date = st.date_input("Ngày bắt đầu:", format="DD/MM/YYYY").strftime("%d/%m/%Y", key='viettel_start_date')
+            start_date = st.date_input(
+                "Ngày bắt đầu:", 
+                format="DD/MM/YYYY", 
+                key='viettel_start_date').strftime("%d/%m/%Y")
         with date_end:
-            end_date = st.date_input("Ngày kết thúc:",  format="DD/MM/YYYY").strftime("%d/%m/%Y",key='viettel_end_date')
+            end_date = st.date_input(
+                "Ngày kết thúc:",  
+                format="DD/MM/YYYY",
+                key='viettel_end_date').strftime("%d/%m/%Y")
 
         if st.button("Tải XML tự động"):
             download_path = tempfile.mkdtemp()
@@ -554,6 +560,16 @@ def main():
 
                     if username and password:
                         st.write("Found username and password blanks")
+
+                    username.send_keys(os.getenv('username_viettel'))
+                    password.send_keys(os.getenv('password_viettel'))
+                    password.send_keys(Keys.RETURN)
+
+                    qlhd = wait.until(
+                        EC.presence_of_element_located((By.XPATH,"//a[.//span[text()='Quản lý hóa đơn']]")))
+                    driver.execute_script("arguments[0].click();", qlhd)
+                    st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
+                    time.sleep(2)
 
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
