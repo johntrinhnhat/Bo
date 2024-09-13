@@ -300,10 +300,9 @@ def download_XML(driver, action, wait, temp_folder):
 
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
-                # shd = extract_number_viettel(os.path.basename(downloaded_file))
-                # st.write(shd)
-                st.write(downloaded_file)
-
+                shd = extract_number_viettel(os.path.basename(downloaded_file))
+                xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
+                st.write(xml_file)
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
             time.sleep(2)
