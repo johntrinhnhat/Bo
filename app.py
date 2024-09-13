@@ -595,7 +595,7 @@ def main():
                     time.sleep(3)
 
                     select_size = wait.until(
-                        EC.presence_of_element_located((By.XPATH, "//select[@name='pageSize']"))
+                        EC.visibility_of_element_located((By.XPATH, "//select[@name='pageSize']"))
                     )
                     select_dropdown = Select(select_size)
                     select_dropdown.select_by_visible_text("20")
