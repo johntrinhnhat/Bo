@@ -652,12 +652,24 @@ def main():
                         for i, page in enumerate(all_pages):
                             st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
                             xml_files = download_XML(driver, action, wait, temp_folder)
-                            st.write_stream(xml_files)
                             final_xml_files.append(xml_files)
 
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
+
+                    tar_path = os.path.join(temp_folder, 'XML_files.tar')
+
+                    with open(tar_path, 'rb') as f:
+                        if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar", type="primary"):
+                            downloading_message = 'Đang tải thư mục ...'
+                            progress_bar = st.progress(0, text=downloading_message)
+                            for percent_complete in range(100):
+                                time.sleep(0.01)
+                                progress_bar.progress(percent_complete + 1, text=downloading_message)
+                            time.sleep(1)
+                            st.success("Đã tải thư mục XML thành công")
+
                 except Exception as e:  
                     st.error(f"Lỗi: {e}")
 
