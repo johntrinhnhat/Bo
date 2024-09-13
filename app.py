@@ -598,8 +598,8 @@ def main():
                         EC.presence_of_element_located((By.XPATH, "//select[@name='pageSize]"))
                     )
                     select_dropdown = Select(select_size)
-                    select_dropdown.select_by_visible_text("10")
-                    st.write_stream(stream_data(("Chọn hiển thị 10 hóa đơn ...")))
+                    select_dropdown.select_by_visible_text("20")
+                    st.write_stream(stream_data(("Chọn hiển thị 20 hóa đơn ...")))
 
                     all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
                     if all_pages:
