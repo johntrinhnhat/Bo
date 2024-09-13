@@ -595,7 +595,10 @@ def main():
                     time.sleep(3)
 
 
-                    select_size = driver.find_element(By.XPATH, "//select[@name='pageSize']")
+                    # select_size = driver.find_element(By.XPATH, "//select[@name='pageSize']")
+                    select_size = wait.until(
+                        EC.presence_of_element_located((By.XPATH, "//select[@name='pageSize']"))
+                    )
                     st.write(select_size)
                     driver.execute_script("arguments[0].scrollIntoView(true);", select_size)
                     select_dropdown = Select(select_size)
