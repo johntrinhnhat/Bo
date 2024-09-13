@@ -574,7 +574,19 @@ def main():
                     st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
                     time.sleep(2)
 
-                    st.write(qlhd)
+                    date_btn = driver.find_elements(By.XPATH, "//input[@formcontrolname='datePicker']")
+                    st.write(len(date_btn))
+                    for btn in date_btn:
+                        st.write(btn.get_attribute(name="dp"))
+                    # date_btn[0].clear()
+                    # date_btn[0].send_keys(start_date)
+                    # st.write_stream(stream_data((f"Đang nhập ngày bắt đầu: {start_date}")))
+                    # time.sleep(2)
+
+                    # date_btn[1].clear()
+                    # date_btn[1].send_keys(end_date)
+                    # st.write_stream(stream_data((f"Đang nhập ngày kết thúc: {end_date}")))
+                    # time.sleep(2)
 
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
