@@ -295,7 +295,6 @@ def download_XML(driver, action, wait, temp_folder):
             
             invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
             download_button = invoice_form.find_element(By.XPATH, "//button[span[text()='Tải xml']]")
-            st.write(download_button)
             driver.execute_script("arguments[0].click();", download_button)
             time.sleep(3)
 
@@ -650,7 +649,7 @@ def main():
                         for i, page in enumerate(all_pages):
                             st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
                             xml_files = download_XML(driver, action, wait, temp_folder)
-
+                            st.write_stream(xml_files)
 
                 except Exception as e:  
                     st.error(f"Lỗi: {e}")
