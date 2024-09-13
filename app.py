@@ -418,12 +418,12 @@ def main():
             start_date = st.date_input(
                 "Ngày bắt đầu:", 
                 format="DD/MM/YYYY", 
-                key='vnpt').strftime("%d/%m/%Y")
+                key='vnpt_start').strftime("%d/%m/%Y")
         with date_end:
             end_date = st.date_input(
                 "Ngày kết thúc:", 
                 format="DD/MM/YYYY",
-                key='vnpt').strftime("%d/%m/%Y")
+                key='vnpt_end').strftime("%d/%m/%Y")
 
         if st.button("Tải Zip tự động"):
             download_path = tempfile.mkdtemp()
@@ -541,12 +541,12 @@ def main():
             start_date = st.date_input(
                 "Ngày bắt đầu:", 
                 format="DD/MM/YYYY", 
-                key='viettel').strftime("%d/%m/%Y")
+                key='viettel_start').strftime("%d/%m/%Y")
         with date_end:
             end_date = st.date_input(
                 "Ngày kết thúc:",  
                 format="DD/MM/YYYY",
-                key='viettel').strftime("%d/%m/%Y")
+                key='viettel_end').strftime("%d/%m/%Y")
 
         if st.button("Tải XML tự động"):
             download_path = tempfile.mkdtemp()
