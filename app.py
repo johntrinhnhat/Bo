@@ -638,7 +638,7 @@ def main():
                         for i, page in enumerate(all_pages):
                             st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
                             xml_files = download_XML(driver, action, wait, temp_folder)
-                            st.write(len(xml_files))
+                            st.write(xml_files)
 
 
                 except Exception as e:  
