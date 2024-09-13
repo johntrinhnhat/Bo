@@ -431,7 +431,7 @@ def main():
 
             with st.status("Đang tải Zip tự động ...", expanded=True) as status:
                 try:
-                    driver.get('https://hkd.vnpt.vn/Account/Login')
+                    driver.get('https://hkd.vnpt.vn/account/login')
                     driver.implicitly_wait(2)
 
                     wait.until(
@@ -564,18 +564,17 @@ def main():
                     username = driver.find_element(By.ID, 'username')
                     password = driver.find_element(By.NAME, 'password')
 
-                    if username and password:
-                        st.write("Found username and password blanks")
-
                     username.send_keys(os.getenv('username_viettel'))
                     password.send_keys(os.getenv('password_viettel'))
                     password.send_keys(Keys.RETURN)
 
                     qlhd = wait.until(
-                        EC.presence_of_element_located((By.XPATH,"//a[.//span[text()='Quản lý hóa đơn']]")))
+                        EC.presence_of_element_located((By.XPATH,"//a[@href='/invoice-management/invoice']")))
                     driver.execute_script("arguments[0].click();", qlhd)
                     st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
                     time.sleep(2)
+
+                    st.write(qlhd)
 
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
