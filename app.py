@@ -304,6 +304,10 @@ def download_XML(driver, action, wait, temp_folder):
                 # st.write(shd)
                 st.write(downloaded_file)
 
+            close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
+            driver.execute_script("arguments[0].click();", close_button)
+            time.sleep(2)
+
         except StaleElementReferenceException:
             icons = wait.until(
                 EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
