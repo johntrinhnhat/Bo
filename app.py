@@ -582,8 +582,8 @@ def main():
                     time.sleep(2)
 
                     st.write(date_btn[1])
-                    date_btn[1].clear()
-                    date_btn[1].send_keys(end_date)
+                    date_btn[2].clear()
+                    date_btn[2].send_keys(end_date)
                     st.write_stream(stream_data((f"Đang nhập ngày kết thúc: {end_date}")))
                     time.sleep(2)
 
