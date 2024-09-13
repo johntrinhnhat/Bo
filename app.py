@@ -418,12 +418,12 @@ def main():
             start_date = st.date_input(
                 "Ngày bắt đầu:", 
                 format="DD/MM/YYYY", 
-                key='vnpt_start_date').strftime("%d/%m/%Y")
+                key='vnpt').strftime("%d/%m/%Y")
         with date_end:
             end_date = st.date_input(
                 "Ngày kết thúc:", 
                 format="DD/MM/YYYY",
-                key='vnpt_end_date').strftime("%d/%m/%Y")
+                key='vnpt').strftime("%d/%m/%Y")
 
         if st.button("Tải Zip tự động"):
             download_path = tempfile.mkdtemp()
@@ -541,12 +541,12 @@ def main():
             start_date = st.date_input(
                 "Ngày bắt đầu:", 
                 format="DD/MM/YYYY", 
-                key='viettel_start_date').strftime("%d/%m/%Y")
+                key='viettel').strftime("%d/%m/%Y")
         with date_end:
             end_date = st.date_input(
                 "Ngày kết thúc:",  
                 format="DD/MM/YYYY",
-                key='viettel_end_date').strftime("%d/%m/%Y")
+                key='viettel').strftime("%d/%m/%Y")
 
         if st.button("Tải XML tự động"):
             download_path = tempfile.mkdtemp()
@@ -575,18 +575,25 @@ def main():
                     time.sleep(2)
 
                     date_btn = driver.find_elements(By.XPATH, "//input[@formcontrolname='datePicker']")
-                    st.write(len(date_btn))
-                    for btn in date_btn:
-                        st.write(btn.get_attribute(name="dp"))
-                    # date_btn[0].clear()
-                    # date_btn[0].send_keys(start_date)
-                    # st.write_stream(stream_data((f"Đang nhập ngày bắt đầu: {start_date}")))
-                    # time.sleep(2)
+                    st.write(date_btn[0])
+                    date_btn[0].clear()
+                    date_btn[0].send_keys(start_date)
+                    st.write_stream(stream_data((f"Đang nhập ngày bắt đầu: {start_date}")))
+                    time.sleep(2)
 
-                    # date_btn[1].clear()
-                    # date_btn[1].send_keys(end_date)
-                    # st.write_stream(stream_data((f"Đang nhập ngày kết thúc: {end_date}")))
-                    # time.sleep(2)
+                    st.write(date_btn[1])
+                    date_btn[1].clear()
+                    date_btn[1].send_keys(end_date)
+                    st.write_stream(stream_data((f"Đang nhập ngày kết thúc: {end_date}")))
+                    time.sleep(2)
+
+                    search_btn = wait.until(
+                        EC.presence_of_all_elements_located((By.CLASS_NAME, "btn btn-primary ng-star-inserted"))
+                    )
+                    search_btn.click()
+                    st.write(search_btn)
+                    st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
+                    time.sleep(3)
 
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
