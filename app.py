@@ -288,6 +288,7 @@ def download_XML(driver, action, wait, temp_folder):
     )
     for icon in icons:
         try:
+            st.write(icon)
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
