@@ -620,7 +620,7 @@ def main():
                     xml_files = []
                     # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
                     icons = wait.until(
-                        EC.presence_of_all_elements_located((By.XPATH, "//button[contains(@class, 'btn-icon')]"))
+                        EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
                     )
                     # button = driver.find_element(By.XPATH, "//button[contains(@class, 'btn-icon')]")
 
