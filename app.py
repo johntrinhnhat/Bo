@@ -618,32 +618,29 @@ def main():
                             st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
 
                     xml_files = []
-                    # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
                     icons = wait.until(
                         EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
                     )
-                    # button = driver.find_element(By.XPATH, "//button[contains(@class, 'btn-icon')]")
-
                     st.write(len(icons))
-                    # icons = icons[:len(icons)//2]
-                    # for icon in icons:
-                    #     try:
-                    #         action.move_to_element(icon).perform()
-                    #         driver.execute_script("arguments[0].click();", icon)
-                    #         time.sleep(3)
+                    for icon in icons:
+                        try:
+                            action.move_to_element(icon).perform()
+                            driver.execute_script("arguments[0].click();", icon)
+                            time.sleep(3)
                             
-                    #         invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
-
-                    #         download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
+                            invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
+                            st.write(invoice_form)
+                            download_button = invoice_form.find_element(By.CLASS_NAME, "//button[@class='btn btn-link']")
+                            st.write(download_button)
                     #         driver.execute_script("arguments[0].click();", download_button)
                     #         time.sleep(3)
 
                     #         downloaded_file = wait_for_download(download_path)
                     #         if downloaded_file:
                     #             st.write(downloaded_file)
-                    #     except StaleElementReferenceException:
-                    #         icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
-                    #         action.move_to_element(icon).perform()
+                        except StaleElementReferenceException:
+                            icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+                            action.move_to_element(icon).perform()
                 except Exception as e:  
                     st.error(f"Lỗi: {e}")
 
