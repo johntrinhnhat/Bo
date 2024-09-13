@@ -302,7 +302,8 @@ def download_XML(driver, action, wait, temp_folder):
             if downloaded_file:
                 shd = extract_number_viettel(os.path.basename(downloaded_file))
                 xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
-                st.write(xml_file)
+                xml_files.append(xml_file)
+
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
             time.sleep(2)
@@ -637,14 +638,15 @@ def main():
                     )
 
                     # Use JavaScript to set the value
-                    driver.execute_script("arguments[0].value = '10';", select_size)
+                    driver.execute_script("arguments[0].value = '50';", select_size)
 
                     # Optionally, dispatch a change event to simulate the user's interaction
                     # driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", select_size)
 
-                    st.write_stream(stream_data(("Chọn hiển thị 10 hóa đơn ...")))
+                    st.write_stream(stream_data(("Chọn hiển thị 50 hóa đơn ...")))
                     time.sleep(2)
 
+                    final_xml_files = []
                     all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
                     if all_pages:
                         st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
@@ -652,7 +654,11 @@ def main():
                             st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
                             xml_files = download_XML(driver, action, wait, temp_folder)
                             st.write_stream(xml_files)
-
+                            final_xml_files.append(xml_files)
+                            
+                    final_xml_files = [item for sublist in final_xml_files for item in sublist]
+                    st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+                    time.sleep(3)
                 except Exception as e:  
                     st.error(f"Lỗi: {e}")
 
