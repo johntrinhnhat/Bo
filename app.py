@@ -175,7 +175,7 @@ def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
     ws['D12'] = shdon
 
 ### TAB 3 FUNCTIONS
-def extract_number(string):
+def extract_number_vnpt(string):
     # Find the position of the last underscore and the '.zip' extension
     last_underscore_pos = string.rfind('_')
     dot_zip_pos = string.find('.zip')
@@ -214,7 +214,7 @@ def download_zip(driver, action, wait, download_path):
             downloaded_file = wait_for_download(download_path)
             if downloaded_file:
                 # Extract the number from the downloaded file (assuming the naming convention is the same)
-                shd = extract_number(os.path.basename(downloaded_file))
+                shd = extract_number_vnpt(os.path.basename(downloaded_file))
                 # Extract the zip file contents
                 extracted_files = extract_zipfile(downloaded_file, download_path)
 
@@ -274,6 +274,14 @@ def selenium_web_driver(download_path):
     return driver, action, wait
 
 ### TAB 4 FUNCTIONS
+def extract_number_viettel(string):
+    match = re.search(r'TAV(\d+)', string)
+    if match:
+        return match.group(1)
+    else:
+        return None
+
+
 def download_XML(driver, action, wait, temp_folder):
     xml_files = []
     icons = wait.until(
@@ -292,7 +300,7 @@ def download_XML(driver, action, wait, temp_folder):
 
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
-                shd = extract_number(os.path.basename(downloaded_file))
+                shd = extract_number_viettel(os.path.basename(downloaded_file))
                 st.write(shd)
 
         except StaleElementReferenceException:
