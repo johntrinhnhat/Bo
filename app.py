@@ -582,8 +582,8 @@ def main():
                     time.sleep(2)
 
                     st.write(date_btn[1])
-                    date_btn[2].clear()
-                    date_btn[2].send_keys(end_date)
+                    date_btn[1].clear()
+                    date_btn[1].send_keys(end_date)
                     st.write_stream(stream_data((f"Đang nhập ngày kết thúc: {end_date}")))
                     time.sleep(2)
 
@@ -591,8 +591,8 @@ def main():
                         EC.presence_of_all_elements_located((By.CLASS_NAME, "btn btn-primary ng-star-inserted"))
                     )
                     # search_btn.click()
-                    st.write(search_btn)
                     st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
+                    st.write(search_btn)
                     time.sleep(3)
 
                 except Exception as e:
