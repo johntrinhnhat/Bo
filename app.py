@@ -294,11 +294,12 @@ def main():
             st.success(f'Bạn đã tải thành công {len(xml_files)} tệp')
         st.divider()
             
-    tab1, tab2, tab3= st.tabs(['Phiếu xuất kho', 'Phiếu thu tiền', 'VNPT'])
+    tab1, tab2, tab3, tab4= st.tabs(['Phiếu xuất kho', 'Phiếu thu tiền', 'VNPT', 'Viettel'])
 
     tab1.title("Phiếu xuất kho")
     tab2.title("Phiếu thu tiền")
     tab3.title("Tải zip VNPT")
+    tab4.title("Viettel")
 
     with tab1:
         if xml_files:
@@ -523,5 +524,18 @@ def main():
                     time.sleep(1)
                     st.success("Đã tải thư mục XML thành công")
 
+    with tab4:
+        user = st.radio(
+            "Hộ kinh doanh:",
+            ["An Vinh"]
+        )
+
+        date_start, date_end = st.columns(2)
+        with date_start:
+            start_date = st.date_input("Ngày bắt đầu:", format="DD/MM/YYYY").strftime("%d/%m/%Y")
+        with date_end:
+            end_date = st.date_input("Ngày kết thúc:",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
+
+            
 if __name__ == "__main__":
     main()
