@@ -595,11 +595,9 @@ def main():
                     time.sleep(3)
 
 
-                    # select_size = driver.find_element(By.XPATH, "//select[@name='pageSize']")
                     select_size = wait.until(
                         EC.presence_of_element_located((By.XPATH, "//select[@name='pageSize']"))
                     )
-                    st.write(select_size)
 
                     # Use JavaScript to set the value
                     driver.execute_script("arguments[0].value = '10';", select_size)
@@ -610,18 +608,16 @@ def main():
                     st.write_stream(stream_data(("Chọn hiển thị 10 hóa đơn ...")))
                     time.sleep(2)
 
-                    all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
-                    st.write(all_pages)
-                    if all_pages:
-                        st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-                        for i, page in enumerate(all_pages):
-                            st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
+                    # all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
+                    # if all_pages:
+                    #     st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+                    #     for i, page in enumerate(all_pages):
+                    #         st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
 
                     xml_files = []
                     icons = wait.until(
                         EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
                     )
-                    st.write(len(icons))
                     for icon in icons:
                         try:
                             action.move_to_element(icon).perform()
@@ -629,7 +625,6 @@ def main():
                             time.sleep(3)
                             
                             invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
-
                             download_button = invoice_form.find_element(By.XPATH, "//button[@class='btn btn-link']")
                             driver.execute_script("arguments[0].click();", download_button)
                             time.sleep(3)
@@ -638,11 +633,13 @@ def main():
                             if downloaded_file:
                                 st.write(downloaded_file)
 
-
-
                         except StaleElementReferenceException:
-                            icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
+                            icons = wait.until(
+                                EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
+                            )
                             action.move_to_element(icon).perform()
+
+
                 except Exception as e:  
                     st.error(f"Lỗi: {e}")
 
