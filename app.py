@@ -299,8 +299,9 @@ def download_XML(driver, action, wait, temp_folder):
 
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
-                shd = extract_number_viettel(os.path.basename(downloaded_file))
-                st.write(shd)
+                # shd = extract_number_viettel(os.path.basename(downloaded_file))
+                # st.write(shd)
+                st.write(downloaded_file)
 
         except StaleElementReferenceException:
             icons = wait.until(
