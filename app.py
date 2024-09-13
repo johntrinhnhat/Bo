@@ -600,16 +600,18 @@ def main():
                         EC.presence_of_element_located((By.XPATH, "//select[@name='pageSize']"))
                     )
                     st.write(select_size)
-                    # Use JavaScript to set the value
-                    driver.execute_script("arguments[0].value = '1';", select_size)  # '1' corresponds to "20" option
 
-# Optionally, dispatch a change event to simulate the user's interaction
-                    driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", select_size)
-                    
+                    # Use JavaScript to set the value
+                    driver.execute_script("arguments[0].value = '10';", select_size)
+
+                    # Optionally, dispatch a change event to simulate the user's interaction
+                    # driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", select_size)
+
                     st.write_stream(stream_data(("Chọn hiển thị 20 hóa đơn ...")))
                     time.sleep(2)
 
                     all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
+                    st.write(all_pages)
                     if all_pages:
                         st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
 
