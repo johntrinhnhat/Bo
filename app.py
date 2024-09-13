@@ -288,7 +288,6 @@ def download_XML(driver, action, wait, temp_folder):
     )
     for icon in icons:
         try:
-            st.write(icon)
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
@@ -655,7 +654,7 @@ def main():
                             xml_files = download_XML(driver, action, wait, temp_folder)
                             st.write_stream(xml_files)
                             final_xml_files.append(xml_files)
-                            
+
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
