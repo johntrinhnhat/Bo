@@ -415,9 +415,9 @@ def main():
 
         date_start, date_end = st.columns(2)
         with date_start:
-            start_date = st.date_input("Ngày bắt đầu:", format="DD/MM/YYYY").strftime("%d/%m/%Y")
+            start_date = st.date_input("Ngày bắt đầu:", format="DD/MM/YYYY").strftime("%d/%m/%Y", key='vnpt_start_date')
         with date_end:
-            end_date = st.date_input("Ngày kết thúc:",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
+            end_date = st.date_input("Ngày kết thúc:",  format="DD/MM/YYYY").strftime("%d/%m/%Y",key='vnpt_end_date')
 
         if st.button("Tải Zip tự động"):
             download_path = tempfile.mkdtemp()
@@ -546,12 +546,14 @@ def main():
                     driver.implicitly_wait(2)
 
                     wait.until(
-                        EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
+                        EC.presence_of_element_located((By.XPATH, '//form[@role="form"]'))
                     )
 
-                    username = driver.find_element(By.NAME, 'UserName')
-                    password = driver.find_element(By.NAME, 'Password')
+                    username = driver.find_element(By.ID, 'username')
+                    password = driver.find_element(By.NAME, 'password')
 
+                    if username and password:
+                        st.write("Found username and password blanks")
 
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
