@@ -630,10 +630,11 @@ def main():
                             
                             invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
                             st.write(invoice_form)
-                            download_button = invoice_form.find_element(By.CLASS_NAME, "//button[@class='btn btn-link']")
+
+                            download_button = invoice_form.find_element(By.XPATH, "//button[@class='btn btn-link']")
                             st.write(download_button)
-                    #         driver.execute_script("arguments[0].click();", download_button)
-                    #         time.sleep(3)
+                            driver.execute_script("arguments[0].click();", download_button)
+                            time.sleep(3)
 
                     #         downloaded_file = wait_for_download(download_path)
                     #         if downloaded_file:
