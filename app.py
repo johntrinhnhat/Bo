@@ -174,7 +174,7 @@ def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
     ws['D6'] = nmua
     ws['D12'] = shdon
 
-### TAB 3 FUNCTIONS 
+### TAB 3 FUNCTIONS
 def extract_number(string):
     # Find the position of the last underscore and the '.zip' extension
     last_underscore_pos = string.rfind('_')
@@ -193,10 +193,8 @@ def extract_zipfile(zip_file, extract_to):
                 zip_ref.extract(file, extract_to)
     return extracted_files
 
-###TAB 4 FUNCTIONS
 def download_zip(driver, action, wait, download_path):
     xml_files = []
-    # icons = driver.find_elements(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
     icons = wait.until(
         EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
     )
@@ -236,8 +234,7 @@ def download_zip(driver, action, wait, download_path):
             action.move_to_element(icon).perform()
 
     return xml_files
-    
-        
+     
 def wait_for_download(download_path, timeout=30):
     '''Wait for a file to be downloaded to the download path'''
     start_time = time.time()
@@ -276,6 +273,33 @@ def selenium_web_driver(download_path):
     
     return driver, action, wait
 
+### TAB 4 FUNCTIONS
+def download_XML(driver, action, wait, temp_folder):
+    xml_files = []
+    icons = wait.until(
+        EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
+    )
+    for icon in icons:
+        try:
+            action.move_to_element(icon).perform()
+            driver.execute_script("arguments[0].click();", icon)
+            time.sleep(3)
+            
+            invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
+            download_button = invoice_form.find_element(By.XPATH, "//button[@class='btn btn-link']")
+            driver.execute_script("arguments[0].click();", download_button)
+            time.sleep(3)
+
+            downloaded_file = wait_for_download(temp_folder)
+            if downloaded_file:
+                shd = extract_number(os.path.basename(downloaded_file))
+                st.write(shd)
+
+        except StaleElementReferenceException:
+            icons = wait.until(
+                EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
+            )
+            action.move_to_element(icon).perform()
 ### Streamlit State FUNCTIONS
 def create():
     st.session_state['create_success'] = True
@@ -608,36 +632,13 @@ def main():
                     st.write_stream(stream_data(("Chọn hiển thị 10 hóa đơn ...")))
                     time.sleep(2)
 
-                    # all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
-                    # if all_pages:
-                    #     st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-                    #     for i, page in enumerate(all_pages):
-                    #         st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-
-                    xml_files = []
-                    icons = wait.until(
-                        EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
-                    )
-                    for icon in icons:
-                        try:
-                            action.move_to_element(icon).perform()
-                            driver.execute_script("arguments[0].click();", icon)
-                            time.sleep(3)
-                            
-                            invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
-                            download_button = invoice_form.find_element(By.XPATH, "//button[@class='btn btn-link']")
-                            driver.execute_script("arguments[0].click();", download_button)
-                            time.sleep(3)
-
-                            downloaded_file = wait_for_download(temp_folder)
-                            if downloaded_file:
-                                st.write(downloaded_file)
-
-                        except StaleElementReferenceException:
-                            icons = wait.until(
-                                EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
-                            )
-                            action.move_to_element(icon).perform()
+                    all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
+                    if all_pages:
+                        st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+                        for i, page in enumerate(all_pages):
+                            st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
+                            xml_files = download_XML(driver, action, wait, temp_folder)
+                            st.write(len(xml_files))
 
 
                 except Exception as e:  
