@@ -536,6 +536,25 @@ def main():
         with date_end:
             end_date = st.date_input("Ngày kết thúc:",  format="DD/MM/YYYY").strftime("%d/%m/%Y",key='viettel_end_date')
 
+        if st.button("Tải XML tự động"):
+            download_path = tempfile.mkdtemp()
+            driver, action, wait = selenium_web_driver(download_path)            
+
+            with st.status("Đang tải Zip tự động ...", expanded=True) as status:
+                try:
+                    driver.get('https://vinvoice.viettel.vn/account/login')
+                    driver.implicitly_wait(2)
+
+                    wait.until(
+                        EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
+                    )
+
+                    username = driver.find_element(By.NAME, 'UserName')
+                    password = driver.find_element(By.NAME, 'Password')
+
+
+                except Exception as e:
+                    st.error(f"Lỗi: {e}")
 
 if __name__ == "__main__":
     main()
