@@ -532,10 +532,10 @@ def main():
 
         date_start, date_end = st.columns(2)
         with date_start:
-            start_date = st.date_input("Ngày bắt đầu:", format="DD/MM/YYYY").strftime("%d/%m/%Y")
+            start_date = st.date_input("Ngày bắt đầu:", format="DD/MM/YYYY").strftime("%d/%m/%Y", key='viettel_start_date')
         with date_end:
-            end_date = st.date_input("Ngày kết thúc:",  format="DD/MM/YYYY").strftime("%d/%m/%Y")
+            end_date = st.date_input("Ngày kết thúc:",  format="DD/MM/YYYY").strftime("%d/%m/%Y",key='viettel_end_date')
 
-            
+
 if __name__ == "__main__":
     main()
