@@ -590,7 +590,7 @@ def main():
                     search_btn = wait.until(
                         EC.presence_of_all_elements_located((By.CLASS_NAME, "btn btn-primary ng-star-inserted"))
                     )
-                    search_btn.click()
+                    # search_btn.click()
                     st.write(search_btn)
                     st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
                     time.sleep(3)
