@@ -657,7 +657,7 @@ def main():
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
-
+                    st.write(len(final_xml_files))
                     tar_path = os.path.join(temp_folder, 'extracted_XML_files.tar')
 
                     with tarfile.open(tar_path, 'w') as tar:
