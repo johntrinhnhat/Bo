@@ -551,8 +551,8 @@ def main():
                 key='viettel_end').strftime("%d/%m/%Y")
 
         if st.button("Tải XML tự động"):
-            download_path = tempfile.mkdtemp()
-            driver, action, wait = selenium_web_driver(download_path)            
+            temp_folder = tempfile.mkdtemp()
+            driver, action, wait = selenium_web_driver(temp_folder)            
 
             with st.status("Đang tải Zip tự động ...", expanded=True) as status:
                 try:
@@ -636,9 +636,12 @@ def main():
                             driver.execute_script("arguments[0].click();", download_button)
                             time.sleep(3)
 
-                    #         downloaded_file = wait_for_download(download_path)
-                    #         if downloaded_file:
-                    #             st.write(downloaded_file)
+                            downloaded_file = wait_for_download(temp_folder)
+                            if downloaded_file:
+                                st.write(downloaded_file)
+
+
+
                         except StaleElementReferenceException:
                             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
                             action.move_to_element(icon).perform()
