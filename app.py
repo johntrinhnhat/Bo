@@ -315,7 +315,7 @@ def download_ZIP(driver, action, wait, temp_folder):
                         html_content = pd.read_html(file)
 
                         # Display it in Streamlit using an iframe
-                        components.html(html_content, height=600, width=900)
+                        components.html(html_content, height=900, width=400)
             
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
