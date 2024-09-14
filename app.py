@@ -660,6 +660,8 @@ def main():
 
                     for file in final_xml_files:
                         st.write(file)
+                        st.write(type(file))
+
 
                     # tar_path = os.path.join(temp_folder, 'extracted_XML_files.tar')
                     # with tarfile.open(tar_path, 'w') as tar:
