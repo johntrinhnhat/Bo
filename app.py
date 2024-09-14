@@ -301,7 +301,7 @@ def download_ZIP(driver, action, wait, temp_folder):
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
                 # Step 1: Read XML file and convert to HTML
-                df = pd.read_xml(downloaded_file)
+                df = pd.read_xml(downloaded_file, parser='etree')
                 html_content = df.to_html(index=False)
 
                 # Step 2: Use html2image to convert HTML to image
