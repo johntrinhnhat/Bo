@@ -307,8 +307,9 @@ def download_ZIP(driver, action, wait, temp_folder):
                     xml_files.append((xml_file, file))
                     os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
 
-                    if file.endswith('.html'):
-                        st.write(file)
+                    st.write(file)
+                    # if file.endswith('.html'):
+                    #     st.write(file)
                         # Load the HTML content from your file
                         # with open(file, 'r') as f:
                         #     html_content = f.read()
@@ -510,7 +511,7 @@ def main():
         )
         start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
 
-        if st.button("Tải Zip tự động"):
+        if st.button("Tải XML tự động"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)            
 
@@ -590,10 +591,6 @@ def main():
                         driver.quit()  
                     status.update(label="Tải thành công !!!", expanded=True)
         
-
-        
-
-
 
     with tab4:
         user = st.radio(
