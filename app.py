@@ -663,6 +663,8 @@ def main():
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
 
+                    full_path = [os.path.join(temp_folder, f) for f in final_xml_files]
+                    st.write(full_path)
 
 
                     
