@@ -21,6 +21,74 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
+### SELENIUM FUNCTIONS
+
+def set_date(key1, key2):
+            date_start, date_end = st.columns(2)
+            with date_start:
+                start_date = st.date_input(
+                    "Ngày bắt đầu:", 
+                    format="DD/MM/YYYY", 
+                    key= key1).strftime("%d/%m/%Y")
+            with date_end:
+                end_date = st.date_input(
+                    "Ngày kết thúc:",  
+                    format="DD/MM/YYYY",
+                    key= key2).strftime("%d/%m/%Y")
+            return start_date, end_date
+
+def enter_dates(driver, start_date, end_date, btn_path):
+    """
+    Enters the start and end date in the appropriate fields.
+    """
+    date_btn = driver.find_elements(By.XPATH, btn_path)
+    date_btn[0].clear()
+    date_btn[0].send_keys(start_date)
+    st.write_stream(stream_data(f"Đang nhập ngày bắt đầu: {start_date}"))
+    time.sleep(2)
+
+    date_btn[1].clear()
+    date_btn[1].send_keys(end_date)
+    st.write_stream(stream_data(f"Đang nhập ngày kết thúc: {end_date}"))
+    time.sleep(2)
+
+def selenium_web_driver(temp_folder):
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_experimental_option("prefs", {
+        "download.default_directory": temp_folder,  # Ensure this path matches your temp dir
+        "download.prompt_for_download": False, 
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True
+    })
+    # Point the browser to the correct location
+    chrome_options.binary_location = "/usr/bin/chromium"
+
+    # Use chromedriver installed by the system package manager
+    driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
+    action=ActionChains(driver,10)
+    wait = WebDriverWait(driver, 10)
+    
+    return driver, action, wait
+
+def wait_for_download(temp_folder, timeout=30):
+    '''Wait for a file to be downloaded to the download path'''
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        files = os.listdir(temp_folder)
+        if files:
+            # Get the most recently downloaded file
+            latest_file = max([os.path.join(temp_folder, f) for f in files], key=os.path.getctime)
+            
+            # Ensure the file is fully downloaded (not a .crdownload file)
+            if not latest_file.endswith('.crdownload') and os.path.getsize(latest_file) > 0:
+                return latest_file
+        
+        time.sleep(1)
+
+    return None
 
 def stream_data(data):
     for word in data.split(" "):
@@ -87,7 +155,6 @@ def pxk_data_from_xml(file):
 
     return  shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data
 
-@st.cache_data
 def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data):
     columns = ['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Số hóa đơn']
     if ggia:
@@ -213,7 +280,7 @@ def extract_zipfile(zip_file, extract_to):
                 zip_ref.extract(file, extract_to)
     return extracted_files
 
-def download_zip_vnpt(driver, action, wait, temp_folder):
+def download_ZIP(driver, action, wait, temp_folder):
     xml_files = []
     icons = wait.until(
         EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
@@ -251,44 +318,6 @@ def download_zip_vnpt(driver, action, wait, temp_folder):
             action.move_to_element(icon).perform()
 
     return xml_files
-     
-def wait_for_download(temp_folder, timeout=30):
-    '''Wait for a file to be downloaded to the download path'''
-    start_time = time.time()
-    while time.time() - start_time < timeout:
-        files = os.listdir(temp_folder)
-        if files:
-            # Get the most recently downloaded file
-            latest_file = max([os.path.join(temp_folder, f) for f in files], key=os.path.getctime)
-            
-            # Ensure the file is fully downloaded (not a .crdownload file)
-            if not latest_file.endswith('.crdownload') and os.path.getsize(latest_file) > 0:
-                return latest_file
-        
-        time.sleep(1)
-
-    return None
-
-def selenium_web_driver(temp_folder):
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_experimental_option("prefs", {
-        "download.default_directory": temp_folder,  # Ensure this path matches your temp dir
-        "download.prompt_for_download": False, 
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True
-    })
-    # Point the browser to the correct location
-    chrome_options.binary_location = "/usr/bin/chromium"
-
-    # Use chromedriver installed by the system package manager
-    driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
-    action=ActionChains(driver,10)
-    wait = WebDriverWait(driver, 10)
-    
-    return driver, action, wait
 
 ### TAB 4 FUNCTIONS
 def extract_number_viettel(string):
@@ -332,6 +361,7 @@ def download_XML(driver, action, wait, temp_folder):
             )
             action.move_to_element(icon).perform()
     return xml_files
+    
 ### Streamlit State FUNCTIONS
 def create():
     st.session_state['create_success'] = True
@@ -356,7 +386,7 @@ def main():
 
     tab1.title("Phiếu xuất kho")
     tab2.title("Phiếu thu tiền")
-    tab3.title("Tải zip VNPT")
+    tab3.title("VNPT")
     tab4.title("Viettel")
 
     with tab1:
@@ -470,18 +500,7 @@ def main():
             "Hộ kinh doanh:",
             ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
         )
-
-        date_start, date_end = st.columns(2)
-        with date_start:
-            start_date = st.date_input(
-                "Ngày bắt đầu:", 
-                format="DD/MM/YYYY", 
-                key='vnpt_start').strftime("%d/%m/%Y")
-        with date_end:
-            end_date = st.date_input(
-                "Ngày kết thúc:", 
-                format="DD/MM/YYYY",
-                key='vnpt_end').strftime("%d/%m/%Y")
+        start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
 
         if st.button("Tải Zip tự động"):
             temp_folder = tempfile.mkdtemp()
@@ -490,7 +509,7 @@ def main():
             with st.status("Đang tải Zip tự động ...", expanded=True) as status:
                 try:
                     driver.get('https://hkd.vnpt.vn/account/login')
-                    driver.implicitly_wait(2)
+                    driver.implicitly_wait(3)
 
                     wait.until(
                         EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
@@ -508,8 +527,6 @@ def main():
                         password.send_keys(os.getenv('password_2'))
                         password.send_keys(Keys.RETURN)
                         
-                    driver.implicitly_wait(5)
-
                     st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
                     time.sleep(2)
 
@@ -519,18 +536,8 @@ def main():
                     driver.execute_script("arguments[0].click();", qlhd)
                     st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
                     time.sleep(2)
-                    
-                    date_btn = driver.find_elements(By.CLASS_NAME, "dx-texteditor-input")
-                    date_btn[0].clear()
-                    date_btn[0].send_keys(start_date)
-                    st.write_stream(stream_data((f"Đang nhập ngày bắt đầu: {start_date}")))
-                    time.sleep(2)
 
-                    date_btn[1].clear()
-                    date_btn[1].send_keys(end_date)
-                    st.write_stream(stream_data((f"Đang nhập ngày kết thúc: {end_date}")))
-                    time.sleep(2)
-
+                    enter_dates(driver, start_date, end_date, btn_path="dx-texteditor-input")
 
                     search_btn = wait.until(
                         EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
@@ -550,7 +557,7 @@ def main():
                         st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
                         for i, page in enumerate(all_pages):
                             st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                            xml_files = download_zip_vnpt(driver, action, wait, temp_folder)
+                            xml_files = download_ZIP(driver, action, wait, temp_folder)
                             final_xml_files.append(xml_files)
                             page.click()
                             time.sleep(3)
@@ -574,8 +581,6 @@ def main():
                     if driver:
                         driver.quit()  
                     status.update(label="Tải thành công !!!", expanded=True)
-                    
-                    
             
 
     with tab4:
@@ -583,18 +588,7 @@ def main():
             "Hộ kinh doanh:",
             ["An Vinh"]
         )
-
-        date_start, date_end = st.columns(2)
-        with date_start:
-            start_date = st.date_input(
-                "Ngày bắt đầu:", 
-                format="DD/MM/YYYY", 
-                key='viettel_start').strftime("%d/%m/%Y")
-        with date_end:
-            end_date = st.date_input(
-                "Ngày kết thúc:",  
-                format="DD/MM/YYYY",
-                key='viettel_end').strftime("%d/%m/%Y")
+        start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
 
         if st.button("Tải XML tự động"):
             temp_folder = tempfile.mkdtemp()
@@ -625,16 +619,7 @@ def main():
                     st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
                     time.sleep(2)
 
-                    date_btn = driver.find_elements(By.XPATH, "//input[@formcontrolname='datePicker']")
-                    date_btn[0].clear()
-                    date_btn[0].send_keys(start_date)
-                    st.write_stream(stream_data((f"Đang nhập ngày bắt đầu: {start_date}")))
-                    time.sleep(2)
-
-                    date_btn[1].clear()
-                    date_btn[1].send_keys(end_date)
-                    st.write_stream(stream_data((f"Đang nhập ngày kết thúc: {end_date}")))
-                    time.sleep(2)
+                    enter_dates(driver, start_date, end_date, path="//input[@formcontrolname='datePicker']")
 
                     search_btn = wait.until(
                         EC.presence_of_element_located((By.XPATH, "//button[span[text()='Tìm kiếm']]"))
@@ -661,9 +646,6 @@ def main():
                             st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
                             xml_files = download_XML(driver, action, wait, temp_folder)
                             final_xml_files.append(xml_files)
-
-                    for f in os.listdir(temp_folder):
-                        print(f)
                     
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
