@@ -619,7 +619,7 @@ def main():
                     st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
                     time.sleep(2)
 
-                    enter_dates(driver, start_date, end_date, path="//input[@formcontrolname='datePicker']")
+                    enter_dates(driver, start_date, end_date, btn_path="//input[@formcontrolname='datePicker']")
 
                     search_btn = wait.until(
                         EC.presence_of_element_located((By.XPATH, "//button[span[text()='Tìm kiếm']]"))
