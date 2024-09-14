@@ -537,7 +537,18 @@ def main():
                     st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
                     time.sleep(2)
 
-                    enter_dates(driver, start_date, end_date, btn_path="dx-texteditor-input")
+                    # enter_dates(driver, start_date, end_date, btn_path="dx-texteditor-input")
+
+                    date_btn = driver.find_elements(By.XPATH, "dx-texteditor-input")
+                    date_btn[0].clear()
+                    date_btn[0].send_keys(start_date)
+                    st.write_stream(stream_data(f"Đang nhập ngày bắt đầu: {start_date}"))
+                    time.sleep(2)
+
+                    date_btn[1].clear()
+                    date_btn[1].send_keys(end_date)
+                    st.write_stream(stream_data(f"Đang nhập ngày kết thúc: {end_date}"))
+                    time.sleep(2)
                     st.write_stream(stream_data(f"Đang nhập ngày ..."))
                     search_btn = wait.until(
                         EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
