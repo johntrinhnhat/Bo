@@ -312,11 +312,11 @@ def download_ZIP(driver, action, wait, temp_folder):
                     if file.endswith('.html'):
                         st.write(file)
                         # Load the HTML content from your file
-                        # with open(file, 'r') as f:
-                        #     html_content = f.read()
+                        with open(file, 'r') as f:
+                            html_content = f.read()
 
-                        # # Display it in Streamlit using an iframe
-                        # components.html(html_content, height=600, width=900)
+                        # Display it in Streamlit using an iframe
+                        components.html(html_content, height=600, width=900)
             
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
