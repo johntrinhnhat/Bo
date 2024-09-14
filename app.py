@@ -390,22 +390,6 @@ def main():
     tab4.title("Viettel")
 
     with tab1:
-
-        # Step 1: Read XML file and convert to HTML
-        df = pd.read_xml('/41.xml')
-        html_content = df.to_html(index=False)
-
-        # Step 2: Use html2image to convert HTML to image
-        hti = Html2Image()
-        hti.screenshot(html_str=html_content, save_as='table_image.png')
-
-        # Step 3: Open the generated image
-        image = Image.open('table_image.png')
-
-        # Step 4: Display image in Streamlit
-        st.image(image)
-
-
         if xml_files:
             all_data = []
             for uploaded_file in xml_files:
@@ -593,6 +577,19 @@ def main():
                     st.error(f"Lỗi: {e}")
 
                 finally:
+                    # Step 1: Read XML file and convert to HTML
+                    df = pd.read_xml(final_xml_files[0])
+                    html_content = df.to_html(index=False)
+
+                    # Step 2: Use html2image to convert HTML to image
+                    hti = Html2Image()
+                    hti.screenshot(html_str=html_content, save_as='table_image.png')
+
+                    # Step 3: Open the generated image
+                    image = Image.open('table_image.png')
+
+                    # Step 4: Display image in Streamlit
+                    st.image(image)
                     download_tar(temp_folder)
                     if driver:
                         driver.quit()  
