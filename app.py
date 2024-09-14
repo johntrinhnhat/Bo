@@ -302,7 +302,7 @@ def download_XML(driver, action, wait, temp_folder):
                 shd = extract_number_viettel(os.path.basename(downloaded_file))
                 xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
                 xml_files.append(xml_file)
-                os.rename(downloaded_file, xml_file)
+
             st.write(downloaded_file)
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
@@ -655,6 +655,7 @@ def main():
                             xml_files = download_XML(driver, action, wait, temp_folder)
                             final_xml_files.append(xml_files)
 
+                    st.write(os.listdir(temp_folder))
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
