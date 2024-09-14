@@ -302,6 +302,7 @@ def download_XML(driver, action, wait, temp_folder):
                 shd = extract_number_viettel(os.path.basename(downloaded_file))
                 xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
                 xml_files.append(xml_file)
+                os.rename(downloaded_file, xml_file)
             st.write(downloaded_file)
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
@@ -661,20 +662,7 @@ def main():
                     st.write(type(final_xml_files[0]))
 
 
-                    # tar_path = os.path.join(temp_folder, 'extracted_XML_files.tar')
-                    # with tarfile.open(tar_path, 'w') as tar:
-                    #     for file in full_file_paths:
-                    #         tar.add(file, arcname=os.path.basename(file))
-
-                    # with open(tar_path, 'rb') as f:
-                    #     if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar", type="primary"):
-                    #         downloading_message = 'Đang tải thư mục ...'
-                    #         progress_bar = st.progress(0, text=downloading_message)
-                    #         for percent_complete in range(100):
-                    #             time.sleep(0.01)
-                    #             progress_bar.progress(percent_complete + 1, text=downloading_message)
-                    #         time.sleep(1)
-                    #         st.success("Đã tải thư mục XML thành công")
+                    
 
                 except Exception as e:  
                     st.error(f"Lỗi: {e}")
