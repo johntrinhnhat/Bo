@@ -216,12 +216,12 @@ def download_zip(driver, action, wait, download_path):
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
                 extracted_files = extract_zipfile(downloaded_file, download_path)
                 for file in extracted_files:
-                    if file.endswith('.xml'):
+                    if file.endswith('.zip'):
+                        os.remove(os.path.join(download_path, file)) 
+                    else:
                         xml_file = shd + file[file.index('.xml'):]
                         xml_files.append((xml_file, file))
                         os.rename(os.path.join(download_path, file), os.path.join(download_path, xml_file))
-                    else:
-                        os.remove(os.path.join(download_path, file))
             
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
