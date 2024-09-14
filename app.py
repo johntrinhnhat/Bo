@@ -274,7 +274,7 @@ def extract_zipfile(zip_file, extract_to):
     extracted_files = []
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
         for file in zip_ref.namelist():
-            # if file.endswith(".xml"):
+            if file.endswith(".xml"):
                 extracted_files.append(file)
                 zip_ref.extract(file, extract_to)
                 
@@ -304,18 +304,10 @@ def download_ZIP(driver, action, wait, temp_folder):
                 extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
                 for file in extracted_files:
-                    if file.endswith('.xml'):
-                        xml_file = shd + file[file.index('.xml'):]
-                        xml_files.append((xml_file, file))
-                        os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+                    xml_file = shd + file[file.index('.xml'):]
+                    xml_files.append((xml_file, file))
+                    os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
 
-                    if file.endswith('.html'):
-                        st.write(file)
-                        # Load the HTML content from your file
-                        html_content = pd.read_html(StringIO(file))
-
-                        # Display it in Streamlit using an iframe
-                        components.html(html_content, height=900, width=400)
             
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
