@@ -542,7 +542,7 @@ def main():
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
-                    
+                    st.write(os.listdir(download_path))
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
                 finally:
@@ -551,7 +551,7 @@ def main():
                     status.update(label="Tải thành công !!!", expanded=True)
                     
             # Define the tar archive path
-            tar_path = os.path.join(download_path, 'extracted_xml_files.tar')
+            tar_path = os.path.join(download_path, 'xml_files.tar')
             
             # Create the tar archive with only XML files in the download path
             with tarfile.open(tar_path, 'w') as tar:
