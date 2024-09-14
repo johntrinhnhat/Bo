@@ -274,11 +274,8 @@ def extract_zipfile(zip_file, extract_to):
     extracted_files = []
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
         for file in zip_ref.namelist():
-            if file.endswith(".xml"):
                 extracted_files.append(file)
                 zip_ref.extract(file, extract_to)
-            else:
-                extracted_files.append(file)
                 
     return extracted_files
 
@@ -306,11 +303,11 @@ def download_ZIP(driver, action, wait, temp_folder):
                 extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
                 for file in extracted_files:
+                    st.write(file)
                     xml_file = shd + file[file.index('.xml'):]
                     xml_files.append((xml_file, file))
                     os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
 
-                    st.write(file)
                     # if file.endswith('.html'):
                     #     st.write(file)
                         # Load the HTML content from your file
