@@ -1,5 +1,4 @@
-from html2image import Html2Image
-from PIL import Image
+import streamlit.components.v1 as components
 import os
 import re
 import tempfile
@@ -307,6 +306,15 @@ def download_ZIP(driver, action, wait, temp_folder):
                     xml_file = shd + file[file.index('.xml'):]
                     xml_files.append((xml_file, file))
                     os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+
+                    if file.endswith('.html'):
+                        st.write(file)
+                        # Load the HTML content from your file
+                        with open(file, 'r') as f:
+                            html_content = f.read()
+
+                        # Display it in Streamlit using an iframe
+                        components.html(html_content, height=600, width=900)
             
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
@@ -345,21 +353,6 @@ def download_XML(driver, action, wait, temp_folder):
 
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
-                # Step 1: Read XML file and convert to HTML
-                df = pd.read_xml(downloaded_file, parser='etree')
-                html_content = df.to_html(index=False)
-
-                # Step 2: Use html2image to convert HTML to image
-                hti = Html2Image()
-                hti.screenshot(html_str=html_content, save_as='xml_image.png')
-
-                # Step 3: Open the generated image
-                image = Image.open('xml_image.png')
-
-                # Step 4: Display image in Streamlit
-                st.image(image)
-
-
                 shd = extract_number_viettel(os.path.basename(downloaded_file))
                 xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
                 xml_files.append(xml_file)
