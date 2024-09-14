@@ -301,6 +301,7 @@ def download_XML(driver, action, wait, temp_folder):
             if downloaded_file:
                 shd = extract_number_viettel(os.path.basename(downloaded_file))
                 xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
+                os.rename(os.path.join(temp_folder, xml_file), os.path.join(temp_folder, xml_file))
                 xml_files.append(xml_file)
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
