@@ -277,6 +277,9 @@ def extract_zipfile(zip_file, extract_to):
             if file.endswith(".xml"):
                 extracted_files.append(file)
                 zip_ref.extract(file, extract_to)
+            else:
+                extracted_files.append(file)
+                
     return extracted_files
 
 def download_ZIP(driver, action, wait, temp_folder):
