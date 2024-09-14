@@ -655,6 +655,7 @@ def main():
                     st.error(f"Lỗi: {e}")
 
                 finally:
+                    download_tar(temp_folder)
                     if driver:
                         driver.quit()  
                     status.update(label="Tải thành công !!!", expanded=True)
