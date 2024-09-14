@@ -9,7 +9,7 @@ import datetime
 import time
 import zipfile
 import tarfile
-from io import BytesIO
+from io import BytesIO, StringIO
 from openpyxl import load_workbook
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -312,7 +312,7 @@ def download_ZIP(driver, action, wait, temp_folder):
                     if file.endswith('.html'):
                         st.write(file)
                         # Load the HTML content from your file
-                        html_content = pd.read_html(file)
+                        html_content = pd.read_html(StringIO(file))
 
                         # Display it in Streamlit using an iframe
                         components.html(html_content, height=900, width=400)
