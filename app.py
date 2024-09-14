@@ -538,7 +538,7 @@ def main():
                     time.sleep(2)
 
                     enter_dates(driver, start_date, end_date, btn_path="dx-texteditor-input")
-
+                    st.write_stream(stream_data(f"Đang nhập ngày ..."))
                     search_btn = wait.until(
                         EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
                     )
