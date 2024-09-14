@@ -27,6 +27,26 @@ def stream_data(data):
         yield word + " "
         time.sleep(0.03)
 
+def download_tar(temp_folder):
+                # Define the tar archive path
+                tar_path = os.path.join(temp_folder, 'XML_files.tar')
+                
+                # Create the tar archive in the download path
+                with tarfile.open(tar_path, 'w') as tar:
+                    for file in os.listdir(temp_folder):
+                        tar.add(os.path.join(temp_folder, file), arcname=file)
+
+                # Provide download of the tar file
+                with open(tar_path, 'rb') as f:
+                    if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar", type="primary"):
+                        downloading_message = 'Đang tải thư mục ...'
+                        progress_bar = st.progress(0, text=downloading_message)
+                        for percent_complete in range(100):
+                            time.sleep(0.01)
+                            progress_bar.progress(percent_complete + 1, text=downloading_message)
+                        time.sleep(1)
+                        st.success("Đã tải thư mục XML thành công")
+
 ### TAB 1 FUNCTIONS
 def convert_date_format(date_str):
     # Parse the date string
@@ -193,7 +213,7 @@ def extract_zipfile(zip_file, extract_to):
                 zip_ref.extract(file, extract_to)
     return extracted_files
 
-def download_zip(driver, action, wait, download_path):
+def download_zip_vnpt(driver, action, wait, temp_folder):
     xml_files = []
     icons = wait.until(
         EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
@@ -211,15 +231,15 @@ def download_zip(driver, action, wait, download_path):
             driver.execute_script("arguments[0].click();", download_button)
             time.sleep(3)
 
-            downloaded_file = wait_for_download(download_path)
+            downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                extracted_files = extract_zipfile(downloaded_file, download_path)
+                extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
                 for file in extracted_files:
                     xml_file = shd + file[file.index('.xml'):]
                     xml_files.append((xml_file, file))
-                    os.rename(os.path.join(download_path, file), os.path.join(download_path, xml_file))
+                    os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
             
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
@@ -232,14 +252,14 @@ def download_zip(driver, action, wait, download_path):
 
     return xml_files
      
-def wait_for_download(download_path, timeout=30):
+def wait_for_download(temp_folder, timeout=30):
     '''Wait for a file to be downloaded to the download path'''
     start_time = time.time()
     while time.time() - start_time < timeout:
-        files = os.listdir(download_path)
+        files = os.listdir(temp_folder)
         if files:
             # Get the most recently downloaded file
-            latest_file = max([os.path.join(download_path, f) for f in files], key=os.path.getctime)
+            latest_file = max([os.path.join(temp_folder, f) for f in files], key=os.path.getctime)
             
             # Ensure the file is fully downloaded (not a .crdownload file)
             if not latest_file.endswith('.crdownload') and os.path.getsize(latest_file) > 0:
@@ -249,13 +269,13 @@ def wait_for_download(download_path, timeout=30):
 
     return None
 
-def selenium_web_driver(download_path):
+def selenium_web_driver(temp_folder):
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_experimental_option("prefs", {
-        "download.default_directory": download_path,  # Ensure this path matches your temp dir
+        "download.default_directory": temp_folder,  # Ensure this path matches your temp dir
         "download.prompt_for_download": False, 
         "download.directory_upgrade": True,
         "safebrowsing.enabled": True
@@ -464,8 +484,8 @@ def main():
                 key='vnpt_end').strftime("%d/%m/%Y")
 
         if st.button("Tải Zip tự động"):
-            download_path = tempfile.mkdtemp()
-            driver, action, wait = selenium_web_driver(download_path)            
+            temp_folder = tempfile.mkdtemp()
+            driver, action, wait = selenium_web_driver(temp_folder)            
 
             with st.status("Đang tải Zip tự động ...", expanded=True) as status:
                 try:
@@ -530,7 +550,7 @@ def main():
                         st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
                         for i, page in enumerate(all_pages):
                             st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                            xml_files = download_zip(driver, action, wait, download_path)
+                            xml_files = download_zip_vnpt(driver, action, wait, temp_folder)
                             final_xml_files.append(xml_files)
                             page.click()
                             time.sleep(3)
@@ -540,41 +560,23 @@ def main():
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
-
-                    for f in os.listdir(download_path):
+                    
+                    # Remove zip in temp folder
+                    for f in os.listdir(temp_folder):
                         if f.endswith('.zip'):
-                            os.remove(os.path.join(download_path, f))
+                            os.remove(os.path.join(temp_folder, f))
 
-
-                    st.write(os.listdir(download_path))
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
+
                 finally:
+                    download_tar(temp_folder)
                     if driver:
-                        driver.quit()  # Close the driver if it was initialized
+                        driver.quit()  
                     status.update(label="Tải thành công !!!", expanded=True)
                     
-            # Define the tar archive path
-            tar_path = os.path.join(download_path, 'xml_files.tar')
+                    
             
-            # Create the tar archive with only XML files in the download path
-            with tarfile.open(tar_path, 'w') as tar:
-                # Filter XML files only
-                # for file in filter(lambda f: f.endswith('.xml'), os.listdir(download_path)):  
-                #     tar.add(os.path.join(download_path, file), arcname=file)
-                for file in os.listdir(download_path):
-                    tar.add(os.path.join(download_path, file), arcname=file)
-
-            # Provide download of the tar file
-            with open(tar_path, 'rb') as f:
-                if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar", type="primary"):
-                    downloading_message = 'Đang tải thư mục ...'
-                    progress_bar = st.progress(0, text=downloading_message)
-                    for percent_complete in range(100):
-                        time.sleep(0.01)
-                        progress_bar.progress(percent_complete + 1, text=downloading_message)
-                    time.sleep(1)
-                    st.success("Đã tải thư mục XML thành công")
 
     with tab4:
         user = st.radio(
@@ -641,16 +643,12 @@ def main():
                     st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
                     time.sleep(3)
 
-
                     select_size = wait.until(
                         EC.presence_of_element_located((By.XPATH, "//select[@name='pageSize']"))
                     )
 
                     # Use JavaScript to set the value
                     driver.execute_script("arguments[0].value = '50';", select_size)
-
-                    # Optionally, dispatch a change event to simulate the user's interaction
-                    # driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", select_size)
 
                     st.write_stream(stream_data(("Chọn hiển thị 50 hóa đơn ...")))
                     time.sleep(2)
@@ -669,34 +667,15 @@ def main():
                     
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
-                    time.sleep(3)
-
-                    full_path = [os.path.join(temp_folder, f) for f in final_xml_files]
-                    st.write(full_path)
-
-                    tar_path = os.path.join(temp_folder, 'XML_files.tar')
-
-                    with tarfile.open(tar_path, 'w') as tar:
-                        for file in os.listdir(temp_folder):
-                            # tar.add(file, arcname=os.path.basename(file))
-                            tar.add(os.path.join(temp_folder, file), arcname=file)
-
-                    with open(tar_path, 'rb') as f:
-                        if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar", type="primary"):
-                            downloading_message = 'Đang tải thư mục ...'
-                            progress_bar = st.progress(0, text=downloading_message)
-                            for percent_complete in range(100):
-                                time.sleep(0.01)
-                                progress_bar.progress(percent_complete + 1, text=downloading_message)
-                            time.sleep(1)
-                            st.success("Đã tải thư mục XML thành công")
-
-
-
-                    
+                    time.sleep(3) 
 
                 except Exception as e:  
                     st.error(f"Lỗi: {e}")
+
+                finally:
+                    if driver:
+                        driver.quit()  
+                    status.update(label="Tải thành công !!!", expanded=True)
 
 if __name__ == "__main__":
     main()
