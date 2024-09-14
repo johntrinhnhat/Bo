@@ -300,21 +300,6 @@ def download_ZIP(driver, action, wait, temp_folder):
 
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
-                # Step 1: Read XML file and convert to HTML
-                df = pd.read_xml(downloaded_file, parser='etree')
-                html_content = df.to_html(index=False)
-
-                # Step 2: Use html2image to convert HTML to image
-                hti = Html2Image()
-                hti.screenshot(html_str=html_content, save_as='xml_image.png')
-
-                # Step 3: Open the generated image
-                image = Image.open('xml_image.png')
-
-                # Step 4: Display image in Streamlit
-                st.image(image)
-
-
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
                 extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
@@ -360,6 +345,21 @@ def download_XML(driver, action, wait, temp_folder):
 
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
+                # Step 1: Read XML file and convert to HTML
+                df = pd.read_xml(downloaded_file, parser='etree')
+                html_content = df.to_html(index=False)
+
+                # Step 2: Use html2image to convert HTML to image
+                hti = Html2Image()
+                hti.screenshot(html_str=html_content, save_as='xml_image.png')
+
+                # Step 3: Open the generated image
+                image = Image.open('xml_image.png')
+
+                # Step 4: Display image in Streamlit
+                st.image(image)
+
+
                 shd = extract_number_viettel(os.path.basename(downloaded_file))
                 xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
                 xml_files.append(xml_file)
