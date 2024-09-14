@@ -216,11 +216,12 @@ def download_zip(driver, action, wait, download_path):
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
                 extracted_files = extract_zipfile(downloaded_file, download_path)
                 for file in extracted_files:
-                    xml_file = shd + file[file.index('.xml'):]
-                    xml_files.append((xml_file, file))
-                    os.rename(os.path.join(download_path, file), os.path.join(download_path, xml_file))
-                    if os.path.isfile(file) and not file.index('.xml'):
-                        os.remove(file)
+                    if file.endswith('.xml'):
+                        xml_file = shd + file[file.index('.xml'):]
+                        xml_files.append((xml_file, file))
+                        os.rename(os.path.join(download_path, file), os.path.join(download_path, xml_file))
+                    else:
+                        os.remove(os.path.join(download_path, file))
             
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
@@ -601,6 +602,9 @@ def main():
                     wait.until(
                         EC.presence_of_element_located((By.XPATH, '//form[@role="form"]'))
                     )
+
+                    st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
+                    time.sleep(3)
 
                     username = driver.find_element(By.ID, 'username')
                     password = driver.find_element(By.NAME, 'password')
