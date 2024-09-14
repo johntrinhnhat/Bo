@@ -213,16 +213,14 @@ def download_zip(driver, action, wait, download_path):
 
             downloaded_file = wait_for_download(download_path)
             if downloaded_file:
-                # Extract the number from the downloaded file (assuming the naming convention is the same)
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                # Extract the zip file contents
                 extracted_files = extract_zipfile(downloaded_file, download_path)
-
-                # Rename and store the extracted XML files in the list
                 for file in extracted_files:
                     xml_file = shd + file[file.index('.xml'):]
                     xml_files.append((xml_file, file))
                     os.rename(os.path.join(download_path, file), os.path.join(download_path, xml_file))
+                    if os.path.isfile(file) and not file.index('.xml'):
+                        os.remove(file)
             
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
@@ -557,7 +555,9 @@ def main():
             # Create the tar archive with only XML files in the download path
             with tarfile.open(tar_path, 'w') as tar:
                 # Filter XML files only
-                for file in filter(lambda f: f.endswith('.xml'), os.listdir(download_path)):  
+                # for file in filter(lambda f: f.endswith('.xml'), os.listdir(download_path)):  
+                #     tar.add(os.path.join(download_path, file), arcname=file)
+                for file in os.listdir(download_path):
                     tar.add(os.path.join(download_path, file), arcname=file)
 
             # Provide download of the tar file
