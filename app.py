@@ -1,6 +1,7 @@
+from html2image import Html2Image
+from PIL import Image
 import os
 import re
-import shutil
 import tempfile
 import streamlit as st
 import pandas as pd
@@ -15,7 +16,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException 
 from selenium.webdriver.common.by import By
@@ -538,7 +538,6 @@ def main():
                     time.sleep(2)
 
                     enter_dates(driver, start_date, end_date, btn_path="//input[@class='dx-texteditor-input']")
-                    st.write_stream(stream_data(f"Đang nhập ngày ..."))
 
                     search_btn = wait.until(
                         EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
@@ -582,7 +581,24 @@ def main():
                     if driver:
                         driver.quit()  
                     status.update(label="Tải thành công !!!", expanded=True)
-            
+        
+
+        # Step 1: Read XML file and convert to HTML
+        xml_file = './41.xml'  # Replace this with the actual XML file path
+        df = pd.read_xml(xml_file)
+        html_content = df.to_html(index=False)
+
+        # Step 2: Use html2image to convert HTML to image
+        hti = Html2Image()
+        hti.screenshot(html_str=html_content, save_as='table_image.png')
+
+        # Step 3: Open the generated image
+        image = Image.open('table_image.png')
+
+        # Step 4: Display image in Streamlit
+        st.image(image)
+
+
 
     with tab4:
         user = st.radio(
