@@ -215,13 +215,11 @@ def download_zip(driver, action, wait, download_path):
             if downloaded_file:
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
                 extracted_files = extract_zipfile(downloaded_file, download_path)
+
                 for file in extracted_files:
-                    if file.endswith('.zip'):
-                        os.remove(os.path.join(download_path, file)) 
-                    else:
-                        xml_file = shd + file[file.index('.xml'):]
-                        xml_files.append((xml_file, file))
-                        os.rename(os.path.join(download_path, file), os.path.join(download_path, xml_file))
+                    xml_file = shd + file[file.index('.xml'):]
+                    xml_files.append((xml_file, file))
+                    os.rename(os.path.join(download_path, file), os.path.join(download_path, xml_file))
             
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
@@ -542,6 +540,10 @@ def main():
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
+
+                    download_path = [os.remove(os.path.join(download_path, f)) for f in os.listdir(download_path) if f.endswith('.zip')]
+
+
                     st.write(os.listdir(download_path))
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
