@@ -541,7 +541,9 @@ def main():
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
 
-                    download_path = [os.remove(os.path.join(download_path, f)) for f in os.listdir(download_path) if f.endswith('.zip')]
+                    for f in os.listdir(download_path):
+                        if f.endswith('.zip'):
+                            os.remove(os.path.join(download_path, f))
 
 
                     st.write(os.listdir(download_path))
