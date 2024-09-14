@@ -511,7 +511,7 @@ def main():
         )
         start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
 
-        if st.button("Tải XML tự động"):
+        if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)            
 
@@ -599,7 +599,7 @@ def main():
         )
         start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
 
-        if st.button("Tải XML tự động"):
+        if st.button("Tải XML tự động", key="viettel"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)            
 
