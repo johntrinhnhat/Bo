@@ -312,8 +312,7 @@ def download_ZIP(driver, action, wait, temp_folder):
                     if file.endswith('.html'):
                         st.write(file)
                         # Load the HTML content from your file
-                        with open(file, 'r') as f:
-                            html_content = f.read()
+                        html_content = pd.read_html(file)
 
                         # Display it in Streamlit using an iframe
                         components.html(html_content, height=600, width=900)
