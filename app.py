@@ -671,7 +671,7 @@ def main():
                     with tarfile.open(tar_path, 'w') as tar:
                         for file in os.listdir(temp_folder):
                             # tar.add(file, arcname=os.path.basename(file))
-                            tar.add(os.path.join(download_path, file), arcname=file)
+                            tar.add(os.path.join(temp_folder, file), arcname=file)
 
                     with open(tar_path, 'rb') as f:
                         if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar", type="primary"):
