@@ -301,9 +301,8 @@ def download_XML(driver, action, wait, temp_folder):
             if downloaded_file:
                 shd = extract_number_viettel(os.path.basename(downloaded_file))
                 xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
-                os.rename(os.path.join(temp_folder, xml_file), os.path.join(temp_folder, xml_file))
                 xml_files.append(xml_file)
-
+            st.write(downloaded_file)
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
             time.sleep(2)
@@ -658,24 +657,24 @@ def main():
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
-                    st.write(len(final_xml_files))
 
-                    full_file_paths = [os.path.join(temp_folder, file) if not os.path.isabs(file) else file for file in final_xml_files]
+                    for file in final_xml_files:
+                        st.write(file)
 
-                    tar_path = os.path.join(temp_folder, 'extracted_XML_files.tar')
-                    with tarfile.open(tar_path, 'w') as tar:
-                        for file in full_file_paths:
-                            tar.add(file, arcname=os.path.basename(file))
+                    # tar_path = os.path.join(temp_folder, 'extracted_XML_files.tar')
+                    # with tarfile.open(tar_path, 'w') as tar:
+                    #     for file in full_file_paths:
+                    #         tar.add(file, arcname=os.path.basename(file))
 
-                    with open(tar_path, 'rb') as f:
-                        if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar", type="primary"):
-                            downloading_message = 'Đang tải thư mục ...'
-                            progress_bar = st.progress(0, text=downloading_message)
-                            for percent_complete in range(100):
-                                time.sleep(0.01)
-                                progress_bar.progress(percent_complete + 1, text=downloading_message)
-                            time.sleep(1)
-                            st.success("Đã tải thư mục XML thành công")
+                    # with open(tar_path, 'rb') as f:
+                    #     if st.download_button("Tải thư mục XML", f, file_name="XML_files.tar", type="primary"):
+                    #         downloading_message = 'Đang tải thư mục ...'
+                    #         progress_bar = st.progress(0, text=downloading_message)
+                    #         for percent_complete in range(100):
+                    #             time.sleep(0.01)
+                    #             progress_bar.progress(percent_complete + 1, text=downloading_message)
+                    #         time.sleep(1)
+                    #         st.success("Đã tải thư mục XML thành công")
 
                 except Exception as e:  
                     st.error(f"Lỗi: {e}")
