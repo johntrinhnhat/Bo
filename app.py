@@ -658,9 +658,7 @@ def main():
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                     time.sleep(3)
 
-                    for file in final_xml_files:
-                        st.write(file)
-                        st.write(type(file))
+                    st.write(type(final_xml_files[0]))
 
 
                     # tar_path = os.path.join(temp_folder, 'extracted_XML_files.tar')
