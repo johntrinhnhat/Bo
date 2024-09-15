@@ -663,7 +663,6 @@ def main():
 
                     i=len(all_pages)
                     while i > 0:
-                        st.write_stream(stream_data(f"Đang tải hóa đơn trang số {i}"))
                         # Download the files from the current page
                         final_xml_files.append(download_icon_viettel(driver, action, wait, temp_folder))
 
@@ -673,12 +672,12 @@ def main():
                                 EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
                             )
                             driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
-                            next_button.click()
-                            i -= 1  # Decrease the counter for each successful click
-                            time.sleep(3)  # Replace this with a more dynamic wait if needed
+                            driver.execute_script("arguments[0].click();", next_button)
+                            i -= 1  
+                            time.sleep(3)  
                         except TimeoutException:
                             print("No more pages or 'Next' button not found.")
-                            break  # Exit the loop if "Next" button is not found or clickable
+                            break  
                     
                     # if all_pages:
                     #     for i, page in enumerate(all_pages):
