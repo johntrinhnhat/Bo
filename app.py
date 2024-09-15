@@ -598,7 +598,7 @@ def main():
             st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             time.sleep(3)
 
-        download_tar(temp_folder)
+            download_tar(temp_folder)
 
             
             
