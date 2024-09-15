@@ -302,7 +302,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             
             download_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
-            
             driver.execute_script("arguments[0].click();", download_button)
 
             downloaded_file = wait_for_download(temp_folder)
@@ -396,7 +395,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 st.write_stream(stream_data((f"Đang tải hóa đơn  ...")))
 
                 final_xml_files.append(download_icon_vnpt(driver, action, wait, temp_folder))
-
+                st.write("Found XML")
                 # xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
                 # final_xml_files.append(xml_files)
                 # final_iframes_html_content.append(iframes_html_content)
@@ -404,14 +403,15 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 try:
                     # Wait for and click the "Next" button if it is available and clickable
                     next_button = wait.until(
-                        EC.element_to_be_clickable((By.XPATH, "//div[@class='dx-next-button']"))
+                        EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
                     )
+                    st.write(next_button)
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                     driver.execute_script("arguments[0].click();", next_button)
                     i -= 1  
-                    time.sleep(3)  
+                    time.sleep(2)  
                 except TimeoutException:
-                    print("Không còn trang nào được tìm thấy")
+                    st.write("Không còn trang nào được tìm thấy")
                     break 
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
