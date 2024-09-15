@@ -68,7 +68,7 @@ def selenium_web_driver(temp_folder):
     # Use chromedriver installed by the system package manager
     driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
     action=ActionChains(driver,10)
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 20)
     
     return driver, action, wait
 
@@ -351,7 +351,6 @@ def download_XML(driver, action, wait, temp_folder):
                 xml_files.append(xml_file)
                 os.rename(os.path.join(temp_folder, downloaded_file), os.path.join(temp_folder, xml_file))
 
-            st.write(downloaded_file)
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
             time.sleep(2)
