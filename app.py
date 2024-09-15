@@ -675,8 +675,9 @@ def main():
 
             with st.popover("Bố xem hóa đơn đã tải ở đây"):
                 for iframe in final_iframes_html_content:
-                    components.html(iframe)
-                    
+                    st.write(iframe)
+                    # components.html(iframe)
+
             download_tar(temp_folder)
 
             
