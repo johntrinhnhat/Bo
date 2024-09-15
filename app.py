@@ -389,7 +389,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
             
             final_xml_files = []
-            final_iframes_html_content =[]
+            # final_iframes_html_content =[]
             num_pages= len(all_pages)
             i=1
             while i < num_pages:
@@ -397,7 +397,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
 
                 xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
                 final_xml_files.append(xml_files)
-                final_iframes_html_content.append(iframes_html_content)
+                # final_iframes_html_content.append(iframes_html_content)
 
                 try:
                     # Wait for and click the "Next" button if it is available and clickable
@@ -413,7 +413,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     break 
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
-            final_iframes_html_content = [frame for frames in final_iframes_html_content for frame in frames]
+            # final_iframes_html_content = [frame for frames in final_iframes_html_content for frame in frames]
             
             # Remove zip in temp folder
             for f in os.listdir(temp_folder):
@@ -429,7 +429,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
 
-    return final_iframes_html_content
+    # return final_iframes_html_content
 
 
 ### TAB 4 FUNCTIONS
@@ -686,12 +686,12 @@ def main():
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
-            final_iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
-            if final_iframes_html_content:
-                st.success("Bố xem hóa đơn đã tải ở trang Hóa Đơn")
-            with tab5:
-                for iframe in final_iframes_html_content:
-                    components.html(iframe, width = 400, height=1000)
+            handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
+            # if final_iframes_html_content:
+            #     st.success("Bố xem hóa đơn đã tải ở trang Hóa Đơn")
+            # with tab5:
+            #     for iframe in final_iframes_html_content:
+            #         components.html(iframe, width = 400, height=1000)
                     
             download_tar(temp_folder)
 
