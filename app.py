@@ -385,7 +385,11 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             i=len(all_pages)
             while i > 0:
                 # Download the files from the current page
-                final_xml_files.append(download_icon_vnpt(driver, action, wait, temp_folder))
+                xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
+                if xml_files is not None:
+                    final_xml_files.append(xml_files)
+                else:
+                    final_xml_files = None
                 try:
                     
                     next_button = wait.until(
@@ -403,13 +407,12 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 if f.endswith('.zip'):
                     os.remove(os.path.join(temp_folder, f))
 
-            if final_xml_files:
+            if final_xml_files is not None:
                 final_xml_files = [item for sublist in final_xml_files for item in sublist]
                 st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                 status.update(label="Tải thành công !!!", expanded=True)
                 return final_xml_files
             else:
-                st.write_stream(stream_data((f"Không có hóa đơn để tải"))) 
                 pass
 
         finally:
