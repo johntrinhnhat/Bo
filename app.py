@@ -362,7 +362,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
             )
             search_btn[3].click()
-
+            st.write(search_btn[3])
             # page_size = wait.until(
             #     EC.presence_of_all_elements_located((By.XPATH, "//div[@aria-label='Display 50 items on page']")))
             # page_size.click()
