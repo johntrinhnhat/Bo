@@ -9,7 +9,8 @@ import datetime
 import time
 import zipfile
 import tarfile
-from io import BytesIO, StringIO
+from selenium.common.exceptions import TimeoutException 
+from io import BytesIO
 from openpyxl import load_workbook
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -598,9 +599,6 @@ def main():
             st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             time.sleep(3)
 
-            # for iframe in iframes_html_content:
-            #     st.write(iframe)
-
             download_tar(temp_folder)
 
             
@@ -651,22 +649,39 @@ def main():
                     st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
                     time.sleep(3)
 
-                    # select_size = wait.until(
-                    #     EC.presence_of_element_located((By.XPATH, "//select[@name='pageSize']"))
-                    # )
-
-                    # # Use JavaScript to set the value
-                    # driver.execute_script("arguments[0].value = '10';", select_size)
-                    # time.sleep(2)
-
                     final_xml_files = []
-                    all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
-                    if all_pages:
-                        st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-                        for i, page in enumerate(all_pages):
-                            st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                            xml_files = download_icon_viettel(driver, action, wait, temp_folder)
-                            final_xml_files.append(xml_files)
+                    # all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
+                    all_pages = wait.until(
+                        EC.presence_of_all_elements_located((By.XPATH, "//a[@class='page-link ng-star-inserted']"))
+                    )
+                    st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+                    
+                    next_button = wait.until(
+                        EC.presence_of_element_located((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
+                    )
+
+                    while i > 0:
+                        # Download the files from the current page
+                        final_xml_files.append(download_icon_viettel(driver, action, wait, temp_folder))
+
+                        try:
+                            # Wait for and click the "Next" button if it is available and clickable
+                            next_button = wait.until(
+                                EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
+                            )
+                            next_button.click()
+                            i -= 1  # Decrease the counter for each successful click
+                            time.sleep(3)  # Replace this with a more dynamic wait if needed
+                        except TimeoutException:
+                            print("No more pages or 'Next' button not found.")
+                            break  # Exit the loop if "Next" button is not found or clickable
+                    
+                    # if all_pages:
+                    #     for i, page in enumerate(all_pages):
+                    #         st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
+                    #         xml_files = download_icon_viettel(driver, action, wait, temp_folder)
+                    #         final_xml_files.append(xml_files)
+                    #         page.click()
                     
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
                     st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
