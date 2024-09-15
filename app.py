@@ -301,30 +301,35 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         )
         icons = icons[:len(icons)//2]
 
-        for icon in icons:
-            action.move_to_element(icon).perform()
-            driver.execute_script("arguments[0].click();", icon)
-            time.sleep(3)
-            
-            download_button = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
-            driver.execute_script("arguments[0].click();", download_button)
-            time.sleep(3)
+        if icons:
+            st.write_stream(stream_data(("Đang tải hóa đơn ...")))
+            for icon in icons:
+                action.move_to_element(icon).perform()
+                driver.execute_script("arguments[0].click();", icon)
+                time.sleep(3)
+                
+                download_button = wait.until(
+                    EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
+                driver.execute_script("arguments[0].click();", download_button)
+                time.sleep(3)
 
-            downloaded_file = wait_for_download(temp_folder)
-            if downloaded_file:
-                shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                extracted_files = extract_zipfile(downloaded_file, temp_folder)
+                downloaded_file = wait_for_download(temp_folder)
+                if downloaded_file:
+                    shd = extract_number_vnpt(os.path.basename(downloaded_file))
+                    extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
-                for file in extracted_files:
-                    xml_file = shd + file[file.index('.xml'):]
-                    xml_files.append((xml_file, file))
-                    os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+                    for file in extracted_files:
+                        xml_file = shd + file[file.index('.xml'):]
+                        xml_files.append((xml_file, file))
+                        os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
 
-            close_button = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//button[@class='close']")))
-            driver.execute_script("arguments[0].click();", close_button)
-            time.sleep(2)
+                close_button = wait.until(
+                    EC.presence_of_element_located((By.XPATH, "//button[@class='close']")))
+                driver.execute_script("arguments[0].click();", close_button)
+                time.sleep(2)
+        else:
+            st.write_stream(stream_data(f"Không có hóa đơn để tải"))
+            return None
 
     except StaleElementReferenceException:
             icons = wait.until(
@@ -379,7 +384,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             final_xml_files = []
             i=len(all_pages)
             while i > 0:
-                st.write_stream(stream_data(("Đang tải hóa đơn ...")))
                 # Download the files from the current page
                 final_xml_files.append(download_icon_vnpt(driver, action, wait, temp_folder))
                 try:
@@ -402,7 +406,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 status.update(label="Tải thành công !!!", expanded=True)
             else:
                 st.write_stream(stream_data((f"Không có hóa đơn để tải"))) 
-
 
             # Remove zip in temp folder
             for f in os.listdir(temp_folder):
