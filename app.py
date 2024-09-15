@@ -668,7 +668,8 @@ def main():
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
             final_iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
-
+            if final_iframes_html_content:
+                st.success("Bố xem hóa đơn đã tải ở trang Hóa Đơn")
             with tab5:
                 for iframe in final_iframes_html_content:
                     components.html(iframe, width = 400, height=1000)
