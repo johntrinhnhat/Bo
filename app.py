@@ -672,10 +672,11 @@ def main():
             final_xml_files, final_iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
             st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+
             with st.popover("Bố xem hóa đơn đã tải ở đây"):
                 for iframe in final_iframes_html_content:
-                    components.iframe(iframe)
-                st.write(final_iframes_html_content)
+                    components.html(iframe)
+                    
             download_tar(temp_folder)
 
             
