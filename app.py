@@ -372,7 +372,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn[3].click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
-
             all_pages = wait.until(
                 EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
             )
@@ -512,13 +511,12 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     break  
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
+            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             
-
         except Exception as e:  
             st.error(f"Lỗi: {e}")
 
         finally:
-            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             if driver:
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
@@ -543,13 +541,12 @@ def main():
             st.success(f'Bạn đã tải thành công {len(xml_files)} tệp')
         st.divider()
             
-    tab1, tab2, tab3, tab4, tab5= st.tabs(['Phiếu xuất kho', 'Phiếu thu tiền', 'VNPT', 'Viettel', 'Hóa Đơn'])
+    tab1, tab2, tab3, tab4= st.tabs(['Phiếu xuất kho', 'Phiếu thu tiền', 'VNPT', 'Viettel'])
 
     tab1.title("Phiếu xuất kho")
     tab2.title("Phiếu thu tiền")
     tab3.title("VNPT")
     tab4.title("Viettel")
-    tab5.title("Hóa Đơn")
     with tab1:
         if xml_files:
             all_data = []
@@ -656,15 +653,18 @@ def main():
                             key="ptt"
                         )
     
+    temp_folder = tempfile.mkdtemp()
+    driver, action, wait = selenium_web_driver(temp_folder)  
+
     with tab3:
         user = st.radio(
             "Hộ kinh doanh:",
             ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
         )
         start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
+        
         if st.button("Tải XML tự động", key="vnpt"):
-            temp_folder = tempfile.mkdtemp()
-            driver, action, wait = selenium_web_driver(temp_folder)  
+            
             handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
             download_tar(temp_folder)
 
@@ -677,9 +677,7 @@ def main():
         )
         start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
 
-        if st.button("Tải XML tự động", key="viettel"):
-            temp_folder = tempfile.mkdtemp()
-            driver, action, wait = selenium_web_driver(temp_folder)    
+        if st.button("Tải XML tự động", key="viettel"):  
             handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)     
             download_tar(temp_folder)
 
