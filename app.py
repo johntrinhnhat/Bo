@@ -540,13 +540,12 @@ def main():
             st.success(f'Bạn đã tải thành công {len(xml_files)} tệp')
         st.divider()
             
-    tab1, tab2, tab3, tab4, tab5= st.tabs(['Phiếu xuất kho', 'Phiếu thu tiền', 'VNPT', 'Viettel', 'Hóa Đơn'])
+    tab1, tab2, tab3, tab4= st.tabs(['Phiếu xuất kho', 'Phiếu thu tiền', 'VNPT', 'Viettel'])
 
     tab1.title("Phiếu xuất kho")
     tab2.title("Phiếu thu tiền")
     tab3.title("VNPT")
     tab4.title("Viettel")
-    tab5.title("Hóa Đơn")
     with tab1:
         if xml_files:
             all_data = []
