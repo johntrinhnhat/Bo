@@ -511,7 +511,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                                 i -= 1  
                                 time.sleep(3)  
                             except TimeoutException:
-                                print("No more pages or 'Next' button not found.")
+                                print("Không còn trang nào được tìm thấy")
                                 break  
                         
                         final_xml_files = [item for sublist in final_xml_files for item in sublist]
@@ -672,7 +672,9 @@ def main():
             final_xml_files, final_iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
             st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
-            with st.popover("Hóa đơn đã tải"):
+            with st.popover("Bố xem hóa đơn đã tải ở đây"):
+                for iframe in final_iframes_html_content:
+                    components.iframe(iframe)
                 st.write(final_iframes_html_content)
             download_tar(temp_folder)
 
