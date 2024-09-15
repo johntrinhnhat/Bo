@@ -393,10 +393,12 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             # final_iframes_html_content =[]
             i=len(all_pages)
             while i > 0:
-                st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i} ...")))
+                st.write_stream(stream_data((f"Đang tải hóa đơn  ...")))
 
-                xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
-                final_xml_files.append(xml_files)
+                final_xml_files.append(download_icon_vnpt(driver, action, wait, temp_folder))
+
+                # xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
+                # final_xml_files.append(xml_files)
                 # final_iframes_html_content.append(iframes_html_content)
 
                 try:
@@ -516,7 +518,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             while i > 0:
                 st.write_stream(stream_data(("Đang tải hóa đơn ...")))
                 # Download the files from the current page
-                final_xml_files.append(download_icon_viettel(driver, action, wait, temp_folder))
+                
 
                 try:
                     # Wait for and click the "Next" button if it is available and clickable
