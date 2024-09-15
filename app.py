@@ -665,7 +665,7 @@ def main():
                 st.success("Bố xem hóa đơn đã tải ở trang Hóa Đơn")
             with tab5:
                 for iframe in final_iframes_html_content:
-                    components.html(iframe, width = 400, height=1000)
+                    components.html(iframe, width = 800, height=1100)
                     
             download_tar(temp_folder)
 
