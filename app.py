@@ -391,9 +391,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             
             final_xml_files = []
             # final_iframes_html_content =[]
-            num_pages= len(all_pages)
-            i=1
-            while i < num_pages:
+            i=len(all_pages)
+            while i > 0:
                 st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i} ...")))
 
                 xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
@@ -407,7 +406,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     )
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                     driver.execute_script("arguments[0].click();", next_button)
-                    i += 1  
+                    i -= 1  
                     time.sleep(3)  
                 except TimeoutException:
                     print("Không còn trang nào được tìm thấy")
