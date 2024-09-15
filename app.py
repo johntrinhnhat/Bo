@@ -327,94 +327,95 @@ def download_ZIP(driver, action, wait, temp_folder):
     return xml_files, iframes
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
-                with st.status("Đang tải Zip tự động ...", expanded=True) as status:
-                    try:
-                        driver.get('https://hkd.vnpt.vn/account/login')
-                        driver.implicitly_wait(3)
+    with st.status("Đang tải Zip tự động ...", expanded=True) as status:
+        try:
+            driver.get('https://hkd.vnpt.vn/account/login')
+            driver.implicitly_wait(3)
 
-                        wait.until(
-                            EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
-                        )
+            wait.until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
+            )
 
-                        username = driver.find_element(By.NAME, 'UserName')
-                        password = driver.find_element(By.NAME, 'Password')
+            username = driver.find_element(By.NAME, 'UserName')
+            password = driver.find_element(By.NAME, 'Password')
 
-                        if user == "Trần Minh Đạt":
-                            username.send_keys(os.getenv('username'))
-                            password.send_keys(os.getenv('password'))
-                            password.send_keys(Keys.RETURN)
-                        else:
-                            username.send_keys(os.getenv('username_2'))
-                            password.send_keys(os.getenv('password_2'))
-                            password.send_keys(Keys.RETURN)
-                            
-                        st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
-                        time.sleep(2)
+            if user == "Trần Minh Đạt":
+                username.send_keys(os.getenv('username'))
+                password.send_keys(os.getenv('password'))
+                password.send_keys(Keys.RETURN)
+            else:
+                username.send_keys(os.getenv('username_2'))
+                password.send_keys(os.getenv('password_2'))
+                password.send_keys(Keys.RETURN)
+                
+            st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
+            time.sleep(2)
 
-                        qlhd = wait.until(
-                            EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
-                        )
-                        driver.execute_script("arguments[0].click();", qlhd)
-                        st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
-                        time.sleep(2)
+            qlhd = wait.until(
+                EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
+            )
+            driver.execute_script("arguments[0].click();", qlhd)
+            st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
+            time.sleep(2)
 
-                        enter_dates(driver, start_date, end_date, btn_path="//input[@class='dx-texteditor-input']")
+            enter_dates(driver, start_date, end_date, btn_path="//input[@class='dx-texteditor-input']")
 
-                        search_btn = wait.until(
-                            EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
-                        )
-                        search_btn[3].click()
-                        st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
-                        time.sleep(3)
+            search_btn = wait.until(
+                EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
+            )
+            search_btn[3].click()
+            st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
+            time.sleep(3)
 
-                        page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 50 items on page']")
-                        page_size.click()
-                        st.write_stream(stream_data(("Chọn hiển thị 50 hóa đơn ...")))
-                        time.sleep(2)
-                        
-                        final_xml_files = []
-                        iframes_html_content =[]
-                        all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
-                        if all_pages:
-                            st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-                            for i, page in enumerate(all_pages):
-                                st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                                xml_files, iframes = download_ZIP(driver, action, wait, temp_folder)
-                                final_xml_files.append(xml_files)
-                                iframes_html_content.append(iframes)
-                                
+            page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 50 items on page']")
+            page_size.click()
+            st.write_stream(stream_data(("Chọn hiển thị 50 hóa đơn ...")))
+            time.sleep(2)
+            
+            final_xml_files = []
+            iframes_html_content =[]
+            all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
+            if all_pages:
+                st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+                for i, page in enumerate(all_pages):
+                    st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
+                    xml_files, iframes = download_ZIP(driver, action, wait, temp_folder)
+                    final_xml_files.append(xml_files)
+                    iframes_html_content.append(iframes)
+                    
 
-                                page.click()
-                                time.sleep(3)
-                        else:
-                            st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
-                        
-                        iframes_html_content = [iframe for iframes in iframes_html_content for iframe in iframes]
-                        final_xml_files = [item for sublist in final_xml_files for item in sublist]
-                        
-                        st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
-                        time.sleep(3)
-                        
-                        # Remove zip in temp folder
-                        for f in os.listdir(temp_folder):
-                            if f.endswith('.zip'):
-                                os.remove(os.path.join(temp_folder, f))
+                    page.click()
+                    time.sleep(3)
+            else:
+                st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
+            
+            iframes_html_content = [iframe for iframes in iframes_html_content for iframe in iframes]
+            final_xml_files = [item for sublist in final_xml_files for item in sublist]
+            
+            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+            time.sleep(3)
+            
+            # Remove zip in temp folder
+            for f in os.listdir(temp_folder):
+                if f.endswith('.zip'):
+                    os.remove(os.path.join(temp_folder, f))
 
-                    except Exception as e:
-                        st.error(f"Lỗi: {e}")
+        except Exception as e:
+            st.error(f"Lỗi: {e}")
 
-                    finally:
-                        download_tar(temp_folder)
-                        if driver:
-                            driver.quit()  
-                        status.update(label="Tải thành công !!!", expanded=True)
+        finally:
+            download_tar(temp_folder)
+            if driver:
+                driver.quit()  
+            status.update(label="Tải thành công !!!", expanded=True)
 
-                        for iframe in iframes_html_content:
-                            driver.switch_to.frame(iframe)
-                            html_content = driver.page_source
-                            components.html(html_content, height=600, scrolling=True)
+            for iframe in iframes_html_content:
+                st.write(iframe)
+            #     driver.switch_to.frame(iframe)
+            #     html_content = driver.page_source
+            #     components.html(html_content, height=600, scrolling=True)
 
-                return iframes_html_content
+    return iframes_html_content
 
 ### TAB 4 FUNCTIONS
 def extract_number_viettel(string):
