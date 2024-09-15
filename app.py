@@ -281,7 +281,6 @@ def extract_zipfile(zip_file, extract_to):
 
 def download_ZIP(driver, action, wait, temp_folder):
     xml_files = []
-    iframes=[]
     icons = wait.until(
         EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
     )
@@ -295,7 +294,6 @@ def download_ZIP(driver, action, wait, temp_folder):
             iframe = wait.until(
                 EC.presence_of_element_located((By.ID, "HoaDonIframe1"))
             )
-            iframes.append(iframe)
             
 
             invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
@@ -314,6 +312,9 @@ def download_ZIP(driver, action, wait, temp_folder):
                     xml_files.append((xml_file, file))
                     os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
             
+            driver.switch_to.frame(iframe)
+            html_content = driver.page_source
+            components.html(html_content, height=600, scrolling=True)
             
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
@@ -324,7 +325,7 @@ def download_ZIP(driver, action, wait, temp_folder):
             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
             action.move_to_element(icon).perform()
 
-    return xml_files, iframes
+    return xml_files
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
     with st.status("Đang tải Zip tự động ...", expanded=True) as status:
@@ -348,7 +349,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 password.send_keys(os.getenv('password_2'))
                 password.send_keys(Keys.RETURN)
                 
-            st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
+            # st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
             time.sleep(2)
 
             qlhd = wait.until(
@@ -373,15 +374,13 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             time.sleep(2)
             
             final_xml_files = []
-            iframes_html_content =[]
             all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
             if all_pages:
                 st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
                 for i, page in enumerate(all_pages):
                     st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                    xml_files, iframes = download_ZIP(driver, action, wait, temp_folder)
+                    xml_files = download_ZIP(driver, action, wait, temp_folder)
                     final_xml_files.append(xml_files)
-                    iframes_html_content.append(iframes)
                     
 
                     page.click()
@@ -389,11 +388,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             else:
                 st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
             
-            iframes_html_content = [iframe for iframes in iframes_html_content for iframe in iframes]
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
-            
-            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
-            time.sleep(3)
             
             # Remove zip in temp folder
             for f in os.listdir(temp_folder):
@@ -404,18 +399,14 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             st.error(f"Lỗi: {e}")
 
         finally:
-            download_tar(temp_folder)
             if driver:
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
 
             # for iframe in iframes_html_content:
             #     st.write(iframe)
-            driver.switch_to.frame(iframes_html_content[0])
-            html_content = driver.page_source
-            components.html(html_content, height=600, scrolling=True)
+    return final_xml_files
 
-    return iframes_html_content
 
 ### TAB 4 FUNCTIONS
 def extract_number_viettel(string):
@@ -602,7 +593,13 @@ def main():
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
-            iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
+            final_xml_files = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
+
+        st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+        time.sleep(3)
+        
+        download_tar(temp_folder)
+
             
             
 
