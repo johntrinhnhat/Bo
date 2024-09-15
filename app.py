@@ -298,8 +298,12 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             html_content = driver.page_source
             iframes_html_content.append(html_content)
 
-            invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
+            # invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
 
+            invoice_form = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//div[@class='modal-content']"))
+            )
+            
             download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
             driver.execute_script("arguments[0].click();", download_button)
             time.sleep(3)
@@ -324,7 +328,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             )
             action.move_to_element(icon).perform()
 
-            
+
     st.write(iframes_html_content)
     return xml_files
 
