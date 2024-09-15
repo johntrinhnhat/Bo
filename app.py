@@ -381,35 +381,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     time.sleep(3)
             else:
                 st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
-
-            # all_pages = wait.until(
-            #     EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
-            # )
-            # st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-            
-            # final_xml_files = []
-            # # final_iframes_html_content =[]
-            # i=len(all_pages)
-            # while i > 0:
-            #     st.write_stream(stream_data((f"Đang tải hóa đơn  ...")))
-
-            #     xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
-            #     final_xml_files.append(xml_files)
-            #     # final_iframes_html_content.append(iframes_html_content)
-
-            #     try:
-            #         # Wait for and click the "Next" button if it is available and clickable
-            #         next_button = wait.until(
-            #             EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
-            #         )
-            #         st.write(next_button)
-            #         driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
-            #         driver.execute_script("arguments[0].click();", next_button)
-            #         i -= 1  
-            #         time.sleep(2)  
-            #     except TimeoutException:
-            #         st.write("Không còn trang nào được tìm thấy")
-            #         break 
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
             final_iframes_html_content = [frame for frames in final_iframes_html_content for frame in frames]
@@ -428,7 +399,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
 
-    return final_iframes_html_content
+        return final_iframes_html_content
 
 ### TAB 4 FUNCTIONS
 def extract_number_viettel(string):
