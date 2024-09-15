@@ -432,7 +432,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
 
-        return final_iframes_html_content
+    return final_iframes_html_content
 
 ### TAB 4 FUNCTIONS
 def extract_number_viettel(string):
