@@ -595,9 +595,9 @@ def main():
             driver, action, wait = selenium_web_driver(temp_folder)  
             final_xml_files = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
-        st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
-        time.sleep(3)
-        
+            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+            time.sleep(3)
+
         download_tar(temp_folder)
 
             
