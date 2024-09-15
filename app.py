@@ -280,7 +280,7 @@ def extract_zipfile(zip_file, extract_to):
                 
     return extracted_files
 
-def download_ZIP(driver, action, wait, temp_folder):
+def download_ZIP(driver, action, wait, temp_folder, tab5):
     xml_files = []
 
     icons = wait.until(
@@ -301,8 +301,8 @@ def download_ZIP(driver, action, wait, temp_folder):
 
             # Extract the HTML content of the iframe
             html_content = driver.page_source
-
-            components.html(html_content, height=600)
+            with tab5:
+                components.html(html_content, height=900)
 
             invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
 
@@ -394,13 +394,13 @@ def main():
             st.success(f'Bạn đã tải thành công {len(xml_files)} tệp')
         st.divider()
             
-    tab1, tab2, tab3, tab4= st.tabs(['Phiếu xuất kho', 'Phiếu thu tiền', 'VNPT', 'Viettel'])
+    tab1, tab2, tab3, tab4, tab5= st.tabs(['Phiếu xuất kho', 'Phiếu thu tiền', 'VNPT', 'Viettel', 'Hóa Đơn'])
 
     tab1.title("Phiếu xuất kho")
     tab2.title("Phiếu thu tiền")
     tab3.title("VNPT")
     tab4.title("Viettel")
-
+    tab5.title("Hóa Đơn")
     with tab1:
         if xml_files:
             all_data = []
@@ -569,7 +569,7 @@ def main():
                         st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
                         for i, page in enumerate(all_pages):
                             st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                            xml_files = download_ZIP(driver, action, wait, temp_folder)
+                            xml_files = download_ZIP(driver, action, wait, temp_folder, tab5)
                             final_xml_files.append(xml_files)
                             page.click()
                             time.sleep(3)
