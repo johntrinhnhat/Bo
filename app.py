@@ -590,10 +590,14 @@ def main():
 
                 finally:
                     download_tar(temp_folder)
-                    
                     if driver:
                         driver.quit()  
                     status.update(label="Tải thành công !!!", expanded=True)
+                    with tab5:
+                        for iframe in iframes_html_content:
+                            driver.switch_to.frame(iframe)
+                            html_content = driver.page_source
+                            components.html(html_content, height=900)
         
 
     with tab4:
@@ -673,11 +677,7 @@ def main():
                         driver.quit()  
                     status.update(label="Tải thành công !!!", expanded=True)
 
-    with tab5:
-        for iframe in iframes_html_content:
-            driver.switch_to.frame(iframe)
-            html_content = driver.page_source
-            components.html(html_content, height=900)
+    
 
 
 if __name__ == "__main__":
