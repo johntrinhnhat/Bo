@@ -207,8 +207,16 @@ def pxk_excel(wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df):
     ws['A4'] = date
     ws['A8'] = f"Địa điểm xuất kho: {nban_dc}"
     ws['C41'] = shdon
-    ws['C45'] = nban
-    ws['F45'] = nban
+
+    if nban == "An Vinh":
+        ws['C45'] = "Duy Thanh"
+        ws['F45'] = "Duy Thanh"
+    elif nban == "Tuyết Oanh":
+        ws['C45'] = "Thanh Thúy"
+        ws['F45'] = "Thanh Thúy"
+    else:
+        ws['C45'] = nban
+        ws['F45'] = nban
     ws['C40'] = tbc
     ws['A6'] = f"Tên đơn vị mua hàng: {nmua}"
 
@@ -247,8 +255,15 @@ def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
     ws['A7'] = f"Địa chỉ: {nmua_dc}"
     ws['A2'] = new_value
     ws['A1'] = f"Hộ kinh doanh: {nban}"
-    ws['A17'] = nban
-    ws['C17'] = nban
+    if nban == "An Vinh":
+        ws['A17'] = "Duy Thanh"
+        ws['C17'] = "Duy Thanh"
+    elif nban == "Tuyết Oanh":
+        ws['A17'] = "Thanh Thúy"
+        ws['C17'] = "Thanh Thúy"
+    else:
+        ws['A17'] = nban
+        ws['C17'] = nban
     ws['B4'] = date
     ws['F14'] = date
     ws['C10'] = tbc
@@ -280,8 +295,6 @@ def extract_zipfile(zip_file, extract_to):
 
 def download_icon_vnpt(driver, action, wait, temp_folder):
     xml_files = []
-    iframes_html_content = []
-
     try:
         icons = wait.until(
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
@@ -292,15 +305,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
-
-            iframe = wait.until(
-                EC.presence_of_element_located((By.ID, "HoaDonIframe1"))
-            )
-
-            driver.switch_to.frame(iframe)
-            html_content = driver.page_source
-            iframes_html_content.append(html_content)
-            driver.switch_to.default_content()
             
             download_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
@@ -329,7 +333,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
 
-    return xml_files, iframes_html_content
+    return xml_files
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
@@ -375,14 +379,11 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
 
             final_xml_files = []
-            final_iframes_html_content =[]
             i=len(all_pages)
             while i > 0:
                 st.write_stream(stream_data(("Đang tải hóa đơn ...")))
                 # Download the files from the current page
-                xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
-                final_xml_files.append(xml_files)
-                final_iframes_html_content.append(iframes_html_content)
+                final_xml_files.append(download_icon_vnpt(driver, action, wait, temp_folder))
                 try:
                     # Wait for and click the "Next" button if it is available and clickable
                     next_button = wait.until(
@@ -395,28 +396,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 except TimeoutException:
                     st.write("Không có trang được tìm thấy")
                     break  
-
-            # page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 50 items on page']")
-            # page_size.click()
-            
-            # final_xml_files = []
-            # final_iframes_html_content =[]
-            # all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
-            # if all_pages:
-            #     st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-            #     for i, page in enumerate(all_pages):
-            #         st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-            #         xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
-            #         final_xml_files.append(xml_files)
-            #         final_iframes_html_content.append(iframes_html_content)
-
-            #         page.click()
-            #         time.sleep(3)
-            # else:
-            #     st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
-            final_iframes_html_content = [frame for frames in final_iframes_html_content for frame in frames]
             st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             
             # Remove zip in temp folder
@@ -431,8 +412,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             if driver:
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
-
-        return final_iframes_html_content
 
 ### TAB 4 FUNCTIONS
 def extract_number_viettel(string):
@@ -686,14 +665,7 @@ def main():
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
-            final_iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
-
-            if final_iframes_html_content:
-                st.success("Bố xem hóa đơn đã tải ở trang Hóa Đơn")
-            with tab5:
-                for iframe in final_iframes_html_content:
-                    components.html(iframe, width = 1000, height=1100)
-                    
+            handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
             download_tar(temp_folder)
 
             
