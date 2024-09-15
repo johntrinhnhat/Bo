@@ -368,24 +368,52 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn[3].click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
-            page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 50 items on page']")
-            page_size.click()
-            
+
+            all_pages = wait.until(
+                EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page']"))
+            )
+            st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+
             final_xml_files = []
             final_iframes_html_content =[]
-            all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
-            if all_pages:
-                st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-                for i, page in enumerate(all_pages):
-                    st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                    xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
-                    final_xml_files.append(xml_files)
-                    final_iframes_html_content.append(iframes_html_content)
+            i=len(all_pages)
+            while i > 0:
+                st.write_stream(stream_data(("Đang tải hóa đơn ...")))
+                # Download the files from the current page
+                xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
+                final_xml_files.append(xml_files)
+                final_iframes_html_content.append(iframes_html_content)
+                try:
+                    # Wait for and click the "Next" button if it is available and clickable
+                    next_button = wait.until(
+                        EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
+                    )
+                    driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
+                    driver.execute_script("arguments[0].click();", next_button)
+                    i -= 1  
+                    time.sleep(3)  
+                except TimeoutException:
+                    st.write("Không có trang được tìm thấy")
+                    break  
 
-                    page.click()
-                    time.sleep(3)
-            else:
-                st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
+            # page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 50 items on page']")
+            # page_size.click()
+            
+            # final_xml_files = []
+            # final_iframes_html_content =[]
+            # all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
+            # if all_pages:
+            #     st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+            #     for i, page in enumerate(all_pages):
+            #         st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
+            #         xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
+            #         final_xml_files.append(xml_files)
+            #         final_iframes_html_content.append(iframes_html_content)
+
+            #         page.click()
+            #         time.sleep(3)
+            # else:
+            #     st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
             final_iframes_html_content = [frame for frames in final_iframes_html_content for frame in frames]
@@ -490,8 +518,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             while i > 0:
                 st.write_stream(stream_data(("Đang tải hóa đơn ...")))
                 # Download the files from the current page
-                
-
+                final_xml_files.append(download_icon_viettel(driver, action, wait, temp_folder))
                 try:
                     # Wait for and click the "Next" button if it is available and clickable
                     next_button = wait.until(
@@ -502,7 +529,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     i -= 1  
                     time.sleep(2)  
                 except TimeoutException:
-                    print("Không còn trang nào được tìm thấy")
+                    st.write("Không có trang được tìm thấy")
                     break  
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
