@@ -297,12 +297,7 @@ def download_ZIP(driver, action, wait, temp_folder, tab5):
                 EC.presence_of_element_located((By.ID, "HoaDonIframe1"))
             )
 
-            driver.switch_to.frame(iframe)
-
-            # Extract the HTML content of the iframe
-            html_content = driver.page_source
-            with tab5:
-                components.html(html_content, height=900)
+            
 
             invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
 
@@ -319,7 +314,7 @@ def download_ZIP(driver, action, wait, temp_folder, tab5):
                     xml_file = shd + file[file.index('.xml'):]
                     xml_files.append((xml_file, file))
                     os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
-
+            
             
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
@@ -330,7 +325,7 @@ def download_ZIP(driver, action, wait, temp_folder, tab5):
             icon = driver.find_element(By.XPATH, "//a[@title='Xem chi tiết hóa đơn']")
             action.move_to_element(icon).perform()
 
-    return xml_files
+    return xml_files, iframe
 
 ### TAB 4 FUNCTIONS
 def extract_number_viettel(string):
@@ -564,13 +559,19 @@ def main():
                     time.sleep(2)
                     
                     final_xml_files = []
+                    iframe_html_content=[]
                     all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
                     if all_pages:
                         st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
                         for i, page in enumerate(all_pages):
                             st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                            xml_files = download_ZIP(driver, action, wait, temp_folder, tab5)
+                            xml_files, iframe = download_ZIP(driver, action, wait, temp_folder, tab5)
                             final_xml_files.append(xml_files)
+
+                            driver.switch_to.frame(iframe)
+                            html_content = driver.page_source
+                            iframe_html_content.append(html_content)
+
                             page.click()
                             time.sleep(3)
                     else:
@@ -671,6 +672,10 @@ def main():
                     if driver:
                         driver.quit()  
                     status.update(label="Tải thành công !!!", expanded=True)
+
+    with tab5:
+        for iframe in iframe_html_content:
+            components.html(iframe, height=900)
 
 if __name__ == "__main__":
     main()
