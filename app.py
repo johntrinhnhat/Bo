@@ -383,7 +383,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 # Download the files from the current page
                 final_xml_files.append(download_icon_vnpt(driver, action, wait, temp_folder))
                 try:
-                    # Wait for and click the "Next" button if it is available and clickable
+                    
                     next_button = wait.until(
                         EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
                     )
@@ -396,8 +396,14 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     break  
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
-            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
-            
+
+            if final_xml_files:
+                st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+                status.update(label="Tải thành công !!!", expanded=True)
+            else:
+                st.write_stream(stream_data((f"Không có hóa đơn để tải"))) 
+
+
             # Remove zip in temp folder
             for f in os.listdir(temp_folder):
                 if f.endswith('.zip'):
@@ -409,7 +415,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
         finally:
             if driver:
                 driver.quit()  
-            status.update(label="Tải thành công !!!", expanded=True)
 
 ### TAB 4 FUNCTIONS
 def extract_number_viettel(string):
