@@ -673,9 +673,12 @@ def main():
             driver, action, wait = selenium_web_driver(temp_folder)  
             final_iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
-
-            with st.popover("Bố xem hóa đơn đã tải ở đây"):
+            with tab5:
                 for iframe in final_iframes_html_content:
+                    components.html(iframe, height=1200)
+                    
+            # with st.popover("Bố xem hóa đơn đã tải ở đây"):
+                # for iframe in final_iframes_html_content:
                     # soup = BeautifulSoup(iframe, 'html.parser')
 
                     # body = soup.find('body')
@@ -687,8 +690,7 @@ def main():
                     #         body['style'] = new_style
                         
                     # components.html(soup.prettify())
-                    with tab5:
-                        components.html(iframe, height=1200)
+                        
                         
                     # else:
                     #    st.write("No body tag found in HTML")
