@@ -394,10 +394,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             while i > 0:
                 st.write_stream(stream_data((f"Đang tải hóa đơn  ...")))
 
-                final_xml_files.append(download_icon_vnpt(driver, action, wait, temp_folder))
-                st.write("Found XML")
-                # xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
-                # final_xml_files.append(xml_files)
+                xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
+                final_xml_files.append(xml_files)
                 # final_iframes_html_content.append(iframes_html_content)
 
                 try:
