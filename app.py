@@ -282,6 +282,7 @@ def extract_zipfile(zip_file, extract_to):
 
 def download_ZIP(driver, action, wait, temp_folder):
     xml_files = []
+
     icons = wait.until(
         EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
     )
@@ -291,7 +292,13 @@ def download_ZIP(driver, action, wait, temp_folder):
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
-            
+
+            iframe = wait.until(
+                EC.presence_of_element_located((By.ID, "HoaDonIframe1"))
+            )
+
+
+            st.write(f"Iframe {iframe}")
             invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
 
             download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
