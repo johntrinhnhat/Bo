@@ -409,6 +409,11 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                             driver.quit()  
                         status.update(label="Tải thành công !!!", expanded=True)
 
+                        for iframe in iframes_html_content:
+                            driver.switch_to.frame(iframe)
+                            html_content = driver.page_source
+                            components.html(html_content, height=600, scrolling=True)
+
                 return iframes_html_content
 
 ### TAB 4 FUNCTIONS
@@ -598,10 +603,7 @@ def main():
             driver, action, wait = selenium_web_driver(temp_folder)  
             iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
             
-            for iframe in iframes_html_content:
-                driver.switch_to.frame(iframe)
-                html_content = driver.page_source
-                components.html(html_content, height=600, scrolling=True)
+            
 
     with tab4:
         user = st.radio(
