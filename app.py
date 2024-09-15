@@ -404,11 +404,12 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             st.error(f"Lỗi: {e}")
 
         finally:
+            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             if driver:
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
 
-    return final_xml_files, final_iframes_html_content
+    return final_iframes_html_content
 
 
 ### TAB 4 FUNCTIONS
@@ -669,13 +670,13 @@ def main():
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
-            final_xml_files, final_iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
+            final_iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
-            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
 
             with st.popover("Bố xem hóa đơn đã tải ở đây"):
-                for iframe in final_iframes_html_content:
-                    st.write(iframe)
+                st.write(final_iframes_html_content)
+                # for iframe in final_iframes_html_content:
+                #     st.write(iframe)
                     # components.html(iframe)
 
             download_tar(temp_folder)
