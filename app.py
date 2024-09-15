@@ -328,9 +328,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             )
             action.move_to_element(icon).perform()
 
-
-    st.write(iframes_html_content)
-    return xml_files
+    return xml_files, iframes_html_content
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
@@ -378,13 +376,15 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             time.sleep(2)
             
             final_xml_files = []
+            final_iframes_html_content =[]
             all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
             if all_pages:
                 st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
                 for i, page in enumerate(all_pages):
                     st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                    xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
+                    xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
                     final_xml_files.append(xml_files)
+                    final_iframes_html_content.append(iframes_html_content)
 
                     page.click()
                     time.sleep(3)
@@ -392,6 +392,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
+            final_iframes_html_content = [frame for frames in final_iframes_html_content for frame in frames]
+
             
             # Remove zip in temp folder
             for f in os.listdir(temp_folder):
@@ -406,7 +408,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
 
-    return final_xml_files
+    return final_xml_files, final_iframes_html_content
 
 
 ### TAB 4 FUNCTIONS
@@ -450,6 +452,80 @@ def download_icon_viettel(driver, action, wait, temp_folder):
             )
             action.move_to_element(icon).perform()
     return xml_files
+
+def handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder):
+                with st.status("Đang tải XML tự động ...", expanded=True) as status:
+                    try:
+                        driver.get('https://vinvoice.viettel.vn/account/login')
+                        driver.implicitly_wait(2)
+
+                        wait.until(
+                            EC.presence_of_element_located((By.XPATH, '//form[@role="form"]'))
+                        )
+
+                        st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
+                        time.sleep(3)
+
+                        username = driver.find_element(By.ID, 'username')
+                        password = driver.find_element(By.NAME, 'password')
+
+                        username.send_keys(os.getenv('username_viettel'))
+                        password.send_keys(os.getenv('password_viettel'))
+                        password.send_keys(Keys.RETURN)
+
+                        qlhd = wait.until(
+                            EC.presence_of_element_located((By.XPATH,"//a[@href='/invoice-management/invoice']")))
+                        driver.execute_script("arguments[0].click();", qlhd)
+                        st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
+                        time.sleep(2)
+
+                        enter_dates(driver, start_date, end_date, btn_path="//input[@formcontrolname='datePicker']")
+
+                        search_btn = wait.until(
+                            EC.presence_of_element_located((By.XPATH, "//button[span[text()='Tìm kiếm']]"))
+                        )
+                        search_btn.click()
+                        st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
+                        time.sleep(3)
+
+                    
+                        all_pages = wait.until(
+                            EC.presence_of_all_elements_located((By.XPATH, "//a[@class='page-link ng-star-inserted']"))
+                        )
+                        st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+                        
+                        final_xml_files = []
+                        i=len(all_pages)
+                        while i > 0:
+                            st.write_stream(stream_data(("Đang tải hóa đơn ...")))
+                            # Download the files from the current page
+                            final_xml_files.append(download_icon_viettel(driver, action, wait, temp_folder))
+
+                            try:
+                                # Wait for and click the "Next" button if it is available and clickable
+                                next_button = wait.until(
+                                    EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
+                                )
+                                driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
+                                driver.execute_script("arguments[0].click();", next_button)
+                                i -= 1  
+                                time.sleep(3)  
+                            except TimeoutException:
+                                print("No more pages or 'Next' button not found.")
+                                break  
+                        
+                        final_xml_files = [item for sublist in final_xml_files for item in sublist]
+                        st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+                        time.sleep(3) 
+
+                    except Exception as e:  
+                        st.error(f"Lỗi: {e}")
+
+                    finally:
+                        if driver:
+                            driver.quit()  
+                        status.update(label="Tải thành công !!!", expanded=True)
+                return final_xml_files
     
 ### Streamlit State FUNCTIONS
 def create():
@@ -592,16 +668,14 @@ def main():
         start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
-            
             driver, action, wait = selenium_web_driver(temp_folder)  
-            final_xml_files = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
+            final_xml_files, final_iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
             st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
-            time.sleep(3)
-
+            with st.popover("Hóa đơn đã tải"):
+                st.write(final_iframes_html_content)
             download_tar(temp_folder)
 
-            
             
 
     with tab4:
@@ -613,94 +687,13 @@ def main():
 
         if st.button("Tải XML tự động", key="viettel"):
             temp_folder = tempfile.mkdtemp()
-            driver, action, wait = selenium_web_driver(temp_folder)            
-
-            with st.status("Đang tải XML tự động ...", expanded=True) as status:
-                try:
-                    driver.get('https://vinvoice.viettel.vn/account/login')
-                    driver.implicitly_wait(2)
-
-                    wait.until(
-                        EC.presence_of_element_located((By.XPATH, '//form[@role="form"]'))
-                    )
-
-                    st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
-                    time.sleep(3)
-
-                    username = driver.find_element(By.ID, 'username')
-                    password = driver.find_element(By.NAME, 'password')
-
-                    username.send_keys(os.getenv('username_viettel'))
-                    password.send_keys(os.getenv('password_viettel'))
-                    password.send_keys(Keys.RETURN)
-
-                    qlhd = wait.until(
-                        EC.presence_of_element_located((By.XPATH,"//a[@href='/invoice-management/invoice']")))
-                    driver.execute_script("arguments[0].click();", qlhd)
-                    st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
-                    time.sleep(2)
-
-                    enter_dates(driver, start_date, end_date, btn_path="//input[@formcontrolname='datePicker']")
-
-                    search_btn = wait.until(
-                        EC.presence_of_element_located((By.XPATH, "//button[span[text()='Tìm kiếm']]"))
-                    )
-                    search_btn.click()
-                    st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
-                    time.sleep(3)
-
-                    final_xml_files = []
-                    # all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
-                    all_pages = wait.until(
-                        EC.presence_of_all_elements_located((By.XPATH, "//a[@class='page-link ng-star-inserted']"))
-                    )
-                    st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-                    
-                    next_button = wait.until(
-                        EC.presence_of_element_located((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
-                    )
-                    
-
-                    i=len(all_pages)
-                    while i > 0:
-                        # Download the files from the current page
-                        final_xml_files.append(download_icon_viettel(driver, action, wait, temp_folder))
-
-                        try:
-                            # Wait for and click the "Next" button if it is available and clickable
-                            next_button = wait.until(
-                                EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
-                            )
-                            driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
-                            driver.execute_script("arguments[0].click();", next_button)
-                            i -= 1  
-                            time.sleep(3)  
-                        except TimeoutException:
-                            print("No more pages or 'Next' button not found.")
-                            break  
-                    
-                    # if all_pages:
-                    #     for i, page in enumerate(all_pages):
-                    #         st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                    #         xml_files = download_icon_viettel(driver, action, wait, temp_folder)
-                    #         final_xml_files.append(xml_files)
-                    #         page.click()
-                    
-                    final_xml_files = [item for sublist in final_xml_files for item in sublist]
-                    st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
-                    time.sleep(3) 
-
-                except Exception as e:  
-                    st.error(f"Lỗi: {e}")
-
-                finally:
-                    download_tar(temp_folder)
-                    if driver:
-                        driver.quit()  
-                    status.update(label="Tải thành công !!!", expanded=True)
-
+            driver, action, wait = selenium_web_driver(temp_folder)    
+            final_xml_files = handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)     
+            
+            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+            time.sleep(3)
     
-
+            download_tar(temp_folder)
 
 if __name__ == "__main__":
     main()
