@@ -324,7 +324,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             )
             action.move_to_element(icon).perform()
 
-    return xml_files
+    return xml_files, iframes_html_content
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
@@ -363,57 +363,57 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn[3].click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
-            # page_size = wait.until(
-            #     EC.presence_of_all_elements_located((By.XPATH, "//div[@aria-label='Display 50 items on page']")))
-            # page_size.click()
-            
-            # final_xml_files = []
-            # final_iframes_html_content =[]
-            # all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
-            # if all_pages:
-            #     st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-            #     for i, page in enumerate(all_pages):
-            #         st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-            #         xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
-            #         final_xml_files.append(xml_files)
-            #         final_iframes_html_content.append(iframes_html_content)
-
-            #         page.click()
-            #         time.sleep(3)
-            # else:
-            #     st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
-
-            all_pages = wait.until(
-                EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
-            )
-            st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+            page_size = wait.until(
+                EC.presence_of_all_elements_located((By.XPATH, "//div[@aria-label='Display 50 items on page']")))
+            page_size.click()
             
             final_xml_files = []
-            # final_iframes_html_content =[]
-            i=len(all_pages)
-            while i > 0:
-                st.write_stream(stream_data((f"Đang tải hóa đơn  ...")))
+            final_iframes_html_content =[]
+            all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
+            if all_pages:
+                st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+                for i, page in enumerate(all_pages):
+                    st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
+                    xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
+                    final_xml_files.append(xml_files)
+                    final_iframes_html_content.append(iframes_html_content)
 
-                xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
-                final_xml_files.append(xml_files)
-                # final_iframes_html_content.append(iframes_html_content)
+                    page.click()
+                    time.sleep(3)
+            else:
+                st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
 
-                try:
-                    # Wait for and click the "Next" button if it is available and clickable
-                    next_button = wait.until(
-                        EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
-                    )
-                    st.write(next_button)
-                    driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
-                    driver.execute_script("arguments[0].click();", next_button)
-                    i -= 1  
-                    time.sleep(2)  
-                except TimeoutException:
-                    st.write("Không còn trang nào được tìm thấy")
-                    break 
+            # all_pages = wait.until(
+            #     EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
+            # )
+            # st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+            
+            # final_xml_files = []
+            # # final_iframes_html_content =[]
+            # i=len(all_pages)
+            # while i > 0:
+            #     st.write_stream(stream_data((f"Đang tải hóa đơn  ...")))
+
+            #     xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
+            #     final_xml_files.append(xml_files)
+            #     # final_iframes_html_content.append(iframes_html_content)
+
+            #     try:
+            #         # Wait for and click the "Next" button if it is available and clickable
+            #         next_button = wait.until(
+            #             EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
+            #         )
+            #         st.write(next_button)
+            #         driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
+            #         driver.execute_script("arguments[0].click();", next_button)
+            #         i -= 1  
+            #         time.sleep(2)  
+            #     except TimeoutException:
+            #         st.write("Không còn trang nào được tìm thấy")
+            #         break 
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
-            # final_iframes_html_content = [frame for frames in final_iframes_html_content for frame in frames]
+            final_iframes_html_content = [frame for frames in final_iframes_html_content for frame in frames]
             st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             
             # Remove zip in temp folder
@@ -429,8 +429,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
 
-    # return final_iframes_html_content
-
+    return final_iframes_html_content
 
 ### TAB 4 FUNCTIONS
 def extract_number_viettel(string):
@@ -685,12 +684,12 @@ def main():
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
-            handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
-            # if final_iframes_html_content:
-            #     st.success("Bố xem hóa đơn đã tải ở trang Hóa Đơn")
-            # with tab5:
-            #     for iframe in final_iframes_html_content:
-            #         components.html(iframe, width = 400, height=1000)
+            final_iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
+            if final_iframes_html_content:
+                st.success("Bố xem hóa đơn đã tải ở trang Hóa Đơn")
+            with tab5:
+                for iframe in final_iframes_html_content:
+                    components.html(iframe, width = 400, height=1000)
                     
             download_tar(temp_folder)
 
