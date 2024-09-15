@@ -325,7 +325,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             )
             action.move_to_element(icon).perform()
 
-    return xml_files, iframes_html_content
+    return xml_files
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
@@ -393,9 +393,9 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             num_pages= len(all_pages)
             i=1
             while i < num_pages:
-                st.write_stream(stream_data((f"Đang tải hóa đơn {i} ...")))
+                st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i} ...")))
 
-                xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
+                xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
                 final_xml_files.append(xml_files)
                 # final_iframes_html_content.append(iframes_html_content)
 
@@ -414,6 +414,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
             # final_iframes_html_content = [frame for frames in final_iframes_html_content for frame in frames]
+            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             
             # Remove zip in temp folder
             for f in os.listdir(temp_folder):
@@ -424,7 +425,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             st.error(f"Lỗi: {e}")
 
         finally:
-            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             if driver:
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
