@@ -676,23 +676,22 @@ def main():
 
             with st.popover("Bố xem hóa đơn đã tải ở đây"):
                 for iframe in final_iframes_html_content:
-                    # Parse the HTML content
-                    soup = BeautifulSoup(iframe, 'html.parser')
+                    # soup = BeautifulSoup(iframe, 'html.parser')
 
-                    # Find the <body> element
-                    body = soup.find('body')
+                    # body = soup.find('body')
 
-                    if body:
-                        body_style = body.get('style', '')
-                        if 'height' in body_style:
-                            new_style = body_style.replace('height: 100%;', 'height: 60%;')
-                            body['style'] = new_style
+                    # if body:
+                    #     body_style = body.get('style', '')
+                    #     if 'height' in body_style:
+                    #         new_style = body_style.replace('height: 100%;', 'height: 60%;')
+                    #         body['style'] = new_style
                         
-                        components.html(soup.prettify())
+                    # components.html(soup.prettify())
+                    with tab5:
+                        components.html(iframe, height=1200)
                         
-                    else:
-                        # Return error code if body is not found
-                       st.write("No body tag found in HTML")
+                    # else:
+                    #    st.write("No body tag found in HTML")
                     
             download_tar(temp_folder)
 
