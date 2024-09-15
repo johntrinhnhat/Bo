@@ -598,11 +598,10 @@ def main():
             driver, action, wait = selenium_web_driver(temp_folder)  
             iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
             
-            with st.popover("Hóa Đơn đã tải"):
-                for iframe in iframes_html_content:
-                    driver.switch_to.frame(iframe)
-                    html_content = driver.page_source
-                    components.html(html_content, height=600, scrolling=True)
+            for iframe in iframes_html_content:
+                driver.switch_to.frame(iframe)
+                html_content = driver.page_source
+                components.html(html_content, height=600, scrolling=True)
 
     with tab4:
         user = st.radio(
