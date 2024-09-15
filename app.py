@@ -363,8 +363,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn[3].click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
-            page_size = wait.until(
-                EC.presence_of_all_elements_located((By.XPATH, "//div[@aria-label='Display 50 items on page']")))
+            page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 50 items on page']")
             page_size.click()
             
             final_xml_files = []
@@ -685,6 +684,7 @@ def main():
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
             final_iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
+
             if final_iframes_html_content:
                 st.success("Bố xem hóa đơn đã tải ở trang Hóa Đơn")
             with tab5:
