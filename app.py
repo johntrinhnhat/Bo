@@ -277,7 +277,7 @@ def extract_zipfile(zip_file, extract_to):
                 
     return extracted_files
 
-def download_ZIP(driver, action, wait, temp_folder):
+def download_icon_vnpt(driver, action, wait, temp_folder):
     xml_files = []
     iframes_html_content = []
     icons = wait.until(
@@ -294,7 +294,9 @@ def download_ZIP(driver, action, wait, temp_folder):
             iframe = wait.until(
                 EC.presence_of_element_located((By.ID, "HoaDonIframe1"))
             )
-            
+            driver.switch_to.frame(iframe)
+            html_content = driver.page_source
+            iframes_html_content.append(html_content)
 
             invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
 
@@ -311,11 +313,6 @@ def download_ZIP(driver, action, wait, temp_folder):
                     xml_file = shd + file[file.index('.xml'):]
                     xml_files.append((xml_file, file))
                     os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
-            
-            driver.switch_to.frame(iframe)
-            html_content = driver.page_source
-            iframes_html_content.append(html_content)
-            
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
@@ -327,10 +324,12 @@ def download_ZIP(driver, action, wait, temp_folder):
             )
             action.move_to_element(icon).perform()
 
-    return xml_files, iframes_html_content
+            
+    st.write(iframes_html_content)
+    return xml_files
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
-    with st.status("Đang tải Zip tự động ...", expanded=True) as status:
+    with st.status("Đang tải XML tự động ...", expanded=True) as status:
         try:
             driver.get('https://hkd.vnpt.vn/account/login')
             driver.implicitly_wait(3)
@@ -351,7 +350,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 password.send_keys(os.getenv('password_2'))
                 password.send_keys(Keys.RETURN)
                 
-            # st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
+            st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
             time.sleep(2)
 
             qlhd = wait.until(
@@ -380,9 +379,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
                 for i, page in enumerate(all_pages):
                     st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                    xml_files, iframes_html_content = download_ZIP(driver, action, wait, temp_folder)
+                    xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
                     final_xml_files.append(xml_files)
-                    st.write(iframes_html_content)
 
                     page.click()
                     time.sleep(3)
@@ -415,7 +413,7 @@ def extract_number_viettel(string):
     else:
         return None
 
-def download_XML(driver, action, wait, temp_folder):
+def download_icon_viettel(driver, action, wait, temp_folder):
     xml_files = []
     icons = wait.until(
         EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
@@ -616,7 +614,7 @@ def main():
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)            
 
-            with st.status("Đang tải Zip tự động ...", expanded=True) as status:
+            with st.status("Đang tải XML tự động ...", expanded=True) as status:
                 try:
                     driver.get('https://vinvoice.viettel.vn/account/login')
                     driver.implicitly_wait(2)
@@ -666,7 +664,7 @@ def main():
                         st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
                         for i, page in enumerate(all_pages):
                             st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                            xml_files = download_XML(driver, action, wait, temp_folder)
+                            xml_files = download_icon_viettel(driver, action, wait, temp_folder)
                             final_xml_files.append(xml_files)
                     
                     final_xml_files = [item for sublist in final_xml_files for item in sublist]
