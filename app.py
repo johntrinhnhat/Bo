@@ -585,7 +585,11 @@ def main():
                         if f.endswith('.zip'):
                             os.remove(os.path.join(temp_folder, f))
 
-                    st.write(iframes_html_content)
+                    for iframe in iframes_html_content:
+                        driver.switch_to.frame(iframe)
+                        html_content = driver.page_source
+                        tab5.write(components.html(html_content, height=900))
+                    
 
                 except Exception as e:
                     st.error(f"Lỗi: {e}")
@@ -596,10 +600,6 @@ def main():
                         driver.quit()  
                     status.update(label="Tải thành công !!!", expanded=True)
 
-        # for iframe in iframes_html_content:
-        #     driver.switch_to.frame(iframe)
-        #     html_content = driver.page_source
-        #     components.html(html_content, height=900)
         
 
     with tab4:
