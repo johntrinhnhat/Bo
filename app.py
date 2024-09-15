@@ -362,7 +362,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
             )
             search_btn[3].click()
-            st.write(search_btn[3])
+            st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
+
             # page_size = wait.until(
             #     EC.presence_of_all_elements_located((By.XPATH, "//div[@aria-label='Display 50 items on page']")))
             # page_size.click()
@@ -384,7 +385,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             #     st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
 
             all_pages = wait.until(
-                EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page']"))
+                EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
             )
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
             
@@ -478,7 +479,6 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
         try:
             driver.get('https://vinvoice.viettel.vn/account/login')
-            driver.implicitly_wait(2)
 
             wait.until(
                 EC.presence_of_element_located((By.XPATH, '//form[@role="form"]'))
