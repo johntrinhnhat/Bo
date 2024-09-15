@@ -651,15 +651,13 @@ def main():
                     st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
                     time.sleep(3)
 
-                    select_size = wait.until(
-                        EC.presence_of_element_located((By.XPATH, "//select[@name='pageSize']"))
-                    )
+                    # select_size = wait.until(
+                    #     EC.presence_of_element_located((By.XPATH, "//select[@name='pageSize']"))
+                    # )
 
-                    # Use JavaScript to set the value
-                    driver.execute_script("arguments[0].value = '10';", select_size)
-
-                    st.write_stream(stream_data(("Chọn hiển thị 10 hóa đơn ...")))
-                    time.sleep(2)
+                    # # Use JavaScript to set the value
+                    # driver.execute_script("arguments[0].value = '10';", select_size)
+                    # time.sleep(2)
 
                     final_xml_files = []
                     all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
