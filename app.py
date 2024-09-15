@@ -589,16 +589,16 @@ def main():
             ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
         )
         start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
-
+        temp_folder = tempfile.mkdtemp()
         if st.button("Tải XML tự động", key="vnpt"):
-            temp_folder = tempfile.mkdtemp()
+            
             driver, action, wait = selenium_web_driver(temp_folder)  
             final_xml_files = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
             st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             time.sleep(3)
 
-            download_tar(temp_folder)
+        download_tar(temp_folder)
 
             
             
