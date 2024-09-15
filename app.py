@@ -327,8 +327,9 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                     EC.presence_of_element_located((By.XPATH, "//button[@class='close']")))
                 driver.execute_script("arguments[0].click();", close_button)
                 time.sleep(2)
+            return xml_files
         else:
-            st.write_stream(stream_data(f"Không có hóa đơn để tải"))
+            st.write_stream(stream_data(f"Không có hóa đơn để tải!"))
             return None
 
     except StaleElementReferenceException:
@@ -338,7 +339,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
 
-    return xml_files
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
@@ -399,25 +399,23 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     st.write("Không có trang được tìm thấy")
                     break  
             
-            final_xml_files = [item for sublist in final_xml_files for item in sublist]
-
-            if final_xml_files:
-                st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
-                status.update(label="Tải thành công !!!", expanded=True)
-            else:
-                st.write_stream(stream_data((f"Không có hóa đơn để tải"))) 
-
-            # Remove zip in temp folder
             for f in os.listdir(temp_folder):
                 if f.endswith('.zip'):
                     os.remove(os.path.join(temp_folder, f))
 
-        except Exception as e:
-            st.error(f"Lỗi: {e}")
+            if final_xml_files:
+                final_xml_files = [item for sublist in final_xml_files for item in sublist]
+                st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+                status.update(label="Tải thành công !!!", expanded=True)
+                return final_xml_files
+            else:
+                st.write_stream(stream_data((f"Không có hóa đơn để tải"))) 
+                pass
 
         finally:
             if driver:
                 driver.quit()  
+            
 
 ### TAB 4 FUNCTIONS
 def extract_number_viettel(string):
@@ -669,7 +667,7 @@ def main():
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
-            handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
+            final_xml_files = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
             download_tar(temp_folder)
 
             
