@@ -297,7 +297,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             driver.switch_to.frame(iframe)
             html_content = driver.page_source
             iframes_html_content.append(html_content)
-
+            driver.switch_to.default_content()
             # invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
 
             invoice_form = wait.until(
