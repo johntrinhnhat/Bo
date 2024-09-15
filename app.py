@@ -298,7 +298,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             html_content = driver.page_source
             iframes_html_content.append(html_content)
             driver.switch_to.default_content()
-            # invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
 
             invoice_form = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//div[@class='modal-content']"))
@@ -657,9 +656,9 @@ def main():
                     )
 
                     # Use JavaScript to set the value
-                    driver.execute_script("arguments[0].value = '50';", select_size)
+                    driver.execute_script("arguments[0].value = '10';", select_size)
 
-                    st.write_stream(stream_data(("Chọn hiển thị 50 hóa đơn ...")))
+                    st.write_stream(stream_data(("Chọn hiển thị 10 hóa đơn ...")))
                     time.sleep(2)
 
                     final_xml_files = []
