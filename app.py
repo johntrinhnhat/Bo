@@ -9,6 +9,7 @@ import datetime
 import time
 import zipfile
 import tarfile
+from bs4 import BeautifulSoup
 from selenium.common.exceptions import TimeoutException 
 from io import BytesIO
 from openpyxl import load_workbook
@@ -674,11 +675,25 @@ def main():
 
 
             with st.popover("Bố xem hóa đơn đã tải ở đây"):
-                st.write(final_iframes_html_content)
-                # for iframe in final_iframes_html_content:
-                #     st.write(iframe)
-                    # components.html(iframe)
+                for iframe in final_iframes_html_content:
+                    # Parse the HTML content
+                    soup = BeautifulSoup(iframe, 'html.parser')
 
+                    # Find the <body> element
+                    body = soup.find('body')
+
+                    if body:
+                        body_style = body.get('style', '')
+                        if 'height' in body_style:
+                            new_style = body_style.replace('height: 100%;', 'height: 60%;')
+                            body['style'] = new_style
+                        
+                        components.html(soup.prettify())
+                        
+                    else:
+                        # Return error code if body is not found
+                       st.write("No body tag found in HTML")
+                    
             download_tar(temp_folder)
 
             
