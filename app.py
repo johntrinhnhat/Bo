@@ -331,7 +331,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
         try:
             driver.get('https://hkd.vnpt.vn/account/login')
-            driver.implicitly_wait(3)
 
             wait.until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
@@ -350,14 +349,12 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 password.send_keys(Keys.RETURN)
                 
             st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
-            time.sleep(2)
 
             qlhd = wait.until(
                 EC.presence_of_element_located((By.XPATH,"//a[@href='/Thue/QuanLyHoaDon']"))
             )
             driver.execute_script("arguments[0].click();", qlhd)
             st.write_stream(stream_data(("Đang vào mục Quản Lý Hóa Đơn ...")))
-            time.sleep(2)
 
             enter_dates(wait, start_date, end_date, btn_path="//input[@class='dx-texteditor-input']")
 
@@ -365,32 +362,58 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
             )
             search_btn[3].click()
-            st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
-            time.sleep(3)
 
-            page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 50 items on page']")
-            page_size.click()
-            time.sleep(2)
+            # page_size = wait.until(
+            #     EC.presence_of_all_elements_located((By.XPATH, "//div[@aria-label='Display 50 items on page']")))
+            # page_size.click()
+            
+            # final_xml_files = []
+            # final_iframes_html_content =[]
+            # all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
+            # if all_pages:
+            #     st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
+            #     for i, page in enumerate(all_pages):
+            #         st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
+            #         xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
+            #         final_xml_files.append(xml_files)
+            #         final_iframes_html_content.append(iframes_html_content)
+
+            #         page.click()
+            #         time.sleep(3)
+            # else:
+            #     st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
+
+            all_pages = wait.until(
+                EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page']"))
+            )
+            st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
             
             final_xml_files = []
             final_iframes_html_content =[]
-            all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
-            if all_pages:
-                st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-                for i, page in enumerate(all_pages):
-                    st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
-                    xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
-                    final_xml_files.append(xml_files)
-                    final_iframes_html_content.append(iframes_html_content)
+            num_pages= len(all_pages)
+            i=1
+            while i < num_pages:
+                st.write_stream(stream_data((f"Đang tải hóa đơn {i} ...")))
 
-                    page.click()
-                    time.sleep(3)
-            else:
-                st.write_stream(stream_data(("Không có trang nào được tìm thấy")))
+                xml_files, iframes_html_content = download_icon_vnpt(driver, action, wait, temp_folder)
+                final_xml_files.append(xml_files)
+                final_iframes_html_content.append(iframes_html_content)
+
+                try:
+                    # Wait for and click the "Next" button if it is available and clickable
+                    next_button = wait.until(
+                        EC.element_to_be_clickable((By.XPATH, "//div[@class='dx-next-button']"))
+                    )
+                    driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
+                    driver.execute_script("arguments[0].click();", next_button)
+                    i += 1  
+                    time.sleep(3)  
+                except TimeoutException:
+                    print("Không còn trang nào được tìm thấy")
+                    break 
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
             final_iframes_html_content = [frame for frames in final_iframes_html_content for frame in frames]
-
             
             # Remove zip in temp folder
             for f in os.listdir(temp_folder):
@@ -462,7 +485,6 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             )
 
             st.write_stream(stream_data((f"Đang đăng nhập tài khoản {user}...")))
-            time.sleep(3)
 
             username = driver.find_element(By.ID, 'username')
             password = driver.find_element(By.NAME, 'password')
@@ -511,16 +533,16 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     break  
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
-            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+            
 
         except Exception as e:  
             st.error(f"Lỗi: {e}")
 
         finally:
+            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             if driver:
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
-    return final_xml_files
     
 ### Streamlit State FUNCTIONS
 def create():
@@ -685,11 +707,7 @@ def main():
         if st.button("Tải XML tự động", key="viettel"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)    
-            final_xml_files = handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)     
-            
-            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
-            time.sleep(3)
-    
+            handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)     
             download_tar(temp_folder)
 
 if __name__ == "__main__":
