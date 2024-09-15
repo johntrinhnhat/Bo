@@ -660,6 +660,7 @@ def main():
                         EC.presence_of_element_located((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
                     )
 
+                    i=len(all_pages)
                     while i > 0:
                         # Download the files from the current page
                         final_xml_files.append(download_icon_viettel(driver, action, wait, temp_folder))
