@@ -37,18 +37,17 @@ def set_date(key1, key2):
                     key= key2).strftime("%d/%m/%Y")
             return start_date, end_date
 
-def enter_dates(driver, start_date, end_date, btn_path):
+def enter_dates(driver, wait, start_date, end_date, btn_path):
     """
     Enters the start and end date in the appropriate fields.
     """
-    date_btn = driver.find_elements(By.XPATH, btn_path)
+    date_btn = wait.until(EC.presence_of_all_elements_located((By.XPATH, btn_path)))
+    # date_btn = driver.find_elements(By.XPATH, btn_path)
     date_btn[0].clear()
     date_btn[0].send_keys(start_date)
-    time.sleep(2)
 
     date_btn[1].clear()
     date_btn[1].send_keys(end_date)
-    time.sleep(2)
 
 def selenium_web_driver(temp_folder):
     chrome_options = webdriver.ChromeOptions()
@@ -291,23 +290,20 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         try:
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
-            time.sleep(3)
 
             iframe = wait.until(
                 EC.presence_of_element_located((By.ID, "HoaDonIframe1"))
             )
+
             driver.switch_to.frame(iframe)
             html_content = driver.page_source
             iframes_html_content.append(html_content)
             driver.switch_to.default_content()
-
-            invoice_form = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//div[@class='modal-content']"))
-            )
             
-            download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
+            download_button = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
+            
             driver.execute_script("arguments[0].click();", download_button)
-            time.sleep(3)
 
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
@@ -319,9 +315,9 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                     xml_files.append((xml_file, file))
                     os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
 
-            close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
+            close_button = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//button[@class='close']")))
             driver.execute_script("arguments[0].click();", close_button)
-            time.sleep(2)
 
         except StaleElementReferenceException:
             icons = wait.until(
@@ -675,25 +671,7 @@ def main():
 
             with tab5:
                 for iframe in final_iframes_html_content:
-                    components.html(iframe, height=1200)
-                    
-            # with st.popover("Bố xem hóa đơn đã tải ở đây"):
-                # for iframe in final_iframes_html_content:
-                    # soup = BeautifulSoup(iframe, 'html.parser')
-
-                    # body = soup.find('body')
-
-                    # if body:
-                    #     body_style = body.get('style', '')
-                    #     if 'height' in body_style:
-                    #         new_style = body_style.replace('height: 100%;', 'height: 60%;')
-                    #         body['style'] = new_style
-                        
-                    # components.html(soup.prettify())
-                        
-                        
-                    # else:
-                    #    st.write("No body tag found in HTML")
+                    components.html(iframe, width = 400, height=1000)
                     
             download_tar(temp_folder)
 
