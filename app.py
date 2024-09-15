@@ -409,11 +409,11 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
 
-            for iframe in iframes_html_content:
-                st.write(iframe)
-            #     driver.switch_to.frame(iframe)
-            #     html_content = driver.page_source
-            #     components.html(html_content, height=600, scrolling=True)
+            # for iframe in iframes_html_content:
+            #     st.write(iframe)
+            driver.switch_to.frame(iframes_html_content[0])
+            html_content = driver.page_source
+            components.html(html_content, height=600, scrolling=True)
 
     return iframes_html_content
 
