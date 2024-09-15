@@ -281,13 +281,14 @@ def extract_zipfile(zip_file, extract_to):
 def download_icon_vnpt(driver, action, wait, temp_folder):
     xml_files = []
     iframes_html_content = []
-    icons = wait.until(
-        EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
-    )
 
-    icons = icons[:len(icons)//2]
-    for icon in icons:
-        try:
+    try:
+        icons = wait.until(
+            EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
+        )
+        icons = icons[:len(icons)//2]
+
+        for icon in icons:
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
 
@@ -303,6 +304,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             download_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
             driver.execute_script("arguments[0].click();", download_button)
+            time.sleep(3)
 
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
@@ -318,11 +320,12 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 EC.presence_of_element_located((By.XPATH, "//button[@class='close']")))
             driver.execute_script("arguments[0].click();", close_button)
 
-        except StaleElementReferenceException:
+    except StaleElementReferenceException:
             icons = wait.until(
                 EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
             )
             action.move_to_element(icon).perform()
+            driver.execute_script("arguments[0].click();", icon)
 
     return xml_files, iframes_html_content
 
