@@ -297,8 +297,11 @@ def download_ZIP(driver, action, wait, temp_folder):
                 EC.presence_of_element_located((By.ID, "HoaDonIframe1"))
             )
 
+            if iframe:
+                st.write(f"Iframe {iframe}")
+            else:
+                st.write("iframe not found")
 
-            st.write(f"Iframe {iframe}")
             invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
 
             download_button = invoice_form.find_element(By.XPATH, "//div[@id='taiXml']")
