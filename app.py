@@ -291,6 +291,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         for icon in icons:
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
+            time.sleep(3)
 
             iframe = wait.until(
                 EC.presence_of_element_located((By.ID, "HoaDonIframe1"))
@@ -319,6 +320,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             close_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//button[@class='close']")))
             driver.execute_script("arguments[0].click();", close_button)
+            time.sleep(2)
 
     except StaleElementReferenceException:
             icons = wait.until(
