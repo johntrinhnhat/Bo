@@ -42,12 +42,10 @@ def enter_dates(driver, start_date, end_date, btn_path):
     date_btn = driver.find_elements(By.XPATH, btn_path)
     date_btn[0].clear()
     date_btn[0].send_keys(start_date)
-    st.write_stream(stream_data(f"Đang nhập ngày bắt đầu: {start_date}"))
     time.sleep(2)
 
     date_btn[1].clear()
     date_btn[1].send_keys(end_date)
-    st.write_stream(stream_data(f"Đang nhập ngày kết thúc: {end_date}"))
     time.sleep(2)
 
 def selenium_web_driver(temp_folder):
@@ -374,7 +372,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
 
             page_size = driver.find_element(By.XPATH, "//div[@aria-label='Display 50 items on page']")
             page_size.click()
-            st.write_stream(stream_data(("Chọn hiển thị 50 hóa đơn ...")))
             time.sleep(2)
             
             final_xml_files = []
@@ -385,7 +382,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     st.write_stream(stream_data((f"Đang tải hóa đơn ở trang số {i + 1} ...")))
                     xml_files, iframes_html_content = download_ZIP(driver, action, wait, temp_folder)
                     final_xml_files.append(xml_files)
-                    
+                    st.write(iframes_html_content)
 
                     page.click()
                     time.sleep(3)
@@ -407,7 +404,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 driver.quit()  
             status.update(label="Tải thành công !!!", expanded=True)
 
-    return final_xml_files, iframes_html_content
+    return final_xml_files
 
 
 ### TAB 4 FUNCTIONS
@@ -595,13 +592,13 @@ def main():
             temp_folder = tempfile.mkdtemp()
             
             driver, action, wait = selenium_web_driver(temp_folder)  
-            final_xml_files, iframes_html_content = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
+            final_xml_files = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
             st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
             time.sleep(3)
 
-            for iframe in iframes_html_content:
-                st.write(iframe)
+            # for iframe in iframes_html_content:
+            #     st.write(iframe)
 
             download_tar(temp_folder)
 
