@@ -659,9 +659,11 @@ def main():
                     next_button = wait.until(
                         EC.presence_of_element_located((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
                     )
+                    
 
                     i=len(all_pages)
                     while i > 0:
+                        st.write_stream(stream_data(f"Đang tải hóa đơn trang số {i}"))
                         # Download the files from the current page
                         final_xml_files.append(download_icon_viettel(driver, action, wait, temp_folder))
 
@@ -670,6 +672,7 @@ def main():
                             next_button = wait.until(
                                 EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
                             )
+                            driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                             next_button.click()
                             i -= 1  # Decrease the counter for each successful click
                             time.sleep(3)  # Replace this with a more dynamic wait if needed
