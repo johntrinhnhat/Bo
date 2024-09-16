@@ -324,7 +324,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                         xml_files.append((xml_file, file))
                         os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
                 else:
-                    st.write_stream(stream_data(f"Không tìm thấy tệp đã tải xuống!"))
+                    st.write_stream(stream_data(f"Tìm thấy hóa đơn chưa phát hành ..."))
                     continue
 
                 close_button = wait.until(
@@ -333,7 +333,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 time.sleep(2)
 
             except TimeoutException:
-                    st.write_stream(stream_data(f"Tìm thấy 1 hóa đơn chưa phát hành."))
                     continue  # Skip to the next icon if no download button is found
             
         return xml_files
