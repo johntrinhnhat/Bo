@@ -300,10 +300,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
         )
         icons = icons[:len(icons)//2]
-
-        if not icons:
-            st.write_stream(stream_data(f"Không có hóa đơn để tải!"))
-            return None
         
         st.write_stream(stream_data(("Đang tải hóa đơn ...")))
         for icon in icons:
@@ -388,7 +384,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             final_xml_files = []
             page_index = 0
             
-
             while page_index < len(all_pages):
                 try:
                     xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
@@ -442,32 +437,29 @@ def download_icon_viettel(driver, action, wait, temp_folder):
         icons = wait.until(
             EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
         )
-        if not icons:
-            st.write_stream(stream_data(f"Không có hóa đơn để tải!"))
-            return None
-        else:
-            st.write_stream(stream_data(("Đang tải hóa đơn ...")))
-            for icon in icons:
-                action.move_to_element(icon).perform()
-                driver.execute_script("arguments[0].click();", icon)
-                time.sleep(3)
-                
-                invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
-                download_button = invoice_form.find_element(By.XPATH, "//button[span[text()='Tải xml']]")
-                driver.execute_script("arguments[0].click();", download_button)
-                time.sleep(3)
 
-                downloaded_file = wait_for_download(temp_folder)
-                if downloaded_file:
-                    shd = extract_number_viettel(os.path.basename(downloaded_file))
-                    xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
-                    xml_files.append(xml_file)
-                    os.rename(os.path.join(temp_folder, downloaded_file), os.path.join(temp_folder, xml_file))
+        st.write_stream(stream_data(("Đang tải hóa đơn ...")))
+        for icon in icons:
+            action.move_to_element(icon).perform()
+            driver.execute_script("arguments[0].click();", icon)
+            time.sleep(3)
+            
+            invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
+            download_button = invoice_form.find_element(By.XPATH, "//button[span[text()='Tải xml']]")
+            driver.execute_script("arguments[0].click();", download_button)
+            time.sleep(3)
 
-                close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
-                driver.execute_script("arguments[0].click();", close_button)
-                time.sleep(2)
-            return xml_files
+            downloaded_file = wait_for_download(temp_folder)
+            if downloaded_file:
+                shd = extract_number_viettel(os.path.basename(downloaded_file))
+                xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
+                xml_files.append(xml_file)
+                os.rename(os.path.join(temp_folder, downloaded_file), os.path.join(temp_folder, xml_file))
+
+            close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
+            driver.execute_script("arguments[0].click();", close_button)
+            time.sleep(2)
+        return xml_files
 
     except StaleElementReferenceException:
         return download_icon_viettel(driver, action, wait, temp_folder)
