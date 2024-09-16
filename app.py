@@ -328,7 +328,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                         st.write_stream(stream_data(f"Tìm thấy 1 hóa đơn chưa phát hành, bỏ qua .."))
 
                 except TimeoutException:
-                        st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành, bỏ qua ..."))
+                        # st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành, bỏ qua ..."))
                         continue  
                 
                 close_button = wait.until(
