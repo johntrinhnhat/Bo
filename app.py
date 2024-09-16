@@ -209,8 +209,8 @@ def pxk_excel(wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df):
     ws['C41'] = shdon
 
     if nban == "An Vinh":
-        ws['C45'] = "Duy Thanh"
-        ws['F45'] = "Duy Thanh"
+        ws['C45'] = "Phan Duy Thanh"
+        ws['F45'] = "Phan Duy Thanh"
     elif nban == "Tuyết Oanh":
         ws['C45'] = "Thanh Thúy"
         ws['F45'] = "Thanh Thúy"
@@ -302,30 +302,40 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         icons = icons[:len(icons)//2]
         
         st.write_stream(stream_data(("Đang tải hóa đơn ...")))
+
         for icon in icons:
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
             
-            download_button = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
-            driver.execute_script("arguments[0].click();", download_button)
-            time.sleep(3)
+            try:
+                download_button = wait.until(
+                    EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
+                driver.execute_script("arguments[0].click();", download_button)
+                time.sleep(3)
 
-            downloaded_file = wait_for_download(temp_folder)
-            if downloaded_file:
-                shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                extracted_files = extract_zipfile(downloaded_file, temp_folder)
+                downloaded_file = wait_for_download(temp_folder)
+                if downloaded_file:
+                    shd = extract_number_vnpt(os.path.basename(downloaded_file))
+                    extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
-                for file in extracted_files:
-                    xml_file = shd + file[file.index('.xml'):]
-                    xml_files.append((xml_file, file))
-                    os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+                    for file in extracted_files:
+                        xml_file = shd + file[file.index('.xml'):]
+                        xml_files.append((xml_file, file))
+                        os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+                else:
+                    st.write_stream(stream_data(f"Không tìm thấy tệp đã tải xuống!"))
+                    continue
 
-            close_button = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//button[@class='close']")))
-            driver.execute_script("arguments[0].click();", close_button)
-            time.sleep(2)
+                close_button = wait.until(
+                    EC.presence_of_element_located((By.XPATH, "//button[@class='close']")))
+                driver.execute_script("arguments[0].click();", close_button)
+                time.sleep(2)
+
+            except TimeoutException:
+                    st.write_stream(stream_data(f"Tìm thấy 1 hóa đơn chưa phát hành."))
+                    continue  # Skip to the next icon if no download button is found
+            
         return xml_files
 
     except StaleElementReferenceException:
@@ -336,6 +346,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         driver.execute_script("arguments[0].click();", icon)
 
     except TimeoutException:
+        st.write_stream(stream_data(f"Không tìm thấy hóa đơn"))
         return None
 
 
@@ -409,7 +420,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     os.remove(os.path.join(temp_folder, f))
 
             if final_xml_files:
-                st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+                st.success(f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")
+                # st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                 status.update(label="Tải thành công !!!", expanded=True)
                 download_tar(temp_folder)
                 return final_xml_files
