@@ -317,13 +317,9 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                     time.sleep(3)
 
                     downloaded_file = wait_for_download(temp_folder)
-                    if not downloaded_file:
-                        st.write_stream(stream_data("Hóa đơn chưa phát hành không thể tải ..."))
-                    else:
+                    if downloaded_file:
                         shd = extract_number_vnpt(os.path.basename(downloaded_file))
                         extracted_files = extract_zipfile(downloaded_file, temp_folder)
-
-
                         for file in extracted_files:
                             xml_file = shd + file[file.index('.xml'):]
                             xml_files.append((xml_file, file))
