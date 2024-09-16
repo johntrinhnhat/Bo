@@ -414,7 +414,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 download_tar(temp_folder)
                 return final_xml_files
             else:
-                st.info("Không có hóa đơn được tìm thấy")
+                st.info("Không có hóa đơn được tìm thấy !!!")
+                status.update(label="Không có hóa đơn được tìm thấy !!!", state="error")
                 return None
 
         finally:
@@ -527,7 +528,8 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                 download_tar(temp_folder)
                 return final_xml_files
             else:
-                st.info("Không có hóa đơn được tìm thấy")
+                st.info("Không có hóa đơn được tìm thấy !!!")
+                status.update(label="Không có hóa đơn được tìm thấy !!!", state="error")
                 return None
 
         finally:
