@@ -503,9 +503,10 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
         
-            all_pages = wait.until(
-                EC.presence_of_all_elements_located((By.XPATH, "//a[@class='page-link ng-star-inserted']"))
-            )
+            # all_pages = wait.until(
+            #     EC.presence_of_all_elements_located((By.XPATH, "//a[@class='page-link ng-star-inserted']"))
+            # )
+            all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
             
             final_xml_files = []
