@@ -415,7 +415,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 final_xml_files = [item for sublist in final_xml_files for item in sublist]
                 return final_xml_files
             else:
-                st.write("Không có trang được tìm thấy")
+                st.write("Không có hóa đơn được tìm thấy")
                 return None
 
         finally:
@@ -434,37 +434,42 @@ def extract_number_viettel(string):
 
 def download_icon_viettel(driver, action, wait, temp_folder):
     xml_files = []
-    icons = wait.until(
-        EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
-    )
-    for icon in icons:
-        try:
-            action.move_to_element(icon).perform()
-            driver.execute_script("arguments[0].click();", icon)
-            time.sleep(3)
-            
-            invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
-            download_button = invoice_form.find_element(By.XPATH, "//button[span[text()='Tải xml']]")
-            driver.execute_script("arguments[0].click();", download_button)
-            time.sleep(3)
+    try:
+        icons = wait.until(
+            EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
+        )
+        if not icons:
+            st.write_stream(stream_data(f"Không có hóa đơn để tải!"))
+            return None
+        else:
+            st.write_stream(stream_data(("Đang tải hóa đơn ...")))
+            for icon in icons:
+                action.move_to_element(icon).perform()
+                driver.execute_script("arguments[0].click();", icon)
+                time.sleep(3)
+                
+                invoice_form = driver.find_element(By.XPATH, "//div[@class='modal-content']")
+                download_button = invoice_form.find_element(By.XPATH, "//button[span[text()='Tải xml']]")
+                driver.execute_script("arguments[0].click();", download_button)
+                time.sleep(3)
 
-            downloaded_file = wait_for_download(temp_folder)
-            if downloaded_file:
-                shd = extract_number_viettel(os.path.basename(downloaded_file))
-                xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
-                xml_files.append(xml_file)
-                os.rename(os.path.join(temp_folder, downloaded_file), os.path.join(temp_folder, xml_file))
+                downloaded_file = wait_for_download(temp_folder)
+                if downloaded_file:
+                    shd = extract_number_viettel(os.path.basename(downloaded_file))
+                    xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
+                    xml_files.append(xml_file)
+                    os.rename(os.path.join(temp_folder, downloaded_file), os.path.join(temp_folder, xml_file))
 
-            close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
-            driver.execute_script("arguments[0].click();", close_button)
-            time.sleep(2)
+                close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
+                driver.execute_script("arguments[0].click();", close_button)
+                time.sleep(2)
+            return xml_files
 
-        except StaleElementReferenceException:
-            icons = wait.until(
-                EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
-            )
-            action.move_to_element(icon).perform()
-    return xml_files
+    except StaleElementReferenceException:
+        return download_icon_viettel(driver, action, wait, temp_folder)
+    except TimeoutException:
+        st.write("Không có hóa đơn để tải")
+        return None
 
 def handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder):
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
@@ -521,17 +526,19 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                 except TimeoutException:
                     st.write("Không có trang được tìm thấy")
                     break  
-            
-            final_xml_files = [item for sublist in final_xml_files for item in sublist]
-            st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
-            status.update(label="Tải thành công !!!", expanded=True)
-            
-        except Exception as e:  
-            st.error(f"Lỗi: {e}")
+            if final_xml_files:
+                st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+                status.update(label="Tải thành công !!!", expanded=True)
+                final_xml_files = [item for sublist in final_xml_files for item in sublist]
+                return final_xml_files
+            else:
+                st.write("Không có hóa đơn được tìm thấy")
+                return None
 
         finally:
             if driver:
                 driver.quit()  
+            download_tar(temp_folder)
     
 ### Streamlit State FUNCTIONS
 def create():
@@ -689,7 +696,6 @@ def main():
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)    
             handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)     
-            download_tar(temp_folder)
 
 if __name__ == "__main__":
     main()
