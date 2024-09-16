@@ -508,6 +508,8 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             
             final_xml_files = []
             i=len(all_pages)
+            if i == 0:
+                st.write_stream(stream_data(f"Không có hóa đơn để tải!"))
             while i > 0:
                 try:
                     xml_files = download_icon_viettel(driver, action, wait, temp_folder)
