@@ -319,15 +319,15 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                     downloaded_file = wait_for_download(temp_folder)
                     if not downloaded_file:
                         st.write_stream(stream_data("Hóa đơn chưa phát hành không thể tải ..."))
-                        continue
+                    else:
+                        shd = extract_number_vnpt(os.path.basename(downloaded_file))
+                        extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
-                    shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                    extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
-                    for file in extracted_files:
-                        xml_file = shd + file[file.index('.xml'):]
-                        xml_files.append((xml_file, file))
-                        os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+                        for file in extracted_files:
+                            xml_file = shd + file[file.index('.xml'):]
+                            xml_files.append((xml_file, file))
+                            os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
 
                 except TimeoutException:
                         st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành, bỏ qua hóa đơn này ..."))
