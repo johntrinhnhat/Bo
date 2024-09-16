@@ -334,11 +334,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
 
     except StaleElementReferenceException:
             return download_icon_vnpt(driver, action, wait, temp_folder)
-            # icons = wait.until(
-            #     EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
-            # )
-            # action.move_to_element(icon).perform()
-            # driver.execute_script("arguments[0].click();", icon)
 
     except TimeoutException:
             st.write("Không có hóa đơn để tải")
@@ -381,6 +376,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             )
             search_btn[3].click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
+
             all_pages = wait.until(
                 EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
             )
@@ -424,7 +420,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
 
         finally:
             if driver:
-                driver.quit()  
+                driver.quit()
+            download_tar(temp_folder)  
             
 
 ### TAB 4 FUNCTIONS
@@ -678,7 +675,6 @@ def main():
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
             handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
-            download_tar(temp_folder)
 
             
 
