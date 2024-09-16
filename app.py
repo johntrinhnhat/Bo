@@ -301,7 +301,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         )
         icons = icons[:len(icons)//2]
         
-        st.write_stream(stream_data(("Đang tải hóa đơn ...")))
 
         for icon in icons:
             action.move_to_element(icon).perform()
@@ -311,8 +310,12 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             try:
                 download_button = wait.until(
                     EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
-                driver.execute_script("arguments[0].click();", download_button)
-                time.sleep(3)
+                if download_button:
+                    st.write_stream(stream_data(("Đang tải hóa đơn ...")))
+                    driver.execute_script("arguments[0].click();", download_button)
+                    time.sleep(3)
+                else:
+                    st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành"))
 
                 downloaded_file = wait_for_download(temp_folder)
                 if downloaded_file:
@@ -324,7 +327,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                         xml_files.append((xml_file, file))
                         os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
                 else:
-                    # st.write_stream(stream_data(f"Không tìm thấy hóa đơn ..."))
+                    st.write_stream(stream_data(f"Tìm thấy 1 hóa đơn chưa phát hành ..."))
                     continue
 
                 close_button = wait.until(
@@ -333,7 +336,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 time.sleep(2)
 
             except TimeoutException:
-                    st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành"))
                     continue  # Skip to the next icon if no download button is found
             
         return xml_files
@@ -425,8 +427,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 download_tar(temp_folder)
                 return final_xml_files
             else:
-                st.info("Không có hóa đơn được tìm thấy !!!")
-                status.update(label="Không có hóa đơn được tìm thấy !!!", state="error")
+                st.info("Không có hóa đơn được tìm thấy và tải !!!")
+                status.update(label="Không có hóa đơn được tìm thấy và tải !!!", state="error")
                 return None
 
         finally:
