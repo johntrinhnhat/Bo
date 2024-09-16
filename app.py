@@ -330,7 +330,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             return xml_files
         else:
             st.write_stream(stream_data(f"Không có hóa đơn để tải!"))
-            return None
+            return
 
     except StaleElementReferenceException:
             icons = wait.until(
@@ -338,6 +338,10 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             )
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
+
+    except TimeoutException:
+            st.write("Không có trang được tìm thấy")
+            return
 
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
@@ -388,8 +392,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
                 if xml_files is not None:
                     final_xml_files.append(xml_files)
-                else:
-                    final_xml_files = None
+                
                 try:
                     
                     next_button = wait.until(
@@ -407,7 +410,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 if f.endswith('.zip'):
                     os.remove(os.path.join(temp_folder, f))
 
-            if final_xml_files is not None:
+            if final_xml_files:
                 final_xml_files = [item for sublist in final_xml_files for item in sublist]
                 st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                 status.update(label="Tải thành công !!!", expanded=True)
@@ -670,7 +673,7 @@ def main():
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
-            final_xml_files = handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
+            handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
             download_tar(temp_folder)
 
             
