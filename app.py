@@ -326,7 +326,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                             os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
 
                 except TimeoutException:
-                        st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành, bỏ qua hóa đơn này ..."))
+                        st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành, bỏ qua ..."))
                         continue  
                 
                 close_button = wait.until(
@@ -334,21 +334,17 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 driver.execute_script("arguments[0].click();", close_button)
                 time.sleep(2)
             except StaleElementReferenceException:
-                    st.write_stream(stream_data("Hóa đơn bị thay đổi hoặc không hợp lệ, bỏ qua hóa đơn này."))
-                    continue
+                icons = wait.until(
+                    EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
+                )
+                action.move_to_element(icon).perform()
+                driver.execute_script("arguments[0].click();", icon)
         if xml_files:
             return xml_files
         else:
             st.write_stream(stream_data("Không có hóa đơn nào được tải xuống"))
             return None
             
-    # except StaleElementReferenceException:
-    #     icons = wait.until(
-    #         EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
-    #     )
-    #     action.move_to_element(icon).perform()
-    #     driver.execute_script("arguments[0].click();", icon)
-
     except TimeoutException:
         st.write_stream(stream_data(f"Không tìm thấy hóa đơn"))
         return None
