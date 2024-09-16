@@ -333,11 +333,11 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             return xml_files
 
     except StaleElementReferenceException:
-            return download_icon_vnpt(driver, action, wait, temp_folder)
+        return download_icon_vnpt(driver, action, wait, temp_folder)
 
     except TimeoutException:
-            st.write("Không có hóa đơn để tải")
-            return None
+        st.write("Không có hóa đơn để tải")
+        return None
 
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
