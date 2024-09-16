@@ -301,7 +301,10 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         )
         icons = icons[:len(icons)//2]
 
-        if icons:
+        if not icons:
+            st.write_stream(stream_data(f"Không có hóa đơn để tải!"))
+            return None
+        else:
             st.write_stream(stream_data(("Đang tải hóa đơn ...")))
             for icon in icons:
                 action.move_to_element(icon).perform()
@@ -328,20 +331,18 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 driver.execute_script("arguments[0].click();", close_button)
                 time.sleep(2)
             return xml_files
-        else:
-            st.write_stream(stream_data(f"Không có hóa đơn để tải!"))
-            return
 
     except StaleElementReferenceException:
-            icons = wait.until(
-                EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
-            )
-            action.move_to_element(icon).perform()
-            driver.execute_script("arguments[0].click();", icon)
+            return download_icon_vnpt(driver, action, wait, temp_folder)
+            # icons = wait.until(
+            #     EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
+            # )
+            # action.move_to_element(icon).perform()
+            # driver.execute_script("arguments[0].click();", icon)
 
     except TimeoutException:
-            st.write("Không có trang được tìm thấy")
-            return
+            st.write("Không có hóa đơn để tải")
+            return None
 
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
@@ -387,14 +388,13 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
 
             final_xml_files = []
             i=len(all_pages)
+
             while i > 0:
-                # Download the files from the current page
-                xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
-                if xml_files is not None:
-                    final_xml_files.append(xml_files)
-                
                 try:
-                    
+                    xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
+                    if xml_files:
+                        final_xml_files.append(xml_files)
+
                     next_button = wait.until(
                         EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
                     )
@@ -402,6 +402,9 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     driver.execute_script("arguments[0].click();", next_button)
                     i -= 1  
                     time.sleep(3)  
+                except Exception as e:
+                    st.write(f"Lỗi tải: {e}")
+                    return
                 except TimeoutException:
                     st.write("Không có trang được tìm thấy")
                     break  
@@ -411,12 +414,13 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     os.remove(os.path.join(temp_folder, f))
 
             if final_xml_files:
-                final_xml_files = [item for sublist in final_xml_files for item in sublist]
                 st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                 status.update(label="Tải thành công !!!", expanded=True)
+                final_xml_files = [item for sublist in final_xml_files for item in sublist]
                 return final_xml_files
             else:
-                pass
+                st.write("Không có trang được tìm thấy")
+                return None
 
         finally:
             if driver:
@@ -523,6 +527,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             
             final_xml_files = [item for sublist in final_xml_files for item in sublist]
             st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+            status.update(label="Tải thành công !!!", expanded=True)
             
         except Exception as e:  
             st.error(f"Lỗi: {e}")
@@ -530,7 +535,6 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
         finally:
             if driver:
                 driver.quit()  
-            status.update(label="Tải thành công !!!", expanded=True)
     
 ### Streamlit State FUNCTIONS
 def create():
