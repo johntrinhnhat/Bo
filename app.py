@@ -427,8 +427,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 download_tar(temp_folder)
                 return final_xml_files
             else:
-                st.info("Không có hóa đơn được tìm thấy và tải !!!")
-                status.update(label="Không có hóa đơn được tìm thấy và tải !!!", state="error")
+                st.info("Không tìm thấy hóa đơn có thể tải !!!")
+                status.update(label="Không tìm thấy hóa đơn có thể tải !!!", state="error")
                 return None
 
         finally:
