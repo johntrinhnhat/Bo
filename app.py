@@ -304,19 +304,23 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         st.write_stream(stream_data(("Đang tải hóa đơn ...")))
 
         for icon in icons:
-            action.move_to_element(icon).perform()
-            driver.execute_script("arguments[0].click();", icon)
-            time.sleep(3)
-            
             try:
-                download_button = wait.until(
-                    EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
-                if not download_button:
-                    st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành"))
-                else:
+                action.move_to_element(icon).perform()
+                driver.execute_script("arguments[0].click();", icon)
+                time.sleep(3)
+                
+                try:
+                    download_button = wait.until(
+                        EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
+                    
                     driver.execute_script("arguments[0].click();", download_button)
                     time.sleep(3)
+
                     downloaded_file = wait_for_download(temp_folder)
+                    if not downloaded_file:
+                        st.write_stream(stream_data("Hóa đơn chưa phát hành không thể tải ..."))
+                        continue
+
                     shd = extract_number_vnpt(os.path.basename(downloaded_file))
                     extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
@@ -325,23 +329,29 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                         xml_files.append((xml_file, file))
                         os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
 
+                except TimeoutException:
+                        st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành, bỏ qua hóa đơn này ..."))
+                        continue  
+                
                 close_button = wait.until(
                     EC.presence_of_element_located((By.XPATH, "//button[@class='close']")))
                 driver.execute_script("arguments[0].click();", close_button)
                 time.sleep(2)
-
-            except TimeoutException:
-                    st.write_stream(stream_data("Đang tìm hóa đơn tiếp theo ..."))
-                    continue  
+            except StaleElementReferenceException:
+                    st.write_stream(stream_data("Hóa đơn bị thay đổi hoặc không hợp lệ, bỏ qua hóa đơn này."))
+                    continue
+        if xml_files:
+            return xml_files
+        else:
+            st.write_stream(stream_data("Không có hóa đơn nào được tải xuống"))
+            return None
             
-        return xml_files
-
-    except StaleElementReferenceException:
-        icons = wait.until(
-            EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
-        )
-        action.move_to_element(icon).perform()
-        driver.execute_script("arguments[0].click();", icon)
+    # except StaleElementReferenceException:
+    #     icons = wait.until(
+    #         EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
+    #     )
+    #     action.move_to_element(icon).perform()
+    #     driver.execute_script("arguments[0].click();", icon)
 
     except TimeoutException:
         st.write_stream(stream_data(f"Không tìm thấy hóa đơn"))
