@@ -397,7 +397,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                     driver.execute_script("arguments[0].click();", next_button)
                     i -= 1  
-                    time.sleep(3)  
+                    time.sleep(2)  
                 except Exception as e:
                     st.write(f"Lỗi tải: {e}")
                     return
@@ -412,6 +412,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             if final_xml_files:
                 st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                 status.update(label="Tải thành công !!!", expanded=True)
+                download_tar(temp_folder)
                 final_xml_files = [item for sublist in final_xml_files for item in sublist]
                 return final_xml_files
             else:
@@ -421,7 +422,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
         finally:
             if driver:
                 driver.quit()
-            download_tar(temp_folder)  
+              
             
 
 ### TAB 4 FUNCTIONS
@@ -502,10 +503,6 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             search_btn.click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
-        
-            # all_pages = wait.until(
-            #     EC.presence_of_all_elements_located((By.XPATH, "//a[@class='page-link ng-star-inserted']"))
-            # )
             all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
             
@@ -533,6 +530,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             if final_xml_files:
                 st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                 status.update(label="Tải thành công !!!", expanded=True)
+                download_tar(temp_folder)
                 final_xml_files = [item for sublist in final_xml_files for item in sublist]
                 return final_xml_files
             else:
@@ -541,7 +539,6 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
         finally:
             if driver:
                 driver.quit()  
-            download_tar(temp_folder)
     
 ### Streamlit State FUNCTIONS
 def create():
