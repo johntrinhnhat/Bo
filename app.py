@@ -408,7 +408,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     page_index += 1 
                     time.sleep(2)  
                 except TimeoutException:
-                    st.write("Không có trang được tìm thấy")
                     break  
                 except Exception as e:
                     st.write(f"Lỗi tải: {e}")
