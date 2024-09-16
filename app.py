@@ -333,7 +333,11 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             return xml_files
 
     except StaleElementReferenceException:
-        return download_icon_vnpt(driver, action, wait, temp_folder)
+        icons = wait.until(
+            EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
+        )
+        action.move_to_element(icon).perform()
+        driver.execute_script("arguments[0].click();", icon)
 
     except TimeoutException:
         return None
