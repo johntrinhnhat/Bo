@@ -417,7 +417,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
                 status.update(label="Tải thành công !!!", expanded=True)
                 download_tar(temp_folder)
-                final_xml_files = [item for sublist in final_xml_files for item in sublist]
                 return final_xml_files
             else:
                 st.write("Không có hóa đơn được tìm thấy")
