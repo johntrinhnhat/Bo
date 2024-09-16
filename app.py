@@ -386,27 +386,28 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
 
             final_xml_files = []
-            i=len(all_pages)
+            page_index = 0
+            
 
-            while i > 0:
+            while page_index < len(all_pages):
                 try:
                     xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
                     if xml_files:
-                        final_xml_files.append(xml_files)
+                        final_xml_files.extend(xml_files)
 
                     next_button = wait.until(
                         EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
                     )
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                     driver.execute_script("arguments[0].click();", next_button)
-                    i -= 1  
+                    page_index += 1 
                     time.sleep(2)  
-                except Exception as e:
-                    st.write(f"Lỗi tải: {e}")
-                    return
                 except TimeoutException:
                     st.write("Không có trang được tìm thấy")
                     break  
+                except Exception as e:
+                    st.write(f"Lỗi tải: {e}")
+                    return None
             
             for f in os.listdir(temp_folder):
                 if f.endswith('.zip'):
