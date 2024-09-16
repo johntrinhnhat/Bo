@@ -383,7 +383,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
 
             final_xml_files = []
             page_index = 0
-            
+
             while page_index < len(all_pages):
                 try:
                     xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
@@ -414,7 +414,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 download_tar(temp_folder)
                 return final_xml_files
             else:
-                st.write("Không có hóa đơn được tìm thấy")
+                st.info("Không có hóa đơn được tìm thấy")
                 return None
 
         finally:
@@ -527,7 +527,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                 download_tar(temp_folder)
                 return final_xml_files
             else:
-                st.write("Không có hóa đơn được tìm thấy")
+                st.info("Không có hóa đơn được tìm thấy")
                 return None
 
         finally:
