@@ -336,7 +336,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         return download_icon_vnpt(driver, action, wait, temp_folder)
 
     except TimeoutException:
-        st.write("Không có hóa đơn để tải")
         return None
 
 
@@ -469,7 +468,6 @@ def download_icon_viettel(driver, action, wait, temp_folder):
     except StaleElementReferenceException:
         return download_icon_viettel(driver, action, wait, temp_folder)
     except TimeoutException:
-        st.write("Không có hóa đơn để tải")
         return None
 
 def handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder):
@@ -510,6 +508,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             i=len(all_pages)
             if i == 0:
                 st.write_stream(stream_data(f"Không có hóa đơn để tải!"))
+                return None
             while i > 0:
                 try:
                     xml_files = download_icon_viettel(driver, action, wait, temp_folder)
@@ -536,6 +535,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                 final_xml_files = [item for sublist in final_xml_files for item in sublist]
                 return final_xml_files
             else:
+                st.write("Không có hóa đơn được tìm thấy")
                 return None
 
         finally:
@@ -568,6 +568,7 @@ def main():
     tab2.title("Phiếu thu tiền")
     tab3.title("VNPT")
     tab4.title("Viettel")
+
     with tab1:
         if xml_files:
             all_data = []
@@ -680,6 +681,7 @@ def main():
             ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
         )
         start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
+
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
