@@ -301,6 +301,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         )
         icons = icons[:len(icons)//2]
         
+        st.write_stream(stream_data(("Đang tải hóa đơn ...")))
 
         for icon in icons:
             action.move_to_element(icon).perform()
@@ -310,15 +311,12 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             try:
                 download_button = wait.until(
                     EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
-                if download_button:
-                    st.write_stream(stream_data(("Đang tải hóa đơn ...")))
+                if not download_button:
+                    st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành"))
+                else:
                     driver.execute_script("arguments[0].click();", download_button)
                     time.sleep(3)
-                else:
-                    st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành"))
-
-                downloaded_file = wait_for_download(temp_folder)
-                if downloaded_file:
+                    downloaded_file = wait_for_download(temp_folder)
                     shd = extract_number_vnpt(os.path.basename(downloaded_file))
                     extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
@@ -326,9 +324,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                         xml_file = shd + file[file.index('.xml'):]
                         xml_files.append((xml_file, file))
                         os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
-                else:
-                    st.write_stream(stream_data(f"Tìm thấy 1 hóa đơn chưa phát hành ..."))
-                    continue
 
                 close_button = wait.until(
                     EC.presence_of_element_located((By.XPATH, "//button[@class='close']")))
@@ -336,7 +331,8 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 time.sleep(2)
 
             except TimeoutException:
-                    continue  # Skip to the next icon if no download button is found
+                    st.write_stream(stream_data("Đang tìm hóa đơn tiếp theo ..."))
+                    continue  
             
         return xml_files
 
