@@ -324,6 +324,8 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                             xml_file = shd + file[file.index('.xml'):]
                             xml_files.append((xml_file, file))
                             os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+                    else:
+                        st.write_stream(stream_data(f"Tìm thấy 1 hóa đơn chưa phát hành, bỏ qua .."))
 
                 except TimeoutException:
                         st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành, bỏ qua ..."))
