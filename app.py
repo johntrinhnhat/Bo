@@ -301,7 +301,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
         )
         icons = icons[:len(icons)//2]  
-        # seen_files = set()
+        seen_files = set()
 
         st.write_stream(stream_data("Đang tải hóa đơn ..."))
         for icon in icons:
@@ -312,9 +312,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
 
             # Wait for the download button to appear
             download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-            # download_button = wait.until(
-            #     EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']"))
-            # )
             driver.execute_script("arguments[0].click();", download_button)
             time.sleep(3)
 
@@ -326,8 +323,14 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 for file in extracted_files:
                     file_path = os.path.join(temp_folder, file)
                     xml_file = shd + file[file.index('.xml'):]
-                    xml_files.append((xml_file, file))
-                    os.rename(file_path, os.path.join(temp_folder, xml_file))
+
+                    if xml_file in seen_files:
+                        os.remove(file_path)
+                        st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
+                    else:
+                        seen_files.add(xml_file)
+                        xml_files.append((xml_file, file))
+                        os.rename(file_path, os.path.join(temp_folder, xml_file))
             
                 
             # After downloading, close the modal popup
@@ -349,7 +352,8 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
 
     except TimeoutException:
         st.write_stream(stream_data(f"Không tìm thấy hóa đơn"))
-        return None
+        return
+        # return None
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
