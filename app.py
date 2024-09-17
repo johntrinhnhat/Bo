@@ -396,10 +396,9 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 st.write(f"dropdown: {dropdown}")
                 dropdown.click()
                 time.sleep(1)
-                option = wait.until(
-                    EC.presence_of_element_located((By.XPATH, "//div[contains(text(), 'Hóa đơn gốc')]")))
+                option = driver.find_element(By.XPATH, "//div[contains(text(), 'Hóa đơn gốc')]")
                 st.write(f"option: {option}")
-                option.click()
+                # option.click()
                 time.sleep(1)
 
 
