@@ -20,6 +20,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
 
 ### SELENIUM FUNCTIONS
@@ -390,6 +391,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             )
             dropdown = invoice_status.find_element(By.XPATH, "//div[@aria-label='Lựa chọn']")
             st.write(dropdown)
+            Select(dropdown.select_by_visible_text('Hóa đơn gốc'))
+
 
             all_pages = wait.until(
                 EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
