@@ -427,6 +427,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             for f in os.listdir(temp_folder):
                 if f.endswith('.zip'):
                     os.remove(os.path.join(temp_folder, f))
+                    
             if final_xml_files:
                 st.success(f"Tổng số hóa đơn: {len(final_xml_files)}")
                 download_tar(temp_folder)
