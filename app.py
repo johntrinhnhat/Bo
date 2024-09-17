@@ -313,10 +313,12 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             time.sleep(3)
 
             download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+            st.write(download_button)
             driver.execute_script("arguments[0].click();", download_button)
             time.sleep(3)
 
             downloaded_file = wait_for_download(temp_folder)
+            st.write(downloaded_file)
             if downloaded_file:
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
                 extracted_files = extract_zipfile(downloaded_file, temp_folder)
@@ -324,8 +326,8 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 placeholder.write_stream(stream_data(f"Đang tải hóa đơn số {shd} ..."))
 
                 for file in extracted_files:
-                    file_path = os.path.join(temp_folder, file)
                     xml_file = shd + file[file.index('.xml'):]
+                    file_path = os.path.join(temp_folder, file)
 
                     if xml_file in seen_files:
                         os.remove(file_path)
