@@ -400,7 +400,9 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             all_pages = page_indexes.find_elements(By.CLASS_NAME, "dx-page")
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-            
+
+            next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
+            st.write(f"next button: {next_btn}")
             
             final_xml_files = []
             page_index = 0
@@ -411,9 +413,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     if xml_files:
                         final_xml_files.extend(xml_files)
 
-                    next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
-                    # next_button = driver.find_element(By.XPATH, "//div[@aria-label='Next page']")
-                    st.write(next_btn)
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_btn)
                     driver.execute_script("arguments[0].click();", next_btn)
                     page_index += 1 
