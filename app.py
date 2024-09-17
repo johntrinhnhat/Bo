@@ -331,12 +331,17 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                     extracted_files = extract_zipfile(downloaded_file, temp_folder)
                     for file in extracted_files:
                         xml_file = shd + file[file.index('.xml'):]
+                        file_path = os.path.join(temp_folder, file)
 
                         if xml_file in seen_files:
-                            os.remove(os.path.join(temp_folder, file))
+                            os.remove(file_path)
                             st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
-                        xml_files.append((xml_file, file))
-                        os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+                        else:
+                            seen_files.add(xml_file)
+                            xml_files.append((xml_file, file))
+                            os.rename(file_path, os.path.join(temp_folder, xml_file))
+                        # xml_files.append((xml_file, file))
+                        # os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
             
             # After downloading, close the modal popup
             close_button = wait.until(
@@ -352,8 +357,8 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             st.write_stream(stream_data("Không có hóa đơn nào được tải xuống"))
             return None
         
-    # except StaleElementReferenceException:
-    #     return download_icon_vnpt(driver, action, wait, temp_folder)
+    except StaleElementReferenceException:
+        return download_icon_vnpt(driver, action, wait, temp_folder)
 
     except TimeoutException:
         st.write_stream(stream_data(f"Không tìm thấy hóa đơn"))
