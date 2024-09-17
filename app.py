@@ -417,22 +417,20 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                     driver.execute_script("arguments[0].click();", next_button)
                     page_index += 1
-                    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "dx-page")))
                 except TimeoutException:
-                    st.write("no next button")
                     break  
                 except Exception as e:
                     st.write(f"Lỗi tải: {e}")
                     return None
             
 
+            for f in os.listdir(temp_folder):
+                if f.endswith('.zip'):
+                    os.remove(os.path.join(temp_folder, f))
             if final_xml_files:
                 st.success(f"Tổng số hóa đơn: {len(final_xml_files)}")
                 download_tar(temp_folder)
 
-                for f in os.listdir(temp_folder):
-                    if f.endswith('.zip'):
-                        os.remove(os.path.join(temp_folder, f))
 
                 status.update(label="Tải thành công !!!", expanded=True)
                 return final_xml_files
@@ -545,7 +543,6 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     page_index += 1  
                     time.sleep(2)  
                 except TimeoutException:
-                    st.write("Không có trang được tìm thấy")
                     break  
                 except Exception as e:
                     st.write(f"Lỗi tải: {e}")
@@ -577,8 +574,7 @@ def download_ptt():
     
 ### MAIN FUNCTION
 def main():
-    temp_folder = tempfile.mkdtemp()
-    driver, action, wait = selenium_web_driver(temp_folder) 
+     
 
     with st.sidebar:
         xml_files = st.file_uploader("Nhập XML files", accept_multiple_files=True, type='xml')
@@ -702,6 +698,8 @@ def main():
                         )
     
     with tab3:
+        temp_folder = tempfile.mkdtemp()
+        driver, action, wait = selenium_web_driver(temp_folder)
         user = st.radio(
             "Hộ kinh doanh:",
             ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
@@ -713,6 +711,9 @@ def main():
             handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
     with tab4:
+        temp_folder = tempfile.mkdtemp()
+        driver, action, wait = selenium_web_driver(temp_folder)
+
         user = st.radio(
             "Hộ kinh doanh:",
             ["An Vinh"]
