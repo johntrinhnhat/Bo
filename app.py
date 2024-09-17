@@ -390,14 +390,13 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             invoice_status = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//td[@aria-describedby='dx-col-15']"))
             )
-            dropdown = invoice_status.find_element(By.XPATH, "//div[@aria-label='Lựa chọn']")
-            dropdown.click()
+            if invoice_status:
+                dropdown = invoice_status.find_element(By.XPATH, "//div[@aria-label='Lựa chọn']")
+                dropdown.click()
 
-            option = wait.until(
-                EC.element_to_be_clickable((By.XPATH, "//div[contains(text(),'Hóa đơn gốc')]"))
-            )
-            option.click()
-            time.sleep(1)
+                option = driver.find_element(By.XPATH, "//div[contains(text(),'Hóa đơn gốc')]")
+                option.click()
+                time.sleep(1)
 
 
             all_pages = wait.until(
