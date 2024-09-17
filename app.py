@@ -413,10 +413,10 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     if xml_files:
                         final_xml_files.extend(xml_files)
 
-                    next_button = wait.until(
-                        EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
-                    )
-                    # next_button = driver.find_element(By.XPATH, "//div[@aria-label='Next page']")
+                    # next_button = wait.until(
+                    #     EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
+                    # )
+                    next_button = driver.find_element(By.XPATH, "//div[@aria-label='Next page']")
                     st.write(next_button)
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                     driver.execute_script("arguments[0].click();", next_button)
