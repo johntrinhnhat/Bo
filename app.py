@@ -301,7 +301,8 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
         )
         icons = icons[:len(icons)//2]  
-
+        
+        st.write_stream(stream_data("Đang tải hóa đơn ..."))
         for icon in icons:
             # Move to the icon and click to open details
             action.move_to_element(icon).perform()
@@ -390,8 +391,13 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 EC.presence_of_element_located((By.XPATH, "//td[@aria-describedby='dx-col-15']"))
             )
             dropdown = invoice_status.find_element(By.XPATH, "//div[@aria-label='Lựa chọn']")
-            driver.execute_script("arguments[0].value = 'Hóa đơn gốc';", dropdown)
+            dropdown.click()
 
+            option = wait.until(
+                EC.element_to_be_clickable((By.XPATH, "//div[contains(text(),'Hóa đơn gốc')]"))
+            )
+            option.click()
+            time.sleep(1)
 
 
             all_pages = wait.until(
