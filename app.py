@@ -341,8 +341,8 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             st.write_stream(stream_data("Không có hóa đơn nào được tải xuống"))
             return None
         
-    except StaleElementReferenceException:
-        return download_icon_viettel(driver, action, wait, temp_folder)
+    # except StaleElementReferenceException:
+    #     return download_icon_vnpt(driver, action, wait, temp_folder)
 
     except TimeoutException:
         st.write_stream(stream_data(f"Không tìm thấy hóa đơn"))
@@ -388,7 +388,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             invoice_status = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//td[@aria-describedby='dx-col-15']"))
             )
-            st.write(invoice_status)
+            dropdown = invoice_status.find_element(By.XPATH, "//div[@aria-label='Lựa chọn']")
+            st.write(dropdown)
 
             all_pages = wait.until(
                 EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
