@@ -339,11 +339,11 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                         os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
             
             # After downloading, close the modal popup
-        close_button = wait.until(
-            EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
-        )
-        driver.execute_script("arguments[0].click();", close_button)
-        time.sleep(2)
+            close_button = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
+            )
+            driver.execute_script("arguments[0].click();", close_button)
+            time.sleep(2)
 
         # Check if any XML files were downloaded
         if xml_files:
