@@ -311,14 +311,14 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             time.sleep(3)
 
             # Wait for the download button to appear
-            download_button = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']"))
-            )
+            download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+            # download_button = wait.until(
+            #     EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']"))
+            # )
             driver.execute_script("arguments[0].click();", download_button)
             time.sleep(3)
 
             downloaded_file = wait_for_download(temp_folder)
-
             if downloaded_file:
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
                 extracted_files = extract_zipfile(downloaded_file, temp_folder)
