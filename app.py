@@ -332,6 +332,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                         xml_file = shd + file[file.index('.xml'):]
 
                         if xml_file in seen_files:
+                            st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
                             # Remove the duplicate file if necessary
                             os.remove(os.path.join(temp_folder, file))
                         else:
