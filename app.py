@@ -325,7 +325,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
                 placeholder.write_stream(stream_data(f"Đang tải hóa đơn số {shd} ..."))
-                
+
                 for file in extracted_files:
                     file_path = os.path.join(temp_folder, file)
                     xml_file = shd + file[file.index('.xml'):]
@@ -397,9 +397,10 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn[3].click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
-            all_pages = wait.until(
-                EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
-            )
+            # all_pages = wait.until(
+            #     EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
+            # )
+            all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page-indexes']")
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
 
             final_xml_files = []
