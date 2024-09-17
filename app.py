@@ -397,12 +397,14 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn[3].click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
+            wait.until(EC.presence_of_element_located((By.XPATH, "//div[@class='dx-page-indexes']")))
+
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             all_pages = page_indexes.find_elements(By.CLASS_NAME, "dx-page")
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
 
-            next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
-            st.write(f"next button: {next_btn}")
+            # next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
+            # st.write(f"next button: {next_btn}")
             
             final_xml_files = []
             page_index = 0
@@ -413,13 +415,25 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     if xml_files:
                         final_xml_files.extend(xml_files)
 
-                    driver.execute_script("arguments[0].scrollIntoView(true);", next_btn)
-                    driver.execute_script("arguments[0].click();", next_btn)
-                    page_index += 1 
-                    time.sleep(2)  
-                except TimeoutException:
-                    st.write("no next button")
-                    break  
+                    try:
+                        next_btn = wait.until(EC.presence_of_element_located(
+                            (By.XPATH, "//div[@aria-label='Next page']")), timeout=5)
+                        driver.execute_script("arguments[0].scrollIntoView(true);", next_btn)
+                        next_btn.click()
+                        page_index += 1
+                        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "dx-page")))
+                    except TimeoutException:
+                        # No "Next" button found, break the loop
+                        st.write("No more pages to navigate.")
+                        break
+
+                    # driver.execute_script("arguments[0].scrollIntoView(true);", next_btn)
+                    # # driver.execute_script("arguments[0].click();", next_btn)
+                    # page_index += 1 
+                    # time.sleep(2)  
+                # except TimeoutException:
+                #     st.write("no next button")
+                #     break  
                 except Exception as e:
                     st.write(f"Lỗi tải: {e}")
                     return None
