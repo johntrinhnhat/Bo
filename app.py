@@ -295,6 +295,7 @@ def extract_zipfile(zip_file, extract_to):
     return extracted_files
 
 def download_icon_vnpt(driver, action, wait, temp_folder):
+    placeholder=st.empty()
     xml_files = []
     try:
         icons = wait.until(
@@ -321,6 +322,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
+                placeholder.text(f"Đang tải hóa đơn số {shd} ...")
                 extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
                 for file in extracted_files:
@@ -571,6 +573,9 @@ def download_ptt():
     
 ### MAIN FUNCTION
 def main():
+    temp_folder = tempfile.mkdtemp()
+    driver, action, wait = selenium_web_driver(temp_folder) 
+
     with st.sidebar:
         xml_files = st.file_uploader("Nhập XML files", accept_multiple_files=True, type='xml')
         if len(xml_files) == 0:
@@ -700,8 +705,7 @@ def main():
         start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
 
         if st.button("Tải XML tự động", key="vnpt"):
-            temp_folder = tempfile.mkdtemp()
-            driver, action, wait = selenium_web_driver(temp_folder)  
+             
             handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
     with tab4:
@@ -711,9 +715,7 @@ def main():
         )
         start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
 
-        if st.button("Tải XML tự động", key="viettel"):
-            temp_folder = tempfile.mkdtemp()
-            driver, action, wait = selenium_web_driver(temp_folder)    
+        if st.button("Tải XML tự động", key="viettel"):    
             handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)     
 
 if __name__ == "__main__":
