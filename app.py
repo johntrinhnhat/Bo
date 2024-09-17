@@ -404,7 +404,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
 
             # next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
-            # st.write(f"next button: {next_btn}")
             
             final_xml_files = []
             page_index = 0
@@ -415,25 +414,25 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     if xml_files:
                         final_xml_files.extend(xml_files)
 
-                    try:
-                        next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
-                        st.write(next_btn)
-                        driver.execute_script("arguments[0].scrollIntoView(true);", next_btn)
-                        next_btn.click()
+                        # next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
+                        # st.write(next_btn)
+                        next_button = wait.until(
+                            EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
+                        )
+                        st.write(next_button)
+                        driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
+                        next_button.click()
                         page_index += 1
                         wait.until(EC.presence_of_element_located((By.CLASS_NAME, "dx-page")))
-                    except TimeoutException:
-                        # No "Next" button found, break the loop
-                        st.write("No more pages to navigate.")
-                        break
+                
 
                     # driver.execute_script("arguments[0].scrollIntoView(true);", next_btn)
                     # # driver.execute_script("arguments[0].click();", next_btn)
                     # page_index += 1 
                     # time.sleep(2)  
-                # except TimeoutException:
-                #     st.write("no next button")
-                #     break  
+                except TimeoutException:
+                    st.write("no next button")
+                    break  
                 except Exception as e:
                     st.write(f"Lỗi tải: {e}")
                     return None
@@ -442,7 +441,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             if final_xml_files:
                 st.success(f"Tổng số hóa đơn: {len(final_xml_files)}")
                 download_tar(temp_folder)
-                
+
                 for f in os.listdir(temp_folder):
                     if f.endswith('.zip'):
                         os.remove(os.path.join(temp_folder, f))
