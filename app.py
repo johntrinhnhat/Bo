@@ -416,20 +416,14 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
 
                         # next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
                         # st.write(next_btn)
-                        next_button = wait.until(
-                            EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
-                        )
-                        st.write(next_button)
-                        driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
-                        next_button.click()
-                        page_index += 1
-                        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "dx-page")))
-                
-
-                    # driver.execute_script("arguments[0].scrollIntoView(true);", next_btn)
-                    # # driver.execute_script("arguments[0].click();", next_btn)
-                    # page_index += 1 
-                    # time.sleep(2)  
+                    next_button = wait.until(
+                        EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
+                    )
+                    st.write(next_button)
+                    driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
+                    driver.execute_script("arguments[0].click();", next_button)
+                    page_index += 1
+                    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "dx-page")))
                 except TimeoutException:
                     st.write("no next button")
                     break  
