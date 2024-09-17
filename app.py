@@ -322,13 +322,13 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 driver.execute_script("arguments[0].click();", download_button)
                 time.sleep(3)
 
-
             # Check if the file has been downloaded
                 downloaded_file = wait_for_download(temp_folder)
                 if downloaded_file:
                     # Extract and rename the downloaded file(s)
                     shd = extract_number_vnpt(os.path.basename(downloaded_file))
                     extracted_files = extract_zipfile(downloaded_file, temp_folder)
+
                     for file in extracted_files:
                         xml_file = shd + file[file.index('.xml'):]
                         file_path = os.path.join(temp_folder, file)
