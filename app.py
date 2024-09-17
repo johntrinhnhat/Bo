@@ -304,51 +304,38 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
 
         st.write_stream(stream_data(("Đang tải hóa đơn ...")))
 
-        for index, icon in enumerate(icons):
-            try:
-                # Move to the icon and click to open details
-                action.move_to_element(icon).perform()
-                driver.execute_script("arguments[0].click();", icon)
-                time.sleep(3)
+        for icon in icons:
+            # Move to the icon and click to open details
+            action.move_to_element(icon).perform()
+            driver.execute_script("arguments[0].click();", icon)
+            time.sleep(3)
 
-                try:
-                    # Wait for the download button to appear
-                    download_button = wait.until(
-                        EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']"))
-                    )
+            # Wait for the download button to appear
+            download_button = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']"))
+            )
 
-                    # If button is found, click to download the invoice
-                    driver.execute_script("arguments[0].click();", download_button)
-                    time.sleep(3)
+            # If button is found, click to download the invoice
+            driver.execute_script("arguments[0].click();", download_button)
+            time.sleep(3)
 
-                    # Check if the file has been downloaded
-                    downloaded_file = wait_for_download(temp_folder)
-                    if downloaded_file:
-                        # Extract and rename the downloaded file(s)
-                        shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                        extracted_files = extract_zipfile(downloaded_file, temp_folder)
-                        for file in extracted_files:
-                            xml_file = shd + file[file.index('.xml'):]
-                            xml_files.append((xml_file, file))
-                            os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+            # Check if the file has been downloaded
+            downloaded_file = wait_for_download(temp_folder)
+            if downloaded_file:
+                # Extract and rename the downloaded file(s)
+                shd = extract_number_vnpt(os.path.basename(downloaded_file))
+                extracted_files = extract_zipfile(downloaded_file, temp_folder)
+                for file in extracted_files:
+                    xml_file = shd + file[file.index('.xml'):]
+                    xml_files.append((xml_file, file))
+                    os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
 
-                except TimeoutException:
-                    # Handle case when download button is not found
-                    st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành, bỏ qua ..."))
-                    continue
-
-                # After downloading, close the modal popup
-                close_button = wait.until(
-                    EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
-                )
-                driver.execute_script("arguments[0].click();", close_button)
-                time.sleep(2)
-
-            except StaleElementReferenceException:
-                # Handle the case where the element goes stale; retry the same icon
-                st.write_stream(stream_data(f"Hóa đơn tại vị trí {index} bị lỗi, thử lại ..."))
-                action.move_to_element(icon).perform()
-                driver.execute_script("arguments[0].click();", icon)
+            # After downloading, close the modal popup
+            close_button = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
+            )
+            driver.execute_script("arguments[0].click();", close_button)
+            time.sleep(2)
 
         # Check if any XML files were downloaded
         if xml_files:
@@ -356,6 +343,9 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         else:
             st.write_stream(stream_data("Không có hóa đơn nào được tải xuống"))
             return None
+        
+    except StaleElementReferenceException:
+        return download_icon_viettel(driver, action, wait, temp_folder)
 
     except TimeoutException:
         # Global timeout if no invoices are found or loading fails
