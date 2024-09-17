@@ -311,32 +311,27 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             time.sleep(3)
 
             # Wait for the download button to appear
-            download_button = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']"))
-            )
-            driver.execute_script("arguments[0].click();", download_button)
-            time.sleep(3)
+            try:
+                download_button = wait.until(
+                    EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']"))
+                )
+                driver.execute_script("arguments[0].click();", download_button)
+                time.sleep(3)
+            except TimeoutException:
+                st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành ..."))
 
-            downloaded_file = wait_for_download(temp_folder)
+            finally:
+                downloaded_file = wait_for_download(temp_folder)
 
-            if downloaded_file is None:
-                st.write_stream(stream_data("Không tìm thấy tập tin đã tải xuống."))
-                continue
-            
-            shd = extract_number_vnpt(os.path.basename(downloaded_file))
-            extracted_files = extract_zipfile(downloaded_file, temp_folder)
+                if downloaded_file:
+                    shd = extract_number_vnpt(os.path.basename(downloaded_file))
+                    extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
-            for file in extracted_files:
-                xml_file = shd + file[file.index('.xml'):]
-                file_path = os.path.join(temp_folder, file)
-
-                # if xml_file in seen_files:
-                    # os.remove(file_path)
-                    # st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
-                # else:
-                    # seen_files.add(xml_file)
-                xml_files.append((xml_file, file))
-                os.rename(file_path, os.path.join(temp_folder, xml_file))
+                    for file in extracted_files:
+                        file_path = os.path.join(temp_folder, file)
+                        xml_file = shd + file[file.index('.xml'):]
+                        xml_files.append((xml_file, file))
+                        os.rename(file_path, os.path.join(temp_folder, xml_file))
             
                 
             # After downloading, close the modal popup
