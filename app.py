@@ -385,9 +385,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn[3].click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
-            invoice_status = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//input[@aria-controls='dx-cde0f2dd-b582-1973-955b-dd15eb05a104']"))
-            )
+            invoice_status = driver.find_element(By.XPATH, "//input[@aria-controls='dx-cde0f2dd-b582-1973-955b-dd15eb05a104']")
             st.write(f"Invoice status: {invoice_status}")
 
             all_pages = wait.until(
