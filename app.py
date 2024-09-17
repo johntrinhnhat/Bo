@@ -395,9 +395,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
             )
             search_btn[3].click()
+            time.sleep(3)
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
-
-            wait.until(EC.presence_of_element_located((By.XPATH, "//div[@class='dx-page-indexes']")))
 
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             all_pages = page_indexes.find_elements(By.CLASS_NAME, "dx-page")
