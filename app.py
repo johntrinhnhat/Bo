@@ -395,7 +395,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 dropdown = invoice_status.find_element(By.XPATH, "//div[@aria-label='Lựa chọn']")
                 st.write(f"dropdown: {dropdown}")
                 dropdown.click()
-                option = driver.find_element(By.XPATH, "//div[contains(text(),'Hóa đơn gốc')]")
+                option = driver.find_element(By.XPATH, "//div[@title='Hóa đơn gốc')]")
                 st.write(f"option: {option}")
                 option.click()
                 time.sleep(1)
