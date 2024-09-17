@@ -301,7 +301,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
         )
         icons = icons[:len(icons)//2]  
-        
+        seen_files = set()
         st.write_stream(stream_data("Đang tải hóa đơn ..."))
         for icon in icons:
 
@@ -330,8 +330,14 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                     extracted_files = extract_zipfile(downloaded_file, temp_folder)
                     for file in extracted_files:
                         xml_file = shd + file[file.index('.xml'):]
-                        xml_files.append((xml_file, file))
-                        os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+
+                        if xml_file in seen_files:
+                            # Remove the duplicate file if necessary
+                            os.remove(os.path.join(temp_folder, file))
+                        else:
+                            seen_files.add(xml_file)
+                            xml_files.append((xml_file, file))
+                            os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
             else:
                 st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành"))
                 pass
@@ -425,8 +431,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     os.remove(os.path.join(temp_folder, f))
 
             if final_xml_files:
-                for xml_files in final_xml_files:
-                    st.write(xml_files.name)
                 st.success(f"Tổng số hóa đơn: {len(final_xml_files)}")
                 status.update(label="Tải thành công !!!", expanded=True)
                 download_tar(temp_folder)
