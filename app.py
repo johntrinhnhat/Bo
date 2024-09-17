@@ -329,9 +329,9 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                     shd = extract_number_vnpt(os.path.basename(downloaded_file))
                     extracted_files = extract_zipfile(downloaded_file, temp_folder)
                     for file in extracted_files:
-                    xml_file = shd + file[file.index('.xml'):]
-                    xml_files.append((xml_file, file))
-                    os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+                        xml_file = shd + file[file.index('.xml'):]
+                        xml_files.append((xml_file, file))
+                        os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
             else:
                 st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành"))
                 pass
