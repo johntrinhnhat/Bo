@@ -322,7 +322,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                # placeholder.text(f"Đang tải hóa đơn số {shd} ...")
+                placeholder.text(f"Đang tải hóa đơn số {shd} ...")
                 extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
                 with st.empty():
@@ -421,6 +421,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     page_index += 1 
                     time.sleep(2)  
                 except TimeoutException:
+                    st.write("no next button")
                     break  
                 except Exception as e:
                     st.write(f"Lỗi tải: {e}")
