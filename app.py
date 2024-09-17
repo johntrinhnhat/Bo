@@ -399,7 +399,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
 
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             st.write(page_indexes)
-            all_pages = page_indexes.find_elements(By.XPATH, "//div[@class='dx-page']")
+            all_pages = page_indexes.find_elements(By.CLASS_NAME, "dx-page")
             for page in all_pages:
                 st.write(page)
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
