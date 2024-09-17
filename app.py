@@ -397,7 +397,9 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 st.write(f"dropdown: {dropdown}")
                 driver.execute_script("arguments[0].click();", dropdown)
 
-                pop_up_content = driver.find_element(By.XPATH, "//div[@role='listbox']")
+                pop_up_content = wait.until(
+                    EC.visibility_of_element_located((By.XPATH, "//div[contains(@class, 'popup-class') or @role='listbox']"))  # Adjust as needed
+                )
                 # Adjust the XPath to target the pop-up container
                 
 
