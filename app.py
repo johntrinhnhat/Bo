@@ -390,8 +390,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 EC.presence_of_element_located((By.XPATH, "//td[@aria-describedby='dx-col-15']"))
             )
             dropdown = invoice_status.find_element(By.XPATH, "//div[@aria-label='Lựa chọn']")
-            st.write(dropdown)
-            Select(dropdown.select_by_visible_text('Hóa đơn gốc'))
+            driver.execute_script("arguments[0].value = 'Hóa đơn gốc';", dropdown)
+
 
 
             all_pages = wait.until(
