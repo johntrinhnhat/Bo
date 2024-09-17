@@ -314,7 +314,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
             driver.execute_script("arguments[0].click();", download_button)
             time.sleep(3)
-            
+
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
@@ -353,8 +353,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
 
     except TimeoutException:
         st.write_stream(stream_data(f"Không tìm thấy hóa đơn"))
-        return
-        # return None
+        return None
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
