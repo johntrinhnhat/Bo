@@ -702,8 +702,7 @@ def main():
                         )
     
     with tab3:
-        temp_folder = tempfile.mkdtemp()
-        driver, action, wait = selenium_web_driver(temp_folder)
+        
         user = st.radio(
             "Hộ kinh doanh:",
             ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
@@ -711,13 +710,11 @@ def main():
         start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
 
         if st.button("Tải XML tự động", key="vnpt"):
-             
+            temp_folder = tempfile.mkdtemp()
+            driver, action, wait = selenium_web_driver(temp_folder)
             handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
     with tab4:
-        temp_folder = tempfile.mkdtemp()
-        driver, action, wait = selenium_web_driver(temp_folder)
-
         user = st.radio(
             "Hộ kinh doanh:",
             ["An Vinh"]
@@ -725,6 +722,8 @@ def main():
         start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
 
         if st.button("Tải XML tự động", key="viettel"):    
+            temp_folder = tempfile.mkdtemp()
+            driver, action, wait = selenium_web_driver(temp_folder)
             handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)     
 
 if __name__ == "__main__":
