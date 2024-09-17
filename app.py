@@ -396,10 +396,10 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 st.write(f"dropdown: {dropdown}")
                 driver.execute_script("arguments[0].click();", dropdown)
 
-                option = wait.until(
-                    EC.visibility_of_element_located((By.XPATH, "//div[@title='Hóa đơn gốc']"))
+                option_container = wait.until(
+                    EC.visibility_of_element_located((By.XPATH, "//div[@class='dx-scrollview-content']"))
                 )
-                st.write(f"option: {option}")
+                st.write(f"option: {option_container}")
                 # option.click()
                 time.sleep(1)
 
