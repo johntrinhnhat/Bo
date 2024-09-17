@@ -397,13 +397,15 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn[3].click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
-            all_pages = wait.until(
-                EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page']"))
-            )
+            page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
+            st.write(page_indexes)
+            all_pages = page_indexes.find_elements(By.XPATH, "//div[@class='dx-pages']")
             for page in all_pages:
                 st.write(page)
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-
+            
+            next_btn = page_indexes.find_element(By.XPATH, "//div[@class='dx-next-button']")
+            st.write(f"Next button: {next_btn}")
             final_xml_files = []
             page_index = 0
 
