@@ -416,8 +416,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                         final_xml_files.extend(xml_files)
 
                     try:
-                        next_btn = wait.until(EC.presence_of_element_located(
-                            (By.XPATH, "//div[@aria-label='Next page']")))
+                        next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
+                        st.write(next_btn)
                         driver.execute_script("arguments[0].scrollIntoView(true);", next_btn)
                         next_btn.click()
                         page_index += 1
