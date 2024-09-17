@@ -310,10 +310,13 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
 
-            # Wait for the download button to appear
-            download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-            driver.execute_script("arguments[0].click();", download_button)
-            time.sleep(3)
+            try:
+                download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+                driver.execute_script("arguments[0].click();", download_button)
+                time.sleep(3)
+            except TimeoutException:
+                st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
+                continue
 
             downloaded_file = wait_for_download(temp_folder)
             if downloaded_file:
@@ -326,7 +329,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
 
                     if xml_file in seen_files:
                         os.remove(file_path)
-                        st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
                     else:
                         seen_files.add(xml_file)
                         xml_files.append((xml_file, file))
