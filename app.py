@@ -424,6 +424,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     os.remove(os.path.join(temp_folder, f))
 
             if final_xml_files:
+                for xml_files in final_xml_files:
+                    st.write(xml_files)
                 st.success(f"Tổng số hóa đơn: {len(final_xml_files)}")
                 status.update(label="Tải thành công !!!", expanded=True)
                 download_tar(temp_folder)
