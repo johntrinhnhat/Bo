@@ -304,6 +304,11 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         
         st.write_stream(stream_data("Đang tải hóa đơn ..."))
         for icon in icons:
+            hdg = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//td[contains(text(), 'Hóa đơn gốc')]"))
+            )
+            st.write(hdg)
+
             # Move to the icon and click to open details
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
@@ -386,32 +391,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             )
             search_btn[3].click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
-
-            invoice_status = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//td[@aria-describedby='dx-col-15']"))
-            )
-            st.write(f"Invoice status: {invoice_status}")
-
-            if invoice_status:
-                dropdown = invoice_status.find_element(By.XPATH, "//div[@aria-label='Lựa chọn']")
-                st.write(f"dropdown: {dropdown}")
-                driver.execute_script("arguments[0].click();", dropdown)
-
-                pop_up_content = Select(dropdown.selectByVisibleText("Hóa đơn gốc"))
-
-
-
-                # pop_up_content = wait.until(
-                #     EC.visibility_of_element_located((By.XPATH, "//div[@class='dx=scrollview-content']"))  # Adjust as needed
-                # )
-                # Adjust the XPath to target the pop-up container
-                
-
-                
-                st.write(f"option: {pop_up_content}")
-                # option.click()
-                time.sleep(1)
-
 
             all_pages = wait.until(
                 EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
