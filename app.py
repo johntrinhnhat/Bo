@@ -296,13 +296,10 @@ def extract_zipfile(zip_file, extract_to):
 def download_icon_vnpt(driver, action, wait, temp_folder):
     xml_files = []
     try:
-        # Locate all icons for invoices
         icons = wait.until(
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
         )
-        icons = icons[:len(icons)//2]  # Limit to half if necessary (optional)
-
-        st.write_stream(stream_data(("Đang tải hóa đơn ...")))
+        icons = icons[:len(icons)//2]  
 
         for icon in icons:
             # Move to the icon and click to open details
@@ -324,6 +321,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             if downloaded_file:
                 # Extract and rename the downloaded file(s)
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
+                st.write_stream(stream_data((f"Đang tải hóa đơn số {shd}...")))
                 extracted_files = extract_zipfile(downloaded_file, temp_folder)
                 for file in extracted_files:
                     xml_file = shd + file[file.index('.xml'):]
@@ -348,11 +346,8 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         return download_icon_viettel(driver, action, wait, temp_folder)
 
     except TimeoutException:
-        # Global timeout if no invoices are found or loading fails
         st.write_stream(stream_data(f"Không tìm thấy hóa đơn"))
         return None
-
-
 
 def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder):          
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
@@ -423,8 +418,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     os.remove(os.path.join(temp_folder, f))
 
             if final_xml_files:
-                st.success(f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")
-                # st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+                st.success(f"Tổng số hóa đơn: {len(final_xml_files)}")
                 status.update(label="Tải thành công !!!", expanded=True)
                 download_tar(temp_folder)
                 return final_xml_files
@@ -475,7 +469,12 @@ def download_icon_viettel(driver, action, wait, temp_folder):
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
             driver.execute_script("arguments[0].click();", close_button)
             time.sleep(2)
-        return xml_files
+            
+        if xml_files:
+            return xml_files
+        else:
+            st.write_stream(stream_data("Không có hóa đơn nào được tải xuống"))
+            return None
 
     except StaleElementReferenceException:
         return download_icon_viettel(driver, action, wait, temp_folder)
@@ -538,7 +537,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     return None
 
             if final_xml_files:
-                st.write_stream(stream_data((f"Tổng số hóa đơn: :red[{len(final_xml_files)}]")))
+                st.write_stream(stream_data((f"Tổng số hóa đơn: {len(final_xml_files)}")))
                 status.update(label="Tải thành công !!!", expanded=True)
                 download_tar(temp_folder)
                 return final_xml_files
@@ -695,8 +694,6 @@ def main():
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)  
             handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
-
-            
 
     with tab4:
         user = st.radio(
