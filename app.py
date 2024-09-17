@@ -438,14 +438,16 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     st.write(f"Lỗi tải: {e}")
                     return None
             
-            for f in os.listdir(temp_folder):
-                if f.endswith('.zip'):
-                    os.remove(os.path.join(temp_folder, f))
 
             if final_xml_files:
                 st.success(f"Tổng số hóa đơn: {len(final_xml_files)}")
-                status.update(label="Tải thành công !!!", expanded=True)
                 download_tar(temp_folder)
+                
+                for f in os.listdir(temp_folder):
+                    if f.endswith('.zip'):
+                        os.remove(os.path.join(temp_folder, f))
+
+                status.update(label="Tải thành công !!!", expanded=True)
                 return final_xml_files
             else:
                 st.info("Không tìm thấy hóa đơn có thể tải !!!")
