@@ -299,7 +299,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         icons = icons[:len(icons)//2]  
         seen_files = set()
         st.write_stream(stream_data("Đang tải hóa đơn ..."))
-
         for icon in icons:
             # Move to the icon and click to open details
             action.move_to_element(icon).perform()
@@ -319,20 +318,21 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
 
             # Check if the file has been downloaded
                 downloaded_file = wait_for_download(temp_folder)
-                # Extract and rename the downloaded file(s)
-                shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                extracted_files = extract_zipfile(downloaded_file, temp_folder)
-                for file in extracted_files:
-                    xml_file = shd + file[file.index('.xml'):]
+                if downloaded_file:
+                    # Extract and rename the downloaded file(s)
+                    shd = extract_number_vnpt(os.path.basename(downloaded_file))
+                    extracted_files = extract_zipfile(downloaded_file, temp_folder)
+                    for file in extracted_files:
+                        xml_file = shd + file[file.index('.xml'):]
 
-                    if xml_file in seen_files:
-                        # st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
-                        # Remove the duplicate file if necessary
-                        os.remove(os.path.join(temp_folder, file))
-                    else:
-                        seen_files.add(xml_file)
-                        xml_files.append((xml_file, file))
-                        os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+                        if xml_file in seen_files:
+                            st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
+                            # Remove the duplicate file if necessary
+                            os.remove(os.path.join(temp_folder, file))
+                        else:
+                            seen_files.add(xml_file)
+                            xml_files.append((xml_file, file))
+                            os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
             # After downloading, close the modal popup
             close_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
