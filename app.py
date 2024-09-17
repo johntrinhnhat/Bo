@@ -400,7 +400,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             # all_pages = wait.until(
             #     EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page-indexes']"))
             # )
-            all_pages = driver.find_elements(By.XPATH, "//div[@class='dx-page']")
+            page_indexes=driver.find_element(By.XPATH, "//div[@class='dx-pages-indexes']")
+            all_pages = page_indexes.find_elements(By.XPATH, "//div[@class='dx-page']")
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
 
             final_xml_files = []
