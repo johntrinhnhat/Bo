@@ -301,7 +301,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
         )
         icons = icons[:len(icons)//2]  
-        seen_files = set()
+        # seen_files = set()
 
         st.write_stream(stream_data("Đang tải hóa đơn ..."))
         for icon in icons:
@@ -330,13 +330,13 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 xml_file = shd + file[file.index('.xml'):]
                 file_path = os.path.join(temp_folder, file)
 
-                if xml_file in seen_files:
-                    os.remove(file_path)
-                    st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
-                else:
-                    seen_files.add(xml_file)
-                    xml_files.append((xml_file, file))
-                    os.rename(file_path, os.path.join(temp_folder, xml_file))
+                # if xml_file in seen_files:
+                    # os.remove(file_path)
+                    # st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
+                # else:
+                    # seen_files.add(xml_file)
+                xml_files.append((xml_file, file))
+                os.rename(file_path, os.path.join(temp_folder, xml_file))
             
                 
             # After downloading, close the modal popup
