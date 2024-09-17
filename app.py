@@ -1,4 +1,3 @@
-import streamlit.components.v1 as components
 import os
 import re
 import tempfile
@@ -9,8 +8,7 @@ import datetime
 import time
 import zipfile
 import tarfile
-from bs4 import BeautifulSoup
-from selenium.common.exceptions import TimeoutException 
+from selenium.common.exceptions import TimeoutException, StaleElementReferenceException 
 from io import BytesIO
 from openpyxl import load_workbook
 from selenium import webdriver
@@ -18,9 +16,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import StaleElementReferenceException 
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
 
 ### SELENIUM FUNCTIONS
@@ -304,8 +300,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         seen_files = set()
         st.write_stream(stream_data("Đang tải hóa đơn ..."))
         for icon in icons:
-
-
             # Move to the icon and click to open details
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
@@ -324,24 +318,20 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
 
             # Check if the file has been downloaded
                 downloaded_file = wait_for_download(temp_folder)
-                if downloaded_file:
-                    # Extract and rename the downloaded file(s)
-                    shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                    extracted_files = extract_zipfile(downloaded_file, temp_folder)
-                    for file in extracted_files:
-                        xml_file = shd + file[file.index('.xml'):]
+                # Extract and rename the downloaded file(s)
+                shd = extract_number_vnpt(os.path.basename(downloaded_file))
+                extracted_files = extract_zipfile(downloaded_file, temp_folder)
+                for file in extracted_files:
+                    xml_file = shd + file[file.index('.xml'):]
 
-                        if xml_file in seen_files:
-                            st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
-                            # Remove the duplicate file if necessary
-                            os.remove(os.path.join(temp_folder, file))
-                        else:
-                            seen_files.add(xml_file)
-                            xml_files.append((xml_file, file))
-                            os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
-            else:
-                st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành"))
-                pass
+                    if xml_file in seen_files:
+                        st.write_stream(stream_data("Tìm thấy hóa đơn chưa phát hành ..."))
+                        # Remove the duplicate file if necessary
+                        os.remove(os.path.join(temp_folder, file))
+                    else:
+                        seen_files.add(xml_file)
+                        xml_files.append((xml_file, file))
+                        os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
             # After downloading, close the modal popup
             close_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
