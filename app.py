@@ -400,8 +400,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             all_pages = wait.until(
                 EC.presence_of_all_elements_located((By.XPATH, "//div[@class='dx-page']"))
             )
-            # page_indexes=driver.find_element(By.XPATH, "//div[@class='dx-pages-indexes']")
-            # all_pages = page_indexes.find_elements(By.XPATH, "//div[@class='dx-page']")
+            for page in all_pages:
+                st.write(page)
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
 
             final_xml_files = []
@@ -413,10 +413,10 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     if xml_files:
                         final_xml_files.extend(xml_files)
 
-                    # next_button = wait.until(
-                    #     EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
-                    # )
-                    next_button = driver.find_element(By.XPATH, "//div[@aria-label='Next page']")
+                    next_button = wait.until(
+                        EC.presence_of_element_located((By.XPATH, "//div[@aria-label='Next page']"))
+                    )
+                    # next_button = driver.find_element(By.XPATH, "//div[@aria-label='Next page']")
                     st.write(next_button)
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                     driver.execute_script("arguments[0].click();", next_button)
