@@ -311,27 +311,23 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             time.sleep(3)
 
             # Wait for the download button to appear
-            try:
-                download_button = wait.until(
-                    EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']"))
-                )
-                driver.execute_script("arguments[0].click();", download_button)
-                time.sleep(3)
-            except TimeoutException:
-                st.write_stream(stream_data("Tìm thấy 1 hóa đơn chưa phát hành ..."))
+            download_button = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']"))
+            )
+            driver.execute_script("arguments[0].click();", download_button)
+            time.sleep(3)
 
-            finally:
-                downloaded_file = wait_for_download(temp_folder)
+            downloaded_file = wait_for_download(temp_folder)
 
-                if downloaded_file:
-                    shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                    extracted_files = extract_zipfile(downloaded_file, temp_folder)
+            if downloaded_file:
+                shd = extract_number_vnpt(os.path.basename(downloaded_file))
+                extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
-                    for file in extracted_files:
-                        file_path = os.path.join(temp_folder, file)
-                        xml_file = shd + file[file.index('.xml'):]
-                        xml_files.append((xml_file, file))
-                        os.rename(file_path, os.path.join(temp_folder, xml_file))
+                for file in extracted_files:
+                    file_path = os.path.join(temp_folder, file)
+                    xml_file = shd + file[file.index('.xml'):]
+                    xml_files.append((xml_file, file))
+                    os.rename(file_path, os.path.join(temp_folder, xml_file))
             
                 
             # After downloading, close the modal popup
