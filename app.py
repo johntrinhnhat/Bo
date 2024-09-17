@@ -304,10 +304,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         
         st.write_stream(stream_data("Đang tải hóa đơn ..."))
         for icon in icons:
-            hdg = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//td[contains(text(), 'Hóa đơn gốc')]"))
-            )
-            st.write(hdg)
 
             # Move to the icon and click to open details
             action.move_to_element(icon).perform()
