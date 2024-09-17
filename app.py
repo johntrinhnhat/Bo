@@ -398,14 +398,10 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
-            st.write(page_indexes)
             all_pages = page_indexes.find_elements(By.CLASS_NAME, "dx-page")
-            for page in all_pages:
-                st.write(page)
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
             
-            next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
-            st.write(f"Next button: {next_btn}")
+            
             final_xml_files = []
             page_index = 0
 
@@ -415,13 +411,11 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     if xml_files:
                         final_xml_files.extend(xml_files)
 
-                    next_button = wait.until(
-                        EC.presence_of_element_located((By.XPATH, "//div[@aria-label='Next page']"))
-                    )
+                    next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
                     # next_button = driver.find_element(By.XPATH, "//div[@aria-label='Next page']")
-                    st.write(next_button)
-                    driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
-                    driver.execute_script("arguments[0].click();", next_button)
+                    st.write(next_btn)
+                    driver.execute_script("arguments[0].scrollIntoView(true);", next_btn)
+                    driver.execute_script("arguments[0].click();", next_btn)
                     page_index += 1 
                     time.sleep(2)  
                 except TimeoutException:
