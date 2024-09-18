@@ -83,8 +83,7 @@ def wait_for_download(temp_folder, timeout=30):
             # Ensure the file is fully downloaded (not a .crdownload file)
             if not latest_file.endswith('.crdownload') and os.path.getsize(latest_file) > 0:
                 return latest_file
-        
-        time.sleep(1)
+        time.sleep(2)  # Slightly increase sleep to reduce CPU load
 
     return None
 
@@ -302,7 +301,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
         )
         icons = icons[:len(icons)//2]  
-        st.write(f"Len icons: {len(icons)}")
         seen_files = set()
 
         # st.write_stream(stream_data("Đang tải hóa đơn ..."))
@@ -313,7 +311,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             time.sleep(3)
 
             download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-            st.write(download_button)
             driver.execute_script("arguments[0].click();", download_button)
             time.sleep(3)
 
