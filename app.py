@@ -71,7 +71,7 @@ def selenium_web_driver(temp_folder):
     
     return driver, action, wait
 
-def wait_for_download(temp_folder, timeout=40):
+def wait_for_download(temp_folder, timeout=30):
     '''Wait for a file to be downloaded to the download path'''
     start_time = time.time()
     while time.time() - start_time < timeout:
@@ -333,6 +333,8 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                             seen_files.add(xml_file)
                             xml_files.append((xml_file, file))
                             os.rename(file_path, os.path.join(temp_folder, xml_file))
+            else:
+                continue
 
             close_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
