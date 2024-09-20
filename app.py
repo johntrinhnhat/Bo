@@ -302,7 +302,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         )
         icons = icons[:len(icons)//2]  
         seen_files = set()
-
+        st.write(len(icons))
         # st.write_stream(stream_data("Đang tải hóa đơn ..."))
         for icon in icons:
             # Move to the icon and click to open details
