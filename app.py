@@ -301,6 +301,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
         )
         icons = icons[:len(icons)//2]  
+
         seen_files = set()
         for icon in icons:
             # Move to the icon and click to open details
@@ -308,9 +309,9 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
 
-            # download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-            download_button = wait.until(
-                EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
+            download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+            # download_button = wait.until(
+            #     EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
 
             if download_button:
                 driver.execute_script("arguments[0].click();", download_button)
