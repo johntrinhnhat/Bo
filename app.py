@@ -315,7 +315,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             time.sleep(3)
 
             downloaded_file = wait_for_download(temp_folder)
-            st.write(downloaded_file)
             if downloaded_file:
                 shd = extract_number_vnpt(os.path.basename(downloaded_file))
                 extracted_files = extract_zipfile(downloaded_file, temp_folder)
@@ -413,7 +412,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                     next_button = wait.until(
                         EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Next page']"))
                     )
-                    st.write(next_button)
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                     driver.execute_script("arguments[0].click();", next_button)
                     page_index += 1
@@ -550,7 +548,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     return None
 
             if final_xml_files:
-                st.write_stream(stream_data((f"Tổng số hóa đơn: {len(final_xml_files)}")))
+                st.success(f"Tổng số hóa đơn: {len(final_xml_files)}")
                 status.update(label="Tải thành công !!!", expanded=True)
                 download_tar(temp_folder)
                 return final_xml_files
@@ -705,7 +703,6 @@ def main():
             ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
         )
         start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
-
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)
@@ -717,7 +714,6 @@ def main():
             ["An Vinh"]
         )
         start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
-
         if st.button("Tải XML tự động", key="viettel"):    
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = selenium_web_driver(temp_folder)
