@@ -301,6 +301,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
         )
         icons = icons[:len(icons)//2]  
+        time.sleep(3)
 
         seen_files = set()
         for icon in icons:
@@ -334,8 +335,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                             seen_files.add(xml_file)
                             xml_files.append((xml_file, file))
                             os.rename(file_path, os.path.join(temp_folder, xml_file))
-            else:
-                continue
+            
 
             close_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
