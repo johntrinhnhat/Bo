@@ -311,12 +311,12 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             # download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
             download_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
-            st.write(f"Download Button: {download_button}")
 
             if download_button:
                 driver.execute_script("arguments[0].click();", download_button)
                 time.sleep(3)
                 downloaded_file = wait_for_download(temp_folder)
+
                 if downloaded_file:
                     shd = extract_number_vnpt(os.path.basename(downloaded_file))
                     extracted_files = extract_zipfile(downloaded_file, temp_folder)
@@ -333,11 +333,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                             seen_files.add(xml_file)
                             xml_files.append((xml_file, file))
                             os.rename(file_path, os.path.join(temp_folder, xml_file))
-                
-            # After downloading, close the modal popup
-            else:
-                st.write(f"not found download_button")
-                
+
             close_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
             )
