@@ -302,8 +302,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         )
         icons = icons[:len(icons)//2]  
         seen_files = set()
-        st.write(len(icons))
-        # st.write_stream(stream_data("Đang tải hóa đơn ..."))
         for icon in icons:
             # Move to the icon and click to open details
             action.move_to_element(icon).perform()
@@ -311,7 +309,9 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             time.sleep(3)
 
             try:
-                download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+                # download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+                download_button = wait.until(
+                    EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
                 st.write(f"Download Button: {download_button}")
                 driver.execute_script("arguments[0].click();", download_button)
                 time.sleep(3)
