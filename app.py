@@ -315,6 +315,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             #     EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
 
             if download_button:
+                st.write("found download button")
                 driver.execute_script("arguments[0].click();", download_button)
                 time.sleep(3)
                 downloaded_file = wait_for_download(temp_folder)
