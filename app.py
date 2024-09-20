@@ -310,29 +310,32 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
 
-            download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-            st.write(f"Download Button: {download_button}")
-            driver.execute_script("arguments[0].click();", download_button)
-            time.sleep(3)
+            try:
+                download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+                st.write(f"Download Button: {download_button}")
+                driver.execute_script("arguments[0].click();", download_button)
+                time.sleep(3)
 
-            downloaded_file = wait_for_download(temp_folder)
-            if downloaded_file:
-                shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                extracted_files = extract_zipfile(downloaded_file, temp_folder)
+                downloaded_file = wait_for_download(temp_folder)
+                if downloaded_file:
+                    shd = extract_number_vnpt(os.path.basename(downloaded_file))
+                    extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
-                placeholder.write_stream(stream_data(f"Đang tải hóa đơn số {shd} ..."))
+                    placeholder.write_stream(stream_data(f"Đang tải hóa đơn số {shd} ..."))
 
-                for file in extracted_files:
-                    xml_file = shd + file[file.index('.xml'):]
-                    file_path = os.path.join(temp_folder, file)
+                    for file in extracted_files:
+                        xml_file = shd + file[file.index('.xml'):]
+                        file_path = os.path.join(temp_folder, file)
 
-                    if xml_file in seen_files:
-                        os.remove(file_path)
-                    else:
-                        seen_files.add(xml_file)
-                        xml_files.append((xml_file, file))
-                        os.rename(file_path, os.path.join(temp_folder, xml_file))
+                        if xml_file in seen_files:
+                            os.remove(file_path)
+                        else:
+                            seen_files.add(xml_file)
+                            xml_files.append((xml_file, file))
+                            os.rename(file_path, os.path.join(temp_folder, xml_file))
             
+            except TimeoutException:
+                st.write("Không tìm thấy nút tải hóa đơn, đóng bảng chi tiết và chuyển sang hóa đơn tiếp theo.")
                 
             # After downloading, close the modal popup
             close_button = wait.until(
