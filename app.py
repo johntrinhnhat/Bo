@@ -308,14 +308,14 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
 
-            try:
-                # download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-                download_button = wait.until(
-                    EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
-                st.write(f"Download Button: {download_button}")
+            # download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+            download_button = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
+            st.write(f"Download Button: {download_button}")
+
+            if download_button:
                 driver.execute_script("arguments[0].click();", download_button)
                 time.sleep(3)
-
                 downloaded_file = wait_for_download(temp_folder)
                 if downloaded_file:
                     shd = extract_number_vnpt(os.path.basename(downloaded_file))
@@ -333,11 +333,11 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                             seen_files.add(xml_file)
                             xml_files.append((xml_file, file))
                             os.rename(file_path, os.path.join(temp_folder, xml_file))
-            
-            except TimeoutException:
-                st.write("Không tìm thấy nút tải hóa đơn, đóng bảng chi tiết và chuyển sang hóa đơn tiếp theo.")
                 
             # After downloading, close the modal popup
+            else:
+                st.write(f"not found download_button")
+                
             close_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
             )
