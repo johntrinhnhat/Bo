@@ -311,6 +311,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             time.sleep(3)
 
             download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+            st.write(f"Download Button: {download_button}")
             driver.execute_script("arguments[0].click();", download_button)
             time.sleep(3)
 
@@ -460,7 +461,6 @@ def download_icon_viettel(driver, action, wait, temp_folder):
             EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
         )
 
-        st.write_stream(stream_data(("Đang tải hóa đơn ...")))
         for icon in icons:
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
