@@ -652,7 +652,7 @@ async def main():
             "Hộ kinh doanh:",
             ["An Vinh"]
         )
-        start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
+        start_date, end_date= await set_date(key1='viettel_start', key2='viettel_end')
         if st.button("Tải XML tự động", key="viettel"):    
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = await selenium_web_driver(temp_folder)
