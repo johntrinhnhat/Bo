@@ -173,7 +173,7 @@ def pxk_data_from_xml(file):
 
 def create_pxk(invoice_data):
     with st.spinner("Đang tạo phiếu ..."):  # Display loading spinner during process
-        time.sleep(1)  # Simulate processing delay
+        time.sleep(0.5)  # Simulate processing delay
 
         pxk_file_path = 'pxk.xlsx'  # Path to PXK Excel file
         ptt_file_path = 'ptt.xlsx'  # Path to PTT Excel file
@@ -205,6 +205,7 @@ def create_pxk(invoice_data):
         ptt_buffer = BytesIO()
         ptt_wb.save(ptt_buffer)
         ptt_buffer.seek(0)  # Move buffer cursor to the beginning
+
     return pxk_buffer, ptt_buffer
 
 def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data):
@@ -688,8 +689,6 @@ async def main():
                             pass
                     else:
                         pxk_buffer, ptt_buffer = create_pxk(invoice_data)
-                        st.success("Tạo phiếu xuất kho và thu tiền thành công")
-                        
                         create_download_button(
                             label="Tải phiếu xuất kho", 
                             buffer=pxk_buffer, 
