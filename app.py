@@ -128,15 +128,6 @@ async def show_progress_bar(message):
     time.sleep(1)
     return progress_bar
 
-def download_success_handler(success_key, message):
-    """Handles download success for PXK and PTT."""
-    if st.session_state[success_key]:
-        downloading_message = message
-        progress_bar = show_progress_bar(downloading_message)
-        st.success(f"{message.split(' ')[1]} thành công")
-        progress_bar.empty()
-        st.session_state[success_key] = False
-
 def create_download_button(label, buffer, file_name, key, download):
     """Creates a download button with specified parameters."""
     st.download_button(
@@ -677,31 +668,44 @@ async def main():
 
             with st.sidebar:
 
-                download_success_handler('download_success', 'Đang tải phiếu xuất kho ...')
-                download_success_handler('download_success_ptt', 'Đang tải phiếu thu tiền ...')
+                with st.sidebar:
+                    if st.session_state['download_success']:
+                        downloading_message = 'Đang tải phiếu xuất kho ...'
+                        progress_bar = await show_progress_bar(downloading_message)
+                        st.success("Đã tải phiếu xuất kho thành công")
+                        progress_bar.empty()
+                        st.session_state['download_success'] = False
+                        
+                    if st.session_state['download_success_ptt']:
+                        downloading_message = 'Đang tải phiếu thu tiền ...'
+                        progress_bar = await show_progress_bar(downloading_message)
+                        st.success("Đã tải phiếu thu tiền thành công")
+                        progress_bar.empty()
+                        st.session_state['download_success_ptt'] = False
 
-                if not st.session_state['create_success']:
-                    if st.button('Tạo phiếu xuất kho và thu tiền', type='primary', key='btn', on_click=create):
-                        pass
-                else:
-                    pxk_buffer, ptt_buffer = create_pxk(invoice_data)                    
-                    # PXK download button
-                    create_download_button(
-                        label="Tải phiếu xuất kho",
-                        buffer=pxk_buffer,
-                        file_name="PHIEU XUAT KHO.xlsx",
-                        key="pxk",
-                        download=download
-                    )
+                    if not st.session_state['create_success']:
+                        if st.button('Tạo phiếu xuất kho và thu tiền', type='primary', key='btn', on_click=create):
+                            pass
+                    else:
+                        pxk_buffer, ptt_buffer = create_pxk(invoice_data)
+                        st.success("Tạo phiếu xuất kho và thu tiền thành công")
+                        
+                        create_download_button(
+                            label="Tải phiếu xuất kho", 
+                            buffer=pxk_buffer, 
+                            file_name="PHIEU XUAT KHO QUY .xlsx", 
+                            key="pxk", 
+                            download=download)
 
-                    # PTT download button
-                    create_download_button(
-                        label="Tải phiếu thu tiền",
-                        buffer=ptt_buffer,
-                        file_name="PHIEU THU TIEN.xlsx",
-                        key="ptt",
-                        download=download_ptt
-                    )
+                        create_download_button(
+                            label="Tải phiếu thu tiền", 
+                            buffer=ptt_buffer, 
+                            file_name="PHIEU THU TIEN QUY .xlsx", 
+                            key="pxk", 
+                            download=download_ptt
+                        )
+                        
+                        
 
 
 if __name__ == "__main__":
