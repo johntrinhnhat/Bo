@@ -701,7 +701,7 @@ async def main():
                             label="Tải phiếu thu tiền", 
                             buffer=ptt_buffer, 
                             file_name="PHIEU THU TIEN QUY .xlsx", 
-                            key="pxk", 
+                            key="ptt", 
                             download=download_ptt
                         )
                         
