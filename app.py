@@ -234,9 +234,9 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
         'Thành tiền'
     ]]
 
-    st.subheader(f"Số hóa đơn: :blue[{shdon}]")
-    st.write(f"Ngày-Tháng-Năm: :blue[{date}]")
-    st.write(f"Tên khách: :blue[{nmua}]")
+    st.subheader(f"Số hóa đơn: {shdon}")
+    st.text(f"Ngày-Tháng-Năm: {date}")
+    st.text(f"Tên khách: {nmua}")
 
     st.dataframe(
         df.style.format({
@@ -245,9 +245,9 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
         'Thành tiền': lambda x: f"{x:,.0f}".replace(',', '.')}),
         width=800
     )
-    st.write(f"Giảm giá: :blue[{'{:,}'.format(ggia).replace(',', '.')} đồng]")
-    st.write(f"Tổng thành tiền: :blue[{'{:,}'.format(ts).replace(',', '.')} đồng]")
-    st.write(f"Tổng thành tiền chữ: :blue[{tbc}]")
+    st.text(f"Giảm giá: {'{:,}'.format(ggia).replace(',', '.')} đồng")
+    st.text(f"Tổng thành tiền: {'{:,}'.format(ts).replace(',', '.')} đồng")
+    st.text(f"Tổng thành tiền chữ: {tbc}")
     return df
 
 def pxk_excel(wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df):
