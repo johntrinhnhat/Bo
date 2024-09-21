@@ -111,7 +111,7 @@ def download_tar(temp_folder):
                         st.success("Đã tải thư mục XML thành công")
 
 ### TAB 3 FUNCTIONS
-async def convert_date_format(date_str):
+def convert_date_format(date_str):
     # Parse the date string
     date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
 
