@@ -659,15 +659,15 @@ async def main():
             handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)   
 
     with tab3:
+        if 'create_success' not in st.session_state:
+                st.session_state['create_success'] = False
+        if 'download_success' not in st.session_state:
+            st.session_state['download_success'] = False
+        if 'download_success_ptt' not in st.session_state:
+            st.session_state['download_success_ptt'] = False
+
         if xml_files:
             invoice_data = []
-            if 'create_success' not in st.session_state:
-                st.session_state['create_success'] = False
-            if 'download_success' not in st.session_state:
-                st.session_state['download_success'] = False
-            if 'download_success_ptt' not in st.session_state:
-                st.session_state['download_success_ptt'] = False
-
             for uploaded_file in xml_files:
                 shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data= pxk_data_from_xml(uploaded_file)
 
