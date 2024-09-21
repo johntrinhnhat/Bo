@@ -22,7 +22,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 ### SELENIUM FUNCTIONS
-def set_date(key1, key2):
+async def set_date(key1, key2):
             date_start, date_end = st.columns(2)
             with date_start:
                 start_date = st.date_input(
@@ -111,7 +111,7 @@ def download_tar(temp_folder):
                         st.success("Đã tải thư mục XML thành công")
 
 ### TAB 3 FUNCTIONS
-def convert_date_format(date_str):
+async def convert_date_format(date_str):
     # Parse the date string
     date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
 
