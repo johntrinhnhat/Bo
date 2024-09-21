@@ -180,7 +180,7 @@ def pxk_data_from_xml(file):
 
     return  shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data
 
-def create_pxk(all_data):
+def create_pxk(invoice_data):
                         with st.spinner("Đang tạo phiếu ..."):  # Display loading spinner during process
                             time.sleep(3)  # Simulate processing delay
 
@@ -190,12 +190,12 @@ def create_pxk(all_data):
                             pxk_wb = load_workbook(pxk_file_path)  # Load PXK Excel workbook
                             ptt_wb = load_workbook(ptt_file_path)  # Load PTT Excel workbook
 
-                            # Populate PXK workbook with data from all_data
-                            for shdon, nmua, _, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in all_data:
+                            # Populate PXK workbook with data from invoice_data
+                            for shdon, nmua, _, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in invoice_data:
                                 pxk_excel(pxk_wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df)
 
-                            # Populate PTT workbook with data from all_data
-                            for shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in all_data:    
+                            # Populate PTT workbook with data from invoice_data
+                            for shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in invoice_data:    
                                 ptt_excel(ptt_wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts)
 
                             # Set the first sheet as active if there are more than one sheet, and remove template sheet
@@ -235,7 +235,7 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
         'Thành tiền'
     ]]
 
-    # all_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df))
+    # invoice_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df))
 
     st.subheader(f"Số hóa đơn: {shdon}")
     st.text(f"Ngày-Tháng-Năm: {date}")
@@ -251,7 +251,7 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
     )
     
     st.text(f"Giảm giá: {ggia} đồng")
-    st.text(f"Tổng thành tiền: {'{:,}'.format(ts).replace(',', '.')}")
+    st.text(f"Tổng thành tiền: {'{:,}'.format(ts).replace(',', '.')} đồng")
     st.text(f"Tổng thành tiền chữ: {tbc}")
 
     return df
@@ -677,21 +677,20 @@ def main():
 
     with tab3:
         if xml_files:
-            all_data = []
-            for uploaded_file in xml_files:
-                
-                shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data= pxk_data_from_xml(uploaded_file)
-
-                with st.container(border=True): 
-                    df = display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data)
-                    all_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts ,ggia, df))
-
+            invoice_data = []
             if 'create_success' not in st.session_state:
                 st.session_state['create_success'] = False
             if 'download_success' not in st.session_state:
                 st.session_state['download_success'] = False
             if 'download_success_ptt' not in st.session_state:
                 st.session_state['download_success_ptt'] = False
+            for uploaded_file in xml_files:
+                shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data= pxk_data_from_xml(uploaded_file)
+                invoice_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts ,ggia, df))
+
+                with st.container(border=True): 
+                    df = display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data)
+                    
 
             with st.sidebar:
                 download_success_handler('download_success', 'Đang tải phiếu xuất kho ...')
@@ -701,9 +700,7 @@ def main():
                     if st.button('Tạo phiếu xuất kho và thu tiền', type='primary', key='btn', on_click=create):
                         pass
                 else:
-                    pxk_buffer, ptt_buffer = create_pxk(all_data)
-                    st.success("Tạo phiếu xuất kho và thu tiền thành công")
-                    
+                    pxk_buffer, ptt_buffer = create_pxk(invoice_data)                    
                     # PXK download button
                     create_download_button(
                         label="Tải phiếu xuất kho",
