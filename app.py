@@ -150,7 +150,7 @@ def create_download_button(label, buffer, file_name, key):
     )
 
 @st.cache_data
-async def pxk_data_from_xml(file):
+def pxk_data_from_xml(file):
     data=[]
     ggia = 0
     tree = ET.parse(file)
@@ -669,7 +669,7 @@ async def main():
         if xml_files:
             invoice_data = []
             for uploaded_file in xml_files:
-                shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data= await pxk_data_from_xml(uploaded_file)
+                shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data= pxk_data_from_xml(uploaded_file)
 
                 with st.container(border=True): 
                     df = display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data)
