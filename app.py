@@ -323,7 +323,7 @@ def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
     ws['D12'] = shdon
 
 ### TAB 1 FUNCTIONS
-async def extract_number_vnpt(string):
+def extract_number_vnpt(string):
     # Find the position of the last underscore and the '.zip' extension
     last_underscore_pos = string.rfind('_')
     dot_zip_pos = string.find('.zip')
@@ -332,7 +332,7 @@ async def extract_number_vnpt(string):
     number = string[last_underscore_pos + 1:dot_zip_pos]
     return number
 
-async def extract_zipfile(zip_file, extract_to):
+def extract_zipfile(zip_file, extract_to):
     extracted_files = []
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
         for file in zip_ref.namelist():
@@ -494,7 +494,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 driver.quit()
             
 ### TAB 2 FUNCTIONS
-async def extract_number_viettel(string):
+def extract_number_viettel(string):
     match = re.search(r'TAV(\d+)', string)
     if match:
         return match.group(1)
