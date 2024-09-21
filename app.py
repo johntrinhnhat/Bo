@@ -251,7 +251,7 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
     )
     
     st.text(f"Giảm giá: {ggia} đồng")
-    st.text(f"Tổng thành tiền: {float(ts)}")
+    st.text(f"Tổng thành tiền: {"{:,}".format(ts)}")
     st.text(f"Tổng thành tiền chữ: {tbc}")
 
     return df
