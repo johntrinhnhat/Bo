@@ -172,39 +172,36 @@ def pxk_data_from_xml(file):
     return  shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data
 
 def create_pxk(invoice_data):
-    with st.spinner("Đang tạo phiếu ..."):  # Display loading spinner during process
-        time.sleep(0.5)  # Simulate processing delay
+    pxk_file_path = 'pxk.xlsx'  # Path to PXK Excel file
+    ptt_file_path = 'ptt.xlsx'  # Path to PTT Excel file
 
-        pxk_file_path = 'pxk.xlsx'  # Path to PXK Excel file
-        ptt_file_path = 'ptt.xlsx'  # Path to PTT Excel file
+    pxk_wb = load_workbook(pxk_file_path)  # Load PXK Excel workbook
+    ptt_wb = load_workbook(ptt_file_path)  # Load PTT Excel workbook
 
-        pxk_wb = load_workbook(pxk_file_path)  # Load PXK Excel workbook
-        ptt_wb = load_workbook(ptt_file_path)  # Load PTT Excel workbook
+    # Populate PXK workbook with data from invoice_data
+    for shdon, nmua, _, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in invoice_data:
+        pxk_excel(pxk_wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df)
 
-        # Populate PXK workbook with data from invoice_data
-        for shdon, nmua, _, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in invoice_data:
-            pxk_excel(pxk_wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df)
+    # Populate PTT workbook with data from invoice_data
+    for shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in invoice_data:    
+        ptt_excel(ptt_wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts)
 
-        # Populate PTT workbook with data from invoice_data
-        for shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in invoice_data:    
-            ptt_excel(ptt_wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts)
+    # Set the first sheet as active if there are more than one sheet, and remove template sheet
+    if len(pxk_wb.sheetnames) > 1 and len(ptt_wb.sheetnames) > 1:
+        pxk_wb.active = 1  # Set second sheet as active in PXK workbook
+        ptt_wb.active = 1  # Set second sheet as active in PTT workbook
+        pxk_wb.remove(pxk_wb['Template'])  # Remove 'Template' sheet from PXK workbook
+        ptt_wb.remove(ptt_wb['Template'])  # Remove 'Template' sheet from PTT workbook
 
-        # Set the first sheet as active if there are more than one sheet, and remove template sheet
-        if len(pxk_wb.sheetnames) > 1 and len(ptt_wb.sheetnames) > 1:
-            pxk_wb.active = 1  # Set second sheet as active in PXK workbook
-            ptt_wb.active = 1  # Set second sheet as active in PTT workbook
-            pxk_wb.remove(pxk_wb['Template'])  # Remove 'Template' sheet from PXK workbook
-            ptt_wb.remove(ptt_wb['Template'])  # Remove 'Template' sheet from PTT workbook
+    # Save PXK workbook to a buffer in memory
+    pxk_buffer = BytesIO()
+    pxk_wb.save(pxk_buffer)
+    pxk_buffer.seek(0)  # Move buffer cursor to the beginning
 
-        # Save PXK workbook to a buffer in memory
-        pxk_buffer = BytesIO()
-        pxk_wb.save(pxk_buffer)
-        pxk_buffer.seek(0)  # Move buffer cursor to the beginning
-
-        # Save PTT workbook to a buffer in memory
-        ptt_buffer = BytesIO()
-        ptt_wb.save(ptt_buffer)
-        ptt_buffer.seek(0)  # Move buffer cursor to the beginning
+    # Save PTT workbook to a buffer in memory
+    ptt_buffer = BytesIO()
+    ptt_wb.save(ptt_buffer)
+    ptt_buffer.seek(0)  # Move buffer cursor to the beginning
 
     return pxk_buffer, ptt_buffer
 
