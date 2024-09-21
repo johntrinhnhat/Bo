@@ -680,7 +680,7 @@ async def main():
                 download_success_handler('download_success', 'Đang tải phiếu xuất kho ...')
                 download_success_handler('download_success_ptt', 'Đang tải phiếu thu tiền ...')
 
-                if not st.session_state['create_success'] == False:
+                if not st.session_state['create_success']:
                     if st.button('Tạo phiếu xuất kho và thu tiền', type='primary', key='btn', on_click=create):
                         pass
                 else:
