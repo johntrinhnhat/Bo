@@ -69,7 +69,7 @@ async def selenium_web_driver(temp_folder):
     
     return driver, action, wait
 
-def wait_for_download(temp_folder, timeout=30):
+async def wait_for_download(temp_folder, timeout=30):
     '''Wait for a file to be downloaded to the download path'''
     start_time = time.time()
     while time.time() - start_time < timeout:
@@ -85,7 +85,7 @@ def wait_for_download(temp_folder, timeout=30):
 
     return None
 
-def stream_data(data):
+async def stream_data(data):
     for word in data.split(" "):
         yield word + " "
         time.sleep(0.03)
@@ -293,14 +293,6 @@ def pxk_excel(wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df):
             ws.cell(row=i, column=start_column + 4, value=row_data[4])  # Đơn giá
             ws.cell(row=i, column=start_column + 5, value=row_data[5])  # Thành tiền
 def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
-
-# def display_ptt(shdon, nmua, date, tbc, ts):
-#     st.subheader(f"Số hóa đơn: {shdon}")
-#     st.text(f"Ngày-Tháng-Năm: {date}")
-#     st.text(f"Tên khách: {nmua}")
-#     st.text(f"Tổng tiền: {ts} đồng")
-#     st.text(f"Tổng iền bằng chữ: {tbc}")
-
     template_sheet = wb['Template']
     new_sheet_name = f"{shdon}"  
     wb.copy_worksheet(template_sheet).title = new_sheet_name
