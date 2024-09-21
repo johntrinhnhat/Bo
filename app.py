@@ -173,7 +173,7 @@ def pxk_data_from_xml(file):
 
 def create_pxk(invoice_data):
     with st.spinner("Đang tạo phiếu ..."):  # Display loading spinner during process
-        time.sleep(3)  # Simulate processing delay
+        time.sleep(1)  # Simulate processing delay
 
         pxk_file_path = 'pxk.xlsx'  # Path to PXK Excel file
         ptt_file_path = 'ptt.xlsx'  # Path to PTT Excel file
