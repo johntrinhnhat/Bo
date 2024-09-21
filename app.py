@@ -48,7 +48,7 @@ def enter_dates(wait, start_date, end_date, btn_path):
     date_btn[1].clear()
     date_btn[1].send_keys(end_date)
 
-def selenium_web_driver(temp_folder):
+async def selenium_web_driver(temp_folder):
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument('--no-sandbox')
@@ -418,7 +418,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
     with st.status("Đang tải XML tự động ...", expanded=True) as status:
         try:
             driver.get('https://hkd.vnpt.vn/account/login')
-
             wait.until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'form-horizontal'))
             )
@@ -631,7 +630,7 @@ def download_ptt():
     st.session_state['download_success_ptt'] = True
     
 ### MAIN FUNCTION
-def main():
+async def main():
     tab1, tab2, tab3= st.tabs(['VNPT', 'Viettel','Phiếu Xuất Kho'])
 
     tab1.title("VNPT")
@@ -655,7 +654,7 @@ def main():
         start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
-            driver, action, wait = selenium_web_driver(temp_folder)
+            driver, action, wait = await selenium_web_driver(temp_folder)
             handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
     with tab2:
@@ -666,7 +665,7 @@ def main():
         start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
         if st.button("Tải XML tự động", key="viettel"):    
             temp_folder = tempfile.mkdtemp()
-            driver, action, wait = selenium_web_driver(temp_folder)
+            driver, action, wait = await selenium_web_driver(temp_folder)
             handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)   
 
     with tab3:
@@ -714,4 +713,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
