@@ -684,13 +684,14 @@ def main():
                 st.session_state['download_success'] = False
             if 'download_success_ptt' not in st.session_state:
                 st.session_state['download_success_ptt'] = False
+
             for uploaded_file in xml_files:
                 shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data= pxk_data_from_xml(uploaded_file)
-                invoice_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts ,ggia, df))
 
                 with st.container(border=True): 
                     df = display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data)
                     
+                invoice_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts ,ggia, df))
 
             with st.sidebar:
                 download_success_handler('download_success', 'Đang tải phiếu xuất kho ...')
