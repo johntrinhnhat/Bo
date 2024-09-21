@@ -119,7 +119,7 @@ def convert_date_format(date_str):
     formatted_date = f"Ngày {date_obj.day:02} tháng {date_obj.month:02} năm {date_obj.year}"
     return formatted_date
 
-def show_progress_bar(message):
+async def show_progress_bar(message):
     """Function to display a progress bar and a success message."""
     progress_bar = st.progress(0, text=message)
     for percent_complete in range(100):
@@ -128,7 +128,7 @@ def show_progress_bar(message):
     time.sleep(1)
     return progress_bar
 
-def download_success_handler(success_key, message):
+async def download_success_handler(success_key, message):
     """Handles download success for PXK and PTT."""
     if st.session_state[success_key]:
         downloading_message = message
@@ -137,10 +137,10 @@ def download_success_handler(success_key, message):
         progress_bar.empty()
         st.session_state[success_key] = False
 
-def create_download_button(label, buffer, file_name, key):
+async def create_download_button(label, buffer, file_name, key):
     """Creates a download button with specified parameters."""
     st.download_button(
-        on_click=download,
+        on_click=await download,
         type="primary",
         label=label,
         data=buffer,
@@ -323,7 +323,7 @@ def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
     ws['D12'] = shdon
 
 ### TAB 1 FUNCTIONS
-def extract_number_vnpt(string):
+async def extract_number_vnpt(string):
     # Find the position of the last underscore and the '.zip' extension
     last_underscore_pos = string.rfind('_')
     dot_zip_pos = string.find('.zip')
@@ -332,7 +332,7 @@ def extract_number_vnpt(string):
     number = string[last_underscore_pos + 1:dot_zip_pos]
     return number
 
-def extract_zipfile(zip_file, extract_to):
+async def extract_zipfile(zip_file, extract_to):
     extracted_files = []
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
         for file in zip_ref.namelist():
@@ -494,7 +494,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 driver.quit()
             
 ### TAB 2 FUNCTIONS
-def extract_number_viettel(string):
+async def extract_number_viettel(string):
     match = re.search(r'TAV(\d+)', string)
     if match:
         return match.group(1)
@@ -612,13 +612,11 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                 driver.quit()  
     
 ### Streamlit State FUNCTIONS
-def create():
+async def create():
     st.session_state['create_success'] = True
-
-def download():
+async def download():
     st.session_state['download_success'] = True
-
-def download_ptt():
+async def download_ptt():
     st.session_state['download_success_ptt'] = True
     
 ### MAIN FUNCTION
