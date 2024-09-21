@@ -658,13 +658,6 @@ async def main():
             handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)   
 
     with tab1:
-        if 'create_success' not in st.session_state:
-                st.session_state['create_success'] = False
-        if 'download_success' not in st.session_state:
-            st.session_state['download_success'] = False
-        if 'download_success_ptt' not in st.session_state:
-            st.session_state['download_success_ptt'] = False
-
         if xml_files:
             invoice_data = []
             for uploaded_file in xml_files:
@@ -676,6 +669,13 @@ async def main():
                 invoice_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts ,ggia, df))
 
             with st.sidebar:
+                if 'create_success' not in st.session_state:
+                    st.session_state['create_success'] = False
+                if 'download_success' not in st.session_state:
+                    st.session_state['download_success'] = False
+                if 'download_success_ptt' not in st.session_state:
+                    st.session_state['download_success_ptt'] = False
+
                 download_success_handler('download_success', 'Đang tải phiếu xuất kho ...')
                 download_success_handler('download_success_ptt', 'Đang tải phiếu thu tiền ...')
 
