@@ -612,11 +612,11 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                 driver.quit()  
     
 ### Streamlit State FUNCTIONS
-async def create():
+def create():
     st.session_state['create_success'] = True
-async def download():
+def download():
     st.session_state['download_success'] = True
-async def download_ptt():
+def download_ptt():
     st.session_state['download_success_ptt'] = True
     
 ### MAIN FUNCTION
