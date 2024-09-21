@@ -119,7 +119,7 @@ async def convert_date_format(date_str):
     formatted_date = f"Ngày {date_obj.day:02} tháng {date_obj.month:02} năm {date_obj.year}"
     return formatted_date
 
-def show_progress_bar(message):
+async def show_progress_bar(message):
     """Function to display a progress bar and a success message."""
     progress_bar = st.progress(0, text=message)
     for percent_complete in range(100):
@@ -641,7 +641,7 @@ async def main():
             "Hộ kinh doanh:",
             ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
         )
-        start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
+        start_date, end_date = await set_date(key1='vnpt_start', key2='vnpt_end')
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
             driver, action, wait = await selenium_web_driver(temp_folder)
