@@ -623,9 +623,9 @@ def download_ptt():
 async def main():
     tab1, tab2, tab3= st.tabs(['Phiếu Xuất Kho','VNPT', 'Viettel'])
 
-    tab1.title("VNPT")
-    tab2.title("Viettel")
-    tab3.title("Phiếu Xuất Kho")
+    tab1.title("Phiếu Xuất Kho")
+    tab2.title("VNPT")
+    tab3.title("Viettel")
 
     with st.sidebar:
         xml_files = st.file_uploader("Nhập XML files", accept_multiple_files=True, type='xml')
