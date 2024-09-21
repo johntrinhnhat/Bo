@@ -1,4 +1,3 @@
-import streamlit.components.v1 as components
 import os
 import re
 import tempfile
@@ -9,7 +8,6 @@ import datetime
 import time
 import zipfile
 import tarfile
-from bs4 import BeautifulSoup
 from selenium.common.exceptions import TimeoutException 
 from io import BytesIO
 from openpyxl import load_workbook
@@ -20,7 +18,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException 
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
 
 ### SELENIUM FUNCTIONS
@@ -233,17 +230,15 @@ def pxk_excel(wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df):
             ws.cell(row=i, column=start_column + 3, value=row_data[3])  # Số lượng
             ws.cell(row=i, column=start_column + 4, value=row_data[4])  # Đơn giá
             ws.cell(row=i, column=start_column + 5, value=row_data[5])  # Thành tiền
-
-### TAB 2 FUNCTIONS
-@st.cache_data
-def display_ptt(shdon, nmua, date, tbc, ts):
-    st.subheader(f"Số hóa đơn: {shdon}")
-    st.text(f"Ngày-Tháng-Năm: {date}")
-    st.text(f"Tên khách: {nmua}")
-    st.text(f"Tổng tiền: {ts} đồng")
-    st.text(f"Tổng iền bằng chữ: {tbc}")
-
 def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
+
+# def display_ptt(shdon, nmua, date, tbc, ts):
+#     st.subheader(f"Số hóa đơn: {shdon}")
+#     st.text(f"Ngày-Tháng-Năm: {date}")
+#     st.text(f"Tên khách: {nmua}")
+#     st.text(f"Tổng tiền: {ts} đồng")
+#     st.text(f"Tổng iền bằng chữ: {tbc}")
+
     template_sheet = wb['Template']
     new_sheet_name = f"{shdon}"  
     wb.copy_worksheet(template_sheet).title = new_sheet_name
@@ -445,9 +440,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
         finally:
             if driver:
                 driver.quit()
-              
             
-
 ### TAB 4 FUNCTIONS
 def extract_number_viettel(string):
     match = re.search(r'TAV(\d+)', string)
@@ -578,7 +571,11 @@ def download_ptt():
     
 ### MAIN FUNCTION
 def main():
-     
+    tab1, tab2, tab3= st.tabs(['VNPT', 'Viettel','Phiếu XK-TT'])
+
+    tab1.title("VNPT")
+    tab2.title("Viettel")
+    tab3.title("Phiếu XK-TT")
 
     with st.sidebar:
         xml_files = st.file_uploader("Nhập XML files", accept_multiple_files=True, type='xml')
@@ -588,14 +585,31 @@ def main():
             st.success(f'Bạn đã tải thành công {len(xml_files)} tệp')
         st.divider()
             
-    tab1, tab2, tab3, tab4= st.tabs(['Phiếu xuất kho', 'Phiếu thu tiền', 'VNPT', 'Viettel'])
-
-    tab1.title("Phiếu xuất kho")
-    tab2.title("Phiếu thu tiền")
-    tab3.title("VNPT")
-    tab4.title("Viettel")
 
     with tab1:
+        
+        user = st.radio(
+            "Hộ kinh doanh:",
+            ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
+        )
+        start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
+        if st.button("Tải XML tự động", key="vnpt"):
+            temp_folder = tempfile.mkdtemp()
+            driver, action, wait = selenium_web_driver(temp_folder)
+            handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
+
+    with tab2:
+        user = st.radio(
+            "Hộ kinh doanh:",
+            ["An Vinh"]
+        )
+        start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
+        if st.button("Tải XML tự động", key="viettel"):    
+            temp_folder = tempfile.mkdtemp()
+            driver, action, wait = selenium_web_driver(temp_folder)
+            handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)   
+
+    with tab3:
         if xml_files:
             all_data = []
             for uploaded_file in xml_files:
@@ -605,11 +619,6 @@ def main():
                 with st.container(border=True): 
                     df = display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data)
                     all_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts ,ggia, df))
-                    
-                ## TAB 2
-                with tab2:
-                    with st.container(border=True):
-                        display_ptt(shdon, nmua, date, tbc, ts)
 
             print(len(all_data))
 
@@ -701,28 +710,6 @@ def main():
                             key="ptt"
                         )
     
-    with tab3:
-        
-        user = st.radio(
-            "Hộ kinh doanh:",
-            ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
-        )
-        start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
-        if st.button("Tải XML tự động", key="vnpt"):
-            temp_folder = tempfile.mkdtemp()
-            driver, action, wait = selenium_web_driver(temp_folder)
-            handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
-
-    with tab4:
-        user = st.radio(
-            "Hộ kinh doanh:",
-            ["An Vinh"]
-        )
-        start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
-        if st.button("Tải XML tự động", key="viettel"):    
-            temp_folder = tempfile.mkdtemp()
-            driver, action, wait = selenium_web_driver(temp_folder)
-            handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)     
 
 if __name__ == "__main__":
     main()
