@@ -1,3 +1,4 @@
+import asyncio
 import os
 import re
 import tempfile
@@ -109,7 +110,7 @@ def download_tar(temp_folder):
                         time.sleep(1)
                         st.success("Đã tải thư mục XML thành công")
 
-### TAB 1 FUNCTIONS
+### TAB 3 FUNCTIONS
 def convert_date_format(date_str):
     # Parse the date string
     date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
@@ -117,6 +118,36 @@ def convert_date_format(date_str):
     # Format the date in the desired format
     formatted_date = f"Ngày {date_obj.day:02} tháng {date_obj.month:02} năm {date_obj.year}"
     return formatted_date
+
+def show_progress_bar(message):
+    """Function to display a progress bar and a success message."""
+    progress_bar = st.progress(0, text=message)
+    for percent_complete in range(100):
+        time.sleep(0.01)
+        progress_bar.progress(percent_complete + 1, text=message)
+    time.sleep(1)
+    return progress_bar
+
+def download_success_handler(success_key, message):
+    """Handles download success for PXK and PTT."""
+    if st.session_state[success_key]:
+        downloading_message = message
+        progress_bar = show_progress_bar(downloading_message)
+        st.success(f"{message.split(' ')[1]} thành công")
+        progress_bar.empty()
+        st.session_state[success_key] = False
+
+def create_download_button(label, buffer, file_name, key):
+    """Creates a download button with specified parameters."""
+    st.download_button(
+        on_click=download,
+        type="primary",
+        label=label,
+        data=buffer,
+        file_name=file_name,
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        key=key
+    )
 
 @st.cache_data
 def pxk_data_from_xml(file):
@@ -148,6 +179,42 @@ def pxk_data_from_xml(file):
             data.append([stt, thhdv, dvtinh, sluong, dgia, thtien, shdon])
 
     return  shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data
+
+def create_pxk(all_data):
+                        with st.spinner("Đang tạo phiếu ..."):  # Display loading spinner during process
+                            time.sleep(3)  # Simulate processing delay
+
+                            pxk_file_path = 'pxk.xlsx'  # Path to PXK Excel file
+                            ptt_file_path = 'ptt.xlsx'  # Path to PTT Excel file
+
+                            pxk_wb = load_workbook(pxk_file_path)  # Load PXK Excel workbook
+                            ptt_wb = load_workbook(ptt_file_path)  # Load PTT Excel workbook
+
+                            # Populate PXK workbook with data from all_data
+                            for shdon, nmua, _, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in all_data:
+                                pxk_excel(pxk_wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df)
+
+                            # Populate PTT workbook with data from all_data
+                            for shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in all_data:    
+                                ptt_excel(ptt_wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts)
+
+                            # Set the first sheet as active if there are more than one sheet, and remove template sheet
+                            if len(pxk_wb.sheetnames) > 1 and len(ptt_wb.sheetnames) > 1:
+                                pxk_wb.active = 1  # Set second sheet as active in PXK workbook
+                                ptt_wb.active = 1  # Set second sheet as active in PTT workbook
+                                pxk_wb.remove(pxk_wb['Template'])  # Remove 'Template' sheet from PXK workbook
+                                ptt_wb.remove(ptt_wb['Template'])  # Remove 'Template' sheet from PTT workbook
+
+                            # Save PXK workbook to a buffer in memory
+                            pxk_buffer = BytesIO()
+                            pxk_wb.save(pxk_buffer)
+                            pxk_buffer.seek(0)  # Move buffer cursor to the beginning
+
+                            # Save PTT workbook to a buffer in memory
+                            ptt_buffer = BytesIO()
+                            ptt_wb.save(ptt_buffer)
+                            ptt_buffer.seek(0)  # Move buffer cursor to the beginning
+                        return pxk_buffer, ptt_buffer
 
 def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data):
     columns = ['STT', 'Tên hàng hóa, dịch vụ', 'Đơn vị tính', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Số hóa đơn']
@@ -268,7 +335,7 @@ def ptt_excel(wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts):
     ws['D6'] = nmua
     ws['D12'] = shdon
 
-### TAB 3 FUNCTIONS
+### TAB 1 FUNCTIONS
 def extract_number_vnpt(string):
     # Find the position of the last underscore and the '.zip' extension
     last_underscore_pos = string.rfind('_')
@@ -310,7 +377,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             #     EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
 
             if download_button:
-                st.write("found download button")
                 driver.execute_script("arguments[0].click();", download_button)
                 time.sleep(3)
                 downloaded_file = wait_for_download(temp_folder)
@@ -441,7 +507,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             if driver:
                 driver.quit()
             
-### TAB 4 FUNCTIONS
+### TAB 2 FUNCTIONS
 def extract_number_viettel(string):
     match = re.search(r'TAV(\d+)', string)
     if match:
@@ -586,8 +652,7 @@ def main():
         st.divider()
             
 
-    with tab1:
-        
+    with tab1:   
         user = st.radio(
             "Hộ kinh doanh:",
             ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
@@ -628,86 +693,32 @@ def main():
                 st.session_state['download_success_ptt'] = False
 
             with st.sidebar:
-                if st.session_state['download_success']:
-                    downloading_message = 'Đang tải phiếu xuất kho ...'
-                    progress_bar = st.progress(0, text=downloading_message)
-                    for percent_complete in range(100):
-                        time.sleep(0.01)
-                        progress_bar.progress(percent_complete + 1, text=downloading_message)
-                    time.sleep(1)
-                    st.success("Đã tải phiếu xuất kho thành công")
-                    progress_bar.empty()
-                    st.session_state['download_success'] = False
-                    
-                if st.session_state['download_success_ptt']:
-                    downloading_message = 'Đang tải phiếu thu tiền ...'
-                    progress_bar = st.progress(0, text=downloading_message)
-                    for percent_complete in range(100):
-                        time.sleep(0.01)
-                        progress_bar.progress(percent_complete + 1, text=downloading_message)
-                    time.sleep(1)
-                    st.success("Đã tải phiếu thu tiền thành công")
-                    progress_bar.empty()
-                    st.session_state['download_success_ptt'] = False
+                download_success_handler('download_success', 'Đang tải phiếu xuất kho ...')
+                download_success_handler('download_success_ptt', 'Đang tải phiếu thu tiền ...')
 
-                if not st.session_state['create_success']:
+                if not st.session_state.get('create_success', False):
                     if st.button('Tạo phiếu xuất kho và thu tiền', type='primary', key='btn', on_click=create):
                         pass
                 else:
-                    with st.spinner("Đang tạo phiếu ..."):
-                        time.sleep(3)
-
-                        pxk_file_path = 'pxk.xlsx'
-                        ptt_file_path = 'ptt.xlsx'
-
-                        pxk_wb = load_workbook(pxk_file_path)
-                        ptt_wb = load_workbook(ptt_file_path)
-
-                        for shdon, nmua, _ , nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in all_data:
-                            pxk_excel(pxk_wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df)
-
-                        for shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in all_data:    
-                            ptt_excel(ptt_wb, shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts)
-
-                        if len(pxk_wb.sheetnames) > 1 and len(ptt_wb.sheetnames) > 1:
-                            pxk_wb.active = 1  
-                            ptt_wb.active = 1  
-                            # Remove the template sheet
-                            pxk_wb.remove(pxk_wb['Template'])
-                            ptt_wb.remove(ptt_wb['Template'])
+                    pxk_buffer, ptt_buffer = create_pxk(all_data)
+                    st.success("Tạo phiếu xuất kho và thu tiền thành công")
                     
-                        # Save the workbook to a bytes buffer
-                        pxk_buffer = BytesIO()
-                        pxk_wb.save(pxk_buffer)
-                        pxk_buffer.seek(0)
+                    # PXK download button
+                    create_download_button(
+                        label="Tải phiếu xuất kho",
+                        buffer=pxk_buffer,
+                        file_name="PHIEU XUAT KHO.xlsx",
+                        key="pxk"
+                    )
 
-                        # Save the workbook to a bytes buffer
-                        ptt_buffer = BytesIO()
-                        ptt_wb.save(ptt_buffer)
-                        ptt_buffer.seek(0)
+                    # PTT download button
+                    create_download_button(
+                        label="Tải phiếu thu tiền",
+                        buffer=ptt_buffer,
+                        file_name="PHIEU THU TIEN.xlsx",
+                        key="ptt"
+                    )
 
-                        st.success("Tạo phiếu xuất kho và thu tiền thành công")
-            
-                        st.download_button(
-                            on_click=download,
-                            type="primary",
-                            label="Tải phiếu xuất kho",
-                            data=pxk_buffer,
-                            file_name="PHIEU XUAT KHO QUY ( TI - EM ).xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            key="pxk"
-                        )
-
-                        st.download_button(
-                            on_click=download_ptt,
-                            type="primary",
-                            label="Tải phiếu thu tiền",
-                            data=ptt_buffer,
-                            file_name="PHIEU THU TIEN QUY ( TI-EM ).xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            key="ptt"
-                        )
-    
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
