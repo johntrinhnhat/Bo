@@ -571,11 +571,11 @@ def download_ptt():
     
 ### MAIN FUNCTION
 def main():
-    tab1, tab2, tab3= st.tabs(['VNPT', 'Viettel','Phiếu XK-TT'])
+    tab1, tab2, tab3= st.tabs(['VNPT', 'Viettel','Phiếu Xuất Kho'])
 
     tab1.title("VNPT")
     tab2.title("Viettel")
-    tab3.title("Phiếu XK-TT")
+    tab3.title("Phiếu Xuất Kho")
 
     with st.sidebar:
         xml_files = st.file_uploader("Nhập XML files", accept_multiple_files=True, type='xml')
@@ -620,8 +620,6 @@ def main():
                     df = display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data)
                     all_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts ,ggia, df))
 
-            print(len(all_data))
-
             if 'create_success' not in st.session_state:
                 st.session_state['create_success'] = False
             if 'download_success' not in st.session_state:
@@ -657,8 +655,7 @@ def main():
                         pass
                 else:
                     with st.spinner("Đang tạo phiếu ..."):
-                        time.sleep(1.5)
-                        st.success("Tạo phiếu xuất kho và thu tiền thành công")
+                        time.sleep(3)
 
                         pxk_file_path = 'pxk.xlsx'
                         ptt_file_path = 'ptt.xlsx'
@@ -689,6 +686,7 @@ def main():
                         ptt_wb.save(ptt_buffer)
                         ptt_buffer.seek(0)
 
+                        st.success("Tạo phiếu xuất kho và thu tiền thành công")
             
                         st.download_button(
                             on_click=download,
