@@ -137,7 +137,7 @@ def download_success_handler(success_key, message):
         progress_bar.empty()
         st.session_state[success_key] = False
 
-def create_download_button(label, buffer, file_name, key):
+def create_download_button(label, buffer, file_name, key, download):
     """Creates a download button with specified parameters."""
     st.download_button(
         on_click=download,
@@ -690,7 +690,8 @@ async def main():
                         label="Tải phiếu xuất kho",
                         buffer=pxk_buffer,
                         file_name="PHIEU XUAT KHO.xlsx",
-                        key="pxk"
+                        key="pxk",
+                        download=download
                     )
 
                     # PTT download button
@@ -698,7 +699,8 @@ async def main():
                         label="Tải phiếu thu tiền",
                         buffer=ptt_buffer,
                         file_name="PHIEU THU TIEN.xlsx",
-                        key="ptt"
+                        key="ptt",
+                        download=download_ptt
                     )
 
 
