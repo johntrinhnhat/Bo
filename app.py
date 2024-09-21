@@ -69,7 +69,7 @@ async def selenium_web_driver(temp_folder):
     
     return driver, action, wait
 
-async def wait_for_download(temp_folder, timeout=30):
+def wait_for_download(temp_folder, timeout=30):
     '''Wait for a file to be downloaded to the download path'''
     start_time = time.time()
     while time.time() - start_time < timeout:
@@ -119,7 +119,7 @@ def convert_date_format(date_str):
     formatted_date = f"Ngày {date_obj.day:02} tháng {date_obj.month:02} năm {date_obj.year}"
     return formatted_date
 
-async def show_progress_bar(message):
+def show_progress_bar(message):
     """Function to display a progress bar and a success message."""
     progress_bar = st.progress(0, text=message)
     for percent_complete in range(100):
@@ -128,7 +128,7 @@ async def show_progress_bar(message):
     time.sleep(1)
     return progress_bar
 
-async def download_success_handler(success_key, message):
+def download_success_handler(success_key, message):
     """Handles download success for PXK and PTT."""
     if st.session_state[success_key]:
         downloading_message = message
@@ -137,10 +137,10 @@ async def download_success_handler(success_key, message):
         progress_bar.empty()
         st.session_state[success_key] = False
 
-async def create_download_button(label, buffer, file_name, key):
+def create_download_button(label, buffer, file_name, key):
     """Creates a download button with specified parameters."""
     st.download_button(
-        on_click=await download,
+        on_click=download,
         type="primary",
         label=label,
         data=buffer,
