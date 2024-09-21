@@ -621,7 +621,7 @@ def download_ptt():
     
 ### MAIN FUNCTION
 async def main():
-    tab1, tab2, tab3= st.tabs(['VNPT', 'Viettel','Phiếu Xuất Kho'])
+    tab1, tab2, tab3= st.tabs(['Phiếu Xuất Kho','VNPT', 'Viettel'])
 
     tab1.title("VNPT")
     tab2.title("Viettel")
@@ -634,9 +634,8 @@ async def main():
         else:
             st.success(f'Bạn đã tải thành công {len(xml_files)} tệp')
         st.divider()
-            
-
-    with tab1:   
+        
+    with tab2:   
         user = st.radio(
             "Hộ kinh doanh:",
             ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
@@ -647,7 +646,7 @@ async def main():
             driver, action, wait = await selenium_web_driver(temp_folder)
             handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
-    with tab2:
+    with tab3:
         user = st.radio(
             "Hộ kinh doanh:",
             ["An Vinh"]
@@ -658,7 +657,7 @@ async def main():
             driver, action, wait = await selenium_web_driver(temp_folder)
             handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)   
 
-    with tab3:
+    with tab1:
         if 'create_success' not in st.session_state:
                 st.session_state['create_success'] = False
         if 'download_success' not in st.session_state:
