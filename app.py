@@ -48,7 +48,7 @@ def enter_dates(wait, start_date, end_date, btn_path):
     date_btn[1].clear()
     date_btn[1].send_keys(end_date)
 
-async def selenium_web_driver(temp_folder):
+def selenium_web_driver(temp_folder):
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument('--no-sandbox')
@@ -644,7 +644,7 @@ async def main():
         start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
-            driver, action, wait = await selenium_web_driver(temp_folder)
+            driver, action, wait = selenium_web_driver(temp_folder)
             handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
     with tab2:
@@ -655,7 +655,7 @@ async def main():
         start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
         if st.button("Tải XML tự động", key="viettel"):    
             temp_folder = tempfile.mkdtemp()
-            driver, action, wait = await selenium_web_driver(temp_folder)
+            driver, action, wait = selenium_web_driver(temp_folder)
             handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)   
 
     with tab3:
