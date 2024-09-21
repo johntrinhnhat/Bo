@@ -180,15 +180,15 @@ def pxk_data_from_xml(file):
 
     return  shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data
 
-def create_pxk(invoice_data):
+async def create_pxk(invoice_data):
                         with st.spinner("Đang tạo phiếu ..."):  # Display loading spinner during process
                             time.sleep(3)  # Simulate processing delay
 
                             pxk_file_path = 'pxk.xlsx'  # Path to PXK Excel file
                             ptt_file_path = 'ptt.xlsx'  # Path to PTT Excel file
 
-                            pxk_wb = load_workbook(pxk_file_path)  # Load PXK Excel workbook
-                            ptt_wb = load_workbook(ptt_file_path)  # Load PTT Excel workbook
+                            pxk_wb = await load_workbook(pxk_file_path)  # Load PXK Excel workbook
+                            ptt_wb = await load_workbook(ptt_file_path)  # Load PTT Excel workbook
 
                             # Populate PXK workbook with data from invoice_data
                             for shdon, nmua, _, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df in invoice_data:
@@ -694,7 +694,7 @@ async def main():
                     if st.button('Tạo phiếu xuất kho và thu tiền', type='primary', key='btn', on_click=create):
                         pass
                 else:
-                    pxk_buffer, ptt_buffer = create_pxk(invoice_data)                    
+                    pxk_buffer, ptt_buffer = await create_pxk(invoice_data)                    
                     # PXK download button
                     create_download_button(
                         label="Tải phiếu xuất kho",
