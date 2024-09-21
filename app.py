@@ -225,7 +225,6 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
     df = df[df['Thành tiền'] != 0]
     df.loc[:, 'Tên hàng hóa, dịch vụ'] = df['Tên hàng hóa, dịch vụ'].str.capitalize()
     df.loc[:, 'Đơn vị tính'] = df['Đơn vị tính'].str.capitalize()
-
     df = df[[
         'STT', 
         'Tên hàng hóa, dịch vụ', 
@@ -235,12 +234,9 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
         'Thành tiền'
     ]]
 
-    # invoice_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, df))
-
     st.subheader(f"Số hóa đơn: {shdon}")
     st.text(f"Ngày-Tháng-Năm: {date}")
     st.text(f"Tên khách: {nmua}")
-
 
     st.dataframe(
         df.style.format({
@@ -249,11 +245,9 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
         'Thành tiền': lambda x: f"{x:,.0f}".replace(',', '.')}),
         width=800
     )
-    
-    st.text(f"Giảm giá: {ggia} đồng")
+    st.text(f"Giảm giá: {'{:,}'.format(ggia).replace(',', '.')} đồng")
     st.text(f"Tổng thành tiền: {'{:,}'.format(ts).replace(',', '.')} đồng")
     st.text(f"Tổng thành tiền chữ: {tbc}")
-
     return df
 
 def pxk_excel(wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df):
