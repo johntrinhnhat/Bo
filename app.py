@@ -357,6 +357,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 downloaded_file = wait_for_download(temp_folder)
 
                 if downloaded_file:
+                    st.write(downloaded_file)
                     shd = extract_number_vnpt(os.path.basename(downloaded_file))
                     extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
