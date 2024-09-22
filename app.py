@@ -333,7 +333,7 @@ def extract_zipfile(zip_file, extract_to):
 
 def download_icon_vnpt(driver, action, wait, temp_folder):
     placeholder=st.empty()
-    xml_files = []
+    xml_files = set()
     try:
         icons = wait.until(
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
@@ -341,7 +341,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
         icons = icons[:len(icons)//2]  
         time.sleep(3)
 
-        seen_files = set()
         for icon in icons:
             # Move to the icon and click to open details
             action.move_to_element(icon).perform()
@@ -365,14 +364,8 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
 
                     for file in extracted_files:
                         xml_file = shd + file[file.index('.xml'):]
-                        file_path = os.path.join(temp_folder, file)
-
-                        if xml_file in seen_files:
-                            os.remove(file_path)
-                        else:
-                            seen_files.add(xml_file)
-                            xml_files.append((xml_file, file))
-                            os.rename(file_path, os.path.join(temp_folder, xml_file))
+                        xml_files.add((xml_file, file))
+                        os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
             
 
             close_button = wait.until(
@@ -438,14 +431,14 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
 
             # next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
             
-            final_xml_files = []
+            final_xml_files = set()
             page_index = 0
 
             while page_index < len(all_pages):
                 try:
                     xml_files = download_icon_vnpt(driver, action, wait, temp_folder)
                     if xml_files:
-                        final_xml_files.extend(xml_files)
+                        final_xml_files.update(xml_files)
 
                         # next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
                         # st.write(next_btn)
