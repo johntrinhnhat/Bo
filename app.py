@@ -488,7 +488,7 @@ def extract_number_viettel(string):
 
 def download_icon_viettel(driver, action, wait, temp_folder):
     placeholder= st.empty()
-    xml_files = {}
+    xml_files = set()
     try:
         icons = wait.until(
             EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
@@ -562,13 +562,13 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
             
-            final_xml_files = []
+            final_xml_files = set()
             page_index = 0
             while page_index < len(all_pages):
                 try:
                     xml_files = download_icon_viettel(driver, action, wait, temp_folder)
                     if xml_files:
-                        final_xml_files.append(xml_files)
+                        final_xml_files.update(xml_files)
                     next_button = wait.until(
                         EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
                     )
@@ -583,7 +583,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     return None
 
             if final_xml_files:
-                final_xml_files = list(final_xml_files[0])
+                final_xml_files = list(final_xml_files)
                 st.success(f"Tổng số hóa đơn: {len(final_xml_files)}")
                 status.update(label="Tải thành công !!!", expanded=True)
                 download_tar(temp_folder)
