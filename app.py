@@ -357,16 +357,18 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
                 downloaded_file = wait_for_download(temp_folder)
 
                 if downloaded_file:
-                    st.write(downloaded_file)
-                    shd = extract_number_vnpt(os.path.basename(downloaded_file))
-                    extracted_files = extract_zipfile(downloaded_file, temp_folder)
+                    file_name = os.path.basename(downloaded_file)
 
-                    placeholder.write_stream(stream_data(f"Đang tải hóa đơn số {shd} ..."))
+                    if file_name not in xml_files:
+                        shd = extract_number_vnpt(os.path.basename(file_name))
+                        extracted_files = extract_zipfile(downloaded_file, temp_folder)
 
-                    for file in extracted_files:
-                        xml_file = shd + file[file.index('.xml'):]
-                        xml_files.add((xml_file, file))
-                        os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
+                        placeholder.write_stream(stream_data(f"Đang tải hóa đơn số {shd} ..."))
+
+                        for file in extracted_files:
+                            xml_file = shd + file[file.index('.xml'):]
+                            xml_files.add(file_name)
+                            os.rename(os.path.join(temp_folder, file), os.path.join(temp_folder, xml_file))
             
 
             close_button = wait.until(
