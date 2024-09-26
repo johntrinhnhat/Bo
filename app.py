@@ -552,12 +552,13 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
 
             enter_dates(wait, start_date, end_date, btn_path="//input[@formcontrolname='datePicker']")
 
-            # search_btn = wait.until(
-            #     EC.presence_of_element_located((By.XPATH, "//button[span[text()='Tìm kiếm']]"))
-            # )
-            search_btn = driver.find_element(By.XPATH, "//button[span[text()='Tìm kiếm']]")
+            search_btn = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//button[span[text()='Tìm kiếm']]"))
+            )
+            # search_btn = driver.find_element(By.XPATH, "//button[span[text()='Tìm kiếm']]")
             st.write(search_btn)
-            search_btn.click()
+            driver.execute_script("arguments[0].click();", search_btn)
+            # search_btn.click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
             all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
