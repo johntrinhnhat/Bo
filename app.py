@@ -487,7 +487,7 @@ def extract_number_viettel(string):
 
 def download_icon_viettel(driver, action, wait, temp_folder):
     placeholder= st.empty()
-    xml_files = set()
+    xml_files = []
     try:
         icons = wait.until(
             EC.presence_of_all_elements_located((By.XPATH, "//button[i[contains(@class, 'fa-info icon-info')]]"))
@@ -508,7 +508,7 @@ def download_icon_viettel(driver, action, wait, temp_folder):
                 shd = extract_number_viettel(os.path.basename(downloaded_file))
                 placeholder.write_stream(stream_data(f"Đang tải hóa đơn số {shd} ..."))
                 xml_file = shd + downloaded_file[downloaded_file.index('.xml'):]
-                xml_files.add(xml_file)
+                xml_files.append(xml_file)
                 os.rename(os.path.join(temp_folder, downloaded_file), os.path.join(temp_folder, xml_file))
 
             close_button = invoice_form.find_element(By.XPATH, "//button[@class='close']")
@@ -562,13 +562,13 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
             
-            final_xml_files = set()
+            final_xml_files = []
             page_index = 0
             while page_index < len(all_pages):
                 try:
                     xml_files = download_icon_viettel(driver, action, wait, temp_folder)
                     if xml_files:
-                        final_xml_files.update(xml_files)
+                        final_xml_files.extend(xml_files)
                     # next_button = wait.until(
                     #     EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
                     # )
