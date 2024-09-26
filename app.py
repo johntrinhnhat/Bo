@@ -556,9 +556,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                 EC.presence_of_element_located((By.XPATH, "//button[span[text()='Tìm kiếm']]"))
             )
             # search_btn = driver.find_element(By.XPATH, "//button[span[text()='Tìm kiếm']]")
-            st.write(search_btn)
             driver.execute_script("arguments[0].click();", search_btn)
-            # search_btn.click()
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
             all_pages = driver.find_elements(By.XPATH, "//a[@class='page-link ng-star-inserted']")
@@ -578,8 +576,8 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     driver.execute_script("arguments[0].click();", next_button)
                     page_index += 1  
                     time.sleep(2)  
-                except TimeoutException:
-                    break  
+                # except TimeoutException:
+                #     break  
                 except Exception as e:
                     st.write(f"Lỗi tải: {e}")
                     return None
