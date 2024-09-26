@@ -1,4 +1,3 @@
-import asyncio
 import os
 import re
 import tempfile
@@ -22,7 +21,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 ### SELENIUM FUNCTIONS
-async def set_date(key1, key2):
+def set_date(key1, key2):
             date_start, date_end = st.columns(2)
             with date_start:
                 start_date = st.date_input(
@@ -48,7 +47,7 @@ def enter_dates(wait, start_date, end_date, btn_path):
     date_btn[1].clear()
     date_btn[1].send_keys(end_date)
 
-async def selenium_web_driver(temp_folder):
+def selenium_web_driver(temp_folder):
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument('--no-sandbox')
@@ -119,7 +118,7 @@ def convert_date_format(date_str):
     formatted_date = f"Ngày {date_obj.day:02} tháng {date_obj.month:02} năm {date_obj.year}"
     return formatted_date
 
-async def show_progress_bar(message):
+def show_progress_bar(message):
     """Function to display a progress bar and a success message."""
     progress_bar = st.progress(0, text=message)
     for percent_complete in range(100):
@@ -606,7 +605,7 @@ def download_ptt():
     st.session_state['download_success_ptt'] = True
     
 ### MAIN FUNCTION
-async def main():
+def main():
     tab1, tab2, tab3= st.tabs(['Phiếu Xuất Kho','VNPT', 'Viettel'])
 
     tab1.title("Phiếu Xuất Kho")
@@ -626,10 +625,10 @@ async def main():
             "Hộ kinh doanh:",
             ["Trần Minh Đạt", "Nguyễn Thị Thanh Thúy"]
         )
-        start_date, end_date = await set_date(key1='vnpt_start', key2='vnpt_end')
+        start_date, end_date = set_date(key1='vnpt_start', key2='vnpt_end')
         if st.button("Tải XML tự động", key="vnpt"):
             temp_folder = tempfile.mkdtemp()
-            driver, action, wait = await selenium_web_driver(temp_folder)
+            driver, action, wait = selenium_web_driver(temp_folder)
             handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_folder)
 
     with tab3:
@@ -637,10 +636,10 @@ async def main():
             "Hộ kinh doanh:",
             ["An Vinh"]
         )
-        start_date, end_date= await set_date(key1='viettel_start', key2='viettel_end')
+        start_date, end_date= set_date(key1='viettel_start', key2='viettel_end')
         if st.button("Tải XML tự động", key="viettel"):    
             temp_folder = tempfile.mkdtemp()
-            driver, action, wait = await selenium_web_driver(temp_folder)
+            driver, action, wait = selenium_web_driver(temp_folder)
             handle_viettel_download(driver, action, wait, user, start_date, end_date, temp_folder)   
 
     with tab1:
@@ -666,14 +665,14 @@ async def main():
                 with st.sidebar:
                     if st.session_state['download_success']:
                         downloading_message = 'Đang tải phiếu xuất kho ...'
-                        progress_bar = await show_progress_bar(downloading_message)
+                        progress_bar = show_progress_bar(downloading_message)
                         st.success("Đã tải phiếu xuất kho thành công")
                         progress_bar.empty()
                         st.session_state['download_success'] = False
                         
                     if st.session_state['download_success_ptt']:
                         downloading_message = 'Đang tải phiếu thu tiền ...'
-                        progress_bar = await show_progress_bar(downloading_message)
+                        progress_bar = show_progress_bar(downloading_message)
                         st.success("Đã tải phiếu thu tiền thành công")
                         progress_bar.empty()
                         st.session_state['download_success_ptt'] = False
@@ -702,4 +701,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
