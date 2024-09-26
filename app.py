@@ -569,8 +569,11 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     xml_files = download_icon_viettel(driver, action, wait, temp_folder)
                     if xml_files:
                         final_xml_files.update(xml_files)
+                    # next_button = wait.until(
+                    #     EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
+                    # )
                     next_button = wait.until(
-                        EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
+                        EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next']"))
                     )
                     st.write(next_button)
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
