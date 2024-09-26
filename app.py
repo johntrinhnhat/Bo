@@ -572,12 +572,13 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     next_button = wait.until(
                         EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
                     )
+                    st.write(next_button)
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                     driver.execute_script("arguments[0].click();", next_button)
                     page_index += 1  
                     time.sleep(2)  
-                # except TimeoutException:
-                #     break  
+                except TimeoutException:
+                    break  
                 except Exception as e:
                     st.write(f"Lỗi tải: {e}")
                     return None
