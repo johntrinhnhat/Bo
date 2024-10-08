@@ -371,7 +371,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             close_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
             )
-            st.write(f"Close_btn: {close_button}")
             driver.execute_script("arguments[0].click();", close_button)
             time.sleep(2)
 
