@@ -338,6 +338,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             EC.presence_of_all_elements_located((By.XPATH, "//a[@title='Xem chi tiết hóa đơn']"))
         )
         icons = icons[:len(icons)//2]  
+        st.write(f"Icons_length: {len(icons)}")
         time.sleep(3)
 
         for icon in icons:
@@ -346,15 +347,15 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
 
-            download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
-            # download_button = wait.until(
-            #     EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
-
+            # download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
+            download_button = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
+            st.write(f"download_btn: {download_button}")
             if download_button:
                 driver.execute_script("arguments[0].click();", download_button)
                 time.sleep(3)
                 downloaded_file = wait_for_download(temp_folder)
-
+                st.write(f"downloaded_file: {downloaded_file}")
                 if downloaded_file:
                     file_name = os.path.basename(downloaded_file)
 
@@ -373,6 +374,7 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             close_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//button[@class='close']"))
             )
+            st.write(f"Close_btn: {close_button}")
             driver.execute_script("arguments[0].click();", close_button)
             time.sleep(2)
 
@@ -430,8 +432,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             all_pages = page_indexes.find_elements(By.CLASS_NAME, "dx-page")
             st.write_stream(stream_data((f"Tổng số trang: {len(all_pages)}")))
-
-            # next_btn = page_indexes.find_element(By.XPATH, "//div[@aria-label='Next page']")
             
             final_xml_files = set()
             page_index = 0
@@ -575,7 +575,6 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     # next_button = wait.until(
                     #     EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next']"))
                     # )
-                    st.write(next_button)
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                     driver.execute_script("arguments[0].click();", next_button)
                     page_index += 1  
