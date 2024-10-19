@@ -426,8 +426,11 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             time.sleep(2)
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
-            dropdown_btn = driver.find_elements(By.CLASS_NAME, "dx-dropdowneditor-icon")
+            dropdown_btn = wait.until(
+                EC.presence_of_all_elements_located(By.CLASS_NAME, "dx-dropdowneditor-icon"))
             print(len(dropdown_btn))
+            # action.move_to_element(icon).perform()
+            # driver.execute_script("arguments[0].click();", icon)
 
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             all_pages = page_indexes.find_elements(By.CLASS_NAME, "dx-page")
