@@ -425,6 +425,14 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             time.sleep(2)
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
+            search_btn[12].click()
+            time.sleep(1)
+
+            invoice_status = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//div[@title='Hóa đơn gốc']"))
+            )
+            st.write(f"Invoice_status: {invoice_status}")
+
             # action.move_to_element(icon).perform()
             # driver.execute_script("arguments[0].click();", icon)
 
