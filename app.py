@@ -433,12 +433,13 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             option = wait.until(
                 EC.element_to_be_clickable((By.XPATH, "//div[@class='custom-item' and text()='Hóa đơn gốc']")))
             st.write(f"Option: {option}")
-            # time.sleep(3)
+            option.click()
+            st.write_stream(stream_data((f"Hiển thị hóa đơn gốc ...")))
+            time.sleep(3)
             # options = wait.until(
             #     EC.presence_of_all_elements_located((By.CLASS_NAME, "custom-item"))
             # )
             # st.write(options[3])
-            # st.write_stream(stream_data((f"Hiển thị hóa đơn gốc ...")))
             # time.sleep(2)
 
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
