@@ -345,8 +345,6 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             action.move_to_element(icon).perform()
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
-
-            
             # download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
             download_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
@@ -422,13 +420,11 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn = wait.until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
             )
+            print(len(search_btn))
             search_btn[3].click()
             time.sleep(2)
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
-            dropdown_btn = wait.until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-dropdowneditor-icon")))
-            print(len(dropdown_btn))
             # action.move_to_element(icon).perform()
             # driver.execute_script("arguments[0].click();", icon)
 
