@@ -432,15 +432,9 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
 
             option = wait.until(
                 EC.element_to_be_clickable((By.XPATH, "//div[@class='custom-item' and text()='Hóa đơn gốc']")))
-            st.write(f"Option: {option}")
             option.click()
-            st.write_stream(stream_data((f"Hiển thị hóa đơn gốc ...")))
-            time.sleep(3)
-            # options = wait.until(
-            #     EC.presence_of_all_elements_located((By.CLASS_NAME, "custom-item"))
-            # )
-            # st.write(options[3])
-            # time.sleep(2)
+            time.sleep(2)
+            
 
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             all_pages = page_indexes.find_elements(By.CLASS_NAME, "dx-page")
@@ -678,41 +672,39 @@ def main():
                     st.session_state['download_success_ptt'] = False
 
             with st.sidebar:
+                if st.session_state['download_success']:
+                    downloading_message = 'Đang tải phiếu xuất kho ...'
+                    progress_bar = show_progress_bar(downloading_message)
+                    st.success("Đã tải phiếu xuất kho thành công")
+                    progress_bar.empty()
+                    st.session_state['download_success'] = False
+                    
+                if st.session_state['download_success_ptt']:
+                    downloading_message = 'Đang tải phiếu thu tiền ...'
+                    progress_bar = show_progress_bar(downloading_message)
+                    st.success("Đã tải phiếu thu tiền thành công")
+                    progress_bar.empty()
+                    st.session_state['download_success_ptt'] = False
 
-                with st.sidebar:
-                    if st.session_state['download_success']:
-                        downloading_message = 'Đang tải phiếu xuất kho ...'
-                        progress_bar = show_progress_bar(downloading_message)
-                        st.success("Đã tải phiếu xuất kho thành công")
-                        progress_bar.empty()
-                        st.session_state['download_success'] = False
-                        
-                    if st.session_state['download_success_ptt']:
-                        downloading_message = 'Đang tải phiếu thu tiền ...'
-                        progress_bar = show_progress_bar(downloading_message)
-                        st.success("Đã tải phiếu thu tiền thành công")
-                        progress_bar.empty()
-                        st.session_state['download_success_ptt'] = False
+                if not st.session_state['create_success']:
+                    if st.button('Tạo phiếu xuất kho và thu tiền', type='primary', key='btn', on_click=create):
+                        pass
+                else:
+                    pxk_buffer, ptt_buffer = create_pxk(invoice_data)
+                    create_download_button(
+                        label="Tải phiếu xuất kho", 
+                        buffer=pxk_buffer, 
+                        file_name="PHIEU XUAT KHO QUY .xlsx", 
+                        key="pxk", 
+                        download=download)
 
-                    if not st.session_state['create_success']:
-                        if st.button('Tạo phiếu xuất kho và thu tiền', type='primary', key='btn', on_click=create):
-                            pass
-                    else:
-                        pxk_buffer, ptt_buffer = create_pxk(invoice_data)
-                        create_download_button(
-                            label="Tải phiếu xuất kho", 
-                            buffer=pxk_buffer, 
-                            file_name="PHIEU XUAT KHO QUY .xlsx", 
-                            key="pxk", 
-                            download=download)
-
-                        create_download_button(
-                            label="Tải phiếu thu tiền", 
-                            buffer=ptt_buffer, 
-                            file_name="PHIEU THU TIEN QUY .xlsx", 
-                            key="ptt", 
-                            download=download_ptt
-                        )
+                    create_download_button(
+                        label="Tải phiếu thu tiền", 
+                        buffer=ptt_buffer, 
+                        file_name="PHIEU THU TIEN QUY .xlsx", 
+                        key="ptt", 
+                        download=download_ptt
+                    )
                         
                         
 
