@@ -346,6 +346,8 @@ def download_icon_vnpt(driver, action, wait, temp_folder):
             driver.execute_script("arguments[0].click();", icon)
             time.sleep(3)
 
+            modal_content = driver.find_element(By.XPATH, "//div[@class='model-content']")
+            print(modal_content)
             # download_button = driver.find_element(By.XPATH, "//div[@id='taiXml']")
             download_button = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//div[@id='taiXml']")))
