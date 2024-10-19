@@ -429,10 +429,10 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn[12].click()
             time.sleep(1)
 
-            invoice_status = wait.until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, "custom_item"))
-            )
-            st.write(f"Invoice_status: {len(invoice_status)}")
+            # invoice_status = wait.until(
+            #     EC.presence_of_all_elements_located((By.CLASS_NAME, "custom_item"))
+            # )
+            # st.write(f"Invoice_status: {len(invoice_status)}")
 
             # action.move_to_element(icon).perform()
             # driver.execute_script("arguments[0].click();", icon)
