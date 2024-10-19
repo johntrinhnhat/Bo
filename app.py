@@ -433,7 +433,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             options = wait.until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "custom-item"))
             )
-            driver.execute_script("arguments[0].click();", options[3])
+            options[3].click()
+            time.sleep(2)
 
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             all_pages = page_indexes.find_elements(By.CLASS_NAME, "dx-page")
