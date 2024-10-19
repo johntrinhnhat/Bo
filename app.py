@@ -562,7 +562,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
             search_btn = wait.until(
                 EC.presence_of_element_located((By.XPATH, "//button[span[text()='Tìm kiếm']]"))
             )
-            # search_btn = driver.find_element(By.XPATH, "//button[span[text()='Tìm kiếm']]")
+
             driver.execute_script("arguments[0].click();", search_btn)
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
@@ -579,9 +579,7 @@ def handle_viettel_download(driver, action, wait, user, start_date, end_date, te
                     next_button = wait.until(
                         EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next' and contains(@class, 'page-link')]"))
                     )
-                    # next_button = wait.until(
-                    #     EC.element_to_be_clickable((By.XPATH, "//a[@aria-label='Next']"))
-                    # )
+    
                     driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                     driver.execute_script("arguments[0].click();", next_button)
                     page_index += 1  
