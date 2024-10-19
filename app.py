@@ -425,11 +425,12 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             time.sleep(2)
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
+            action.move_to_element(search_btn[12]).perform()
             search_btn[12].click()
             time.sleep(1)
 
             invoice_status = wait.until(
-                EC.presence_of_element_located((By.CLASS_NAME, "custom_item"))
+                EC.presence_of_all_elements_located((By.CLASS_NAME, "custom_item"))
             )
             st.write(f"Invoice_status: {len(invoice_status)}")
 
