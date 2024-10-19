@@ -427,7 +427,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
             dropdown_btn = wait.until(
-                EC.presence_of_all_elements_located(By.CLASS_NAME, "dx-dropdowneditor-icon"))
+                EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-dropdowneditor-icon")))
             print(len(dropdown_btn))
             # action.move_to_element(icon).perform()
             # driver.execute_script("arguments[0].click();", icon)
