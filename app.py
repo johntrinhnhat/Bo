@@ -420,7 +420,6 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn = wait.until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
             )
-            st.write(len(search_btn))
             search_btn[3].click()
             time.sleep(2)
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
@@ -428,16 +427,13 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             dropdown = wait.until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-dropdowneditor-icon"))
             )
-            st.write(len(dropdown))
             action.move_to_element(dropdown[-1]).perform()
             driver.execute_script("arguments[0].click();", dropdown[-1])
+
             options = wait.until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "custom-item"))
             )
-
-            st.write(options)
-            st.write(len(options))
-
+            driver.execute_script("arguments[0].click();", options[3])
 
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             all_pages = page_indexes.find_elements(By.CLASS_NAME, "dx-page")
