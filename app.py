@@ -428,13 +428,13 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             dropdown = wait.until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-dropdowneditor-icon"))
             )
-            dropdown[-1].click()
             st.write(len(dropdown))
-            options = wait.until(
-                EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class, 'custom_item')]"))
-            )
+            dropdown[7].click()
+            # options = wait.until(
+            #     EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class, 'custom_item')]"))
+            # )
 
-            st.write(options)
+            # st.write(options)
 
 
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
