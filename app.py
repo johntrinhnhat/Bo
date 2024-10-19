@@ -433,6 +433,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             options = wait.until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "custom-item"))
             )
+            st.write(options[3])
             options[3].click()
             time.sleep(2)
 
