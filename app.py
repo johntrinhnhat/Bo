@@ -429,7 +429,8 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-dropdowneditor-icon"))
             )
             st.write(len(dropdown))
-            dropdown[7].click()
+            action.move_to_element(dropdown[-1]).perform()
+            driver.execute_script("arguments[0].click();", dropdown[-1])
             # options = wait.until(
             #     EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class, 'custom_item')]"))
             # )
