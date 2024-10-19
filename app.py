@@ -431,11 +431,12 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             st.write(len(dropdown))
             action.move_to_element(dropdown[-1]).perform()
             driver.execute_script("arguments[0].click();", dropdown[-1])
-            # options = wait.until(
-            #     EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class, 'custom_item')]"))
-            # )
+            options = wait.until(
+                EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class, 'custom_item')]"))
+            )
 
-            # st.write(options)
+            st.write(options)
+            st.write(len(options))
 
 
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
