@@ -426,7 +426,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
             dropdown = wait.until(
-                (EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-dropdowneditor-icon")))
+                EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-dropdowneditor-icon"))
             )
             st.write(len(dropdown))
             # options = wait.until(
