@@ -420,7 +420,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             search_btn = wait.until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-button-content"))
             )
-            print(len(search_btn))
+            st.write(len(search_btn))
             search_btn[3].click()
             time.sleep(2)
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
