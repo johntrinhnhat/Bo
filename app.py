@@ -425,17 +425,14 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
             time.sleep(2)
             st.write_stream(stream_data(("Đang tìm hóa đơn ...")))
 
-            action.move_to_element(search_btn[12]).perform()
-            search_btn[12].click()
-            time.sleep(1)
-
-            # invoice_status = wait.until(
-            #     EC.presence_of_all_elements_located((By.CLASS_NAME, "custom_item"))
+            dropdown = wait.until(
+                (EC.presence_of_all_elements_located((By.CLASS_NAME, "dx-dropdowneditor-icon")))
+            )
+            st.write(len(dropdown))
+            # options = wait.until(
+            #     EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class, 'custom_item')]"))
             # )
-            # st.write(f"Invoice_status: {len(invoice_status)}")
 
-            # action.move_to_element(icon).perform()
-            # driver.execute_script("arguments[0].click();", icon)
 
             page_indexes = driver.find_element(By.XPATH, "//div[@class='dx-page-indexes']")
             all_pages = page_indexes.find_elements(By.CLASS_NAME, "dx-page")
