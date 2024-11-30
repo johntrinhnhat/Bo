@@ -231,7 +231,8 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
         'Số lượng': lambda x: f'{x:.1f}'.replace('.', ','),
         'Đơn giá': lambda x: f"{x:,.0f}".replace(',', '.'),
         'Thành tiền': lambda x: f"{x:,.0f}".replace(',', '.')}),
-        width=800
+        width=800,
+        hide_index=True,
     )
     st.text(f"Giảm giá: {'{:,}'.format(ggia).replace(',', '.')} đồng")
     st.text(f"Tổng thành tiền: {'{:,}'.format(ts).replace(',', '.')} đồng")
@@ -462,6 +463,7 @@ def handle_vnpt_download(driver, action, wait, user, start_date, end_date, temp_
                 except Exception as e:
                     st.write(f"Lỗi tải: {e}")
                     return None
+            
             
 
             for f in os.listdir(temp_folder):
