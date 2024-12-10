@@ -20,6 +20,8 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
+
+
 ### SELENIUM FUNCTIONS
 def set_date(key1, key2):
             date_start, date_end = st.columns(2)
@@ -136,7 +138,8 @@ def create_download_button(label, buffer, file_name, key, download):
         data=buffer,
         file_name=file_name,
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        key=key
+        key=key,
+        use_container_width=True
     )
 
 @st.cache_data
@@ -222,9 +225,10 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
         'Thành tiền'
     ]]
 
-    st.subheader(f"Số hóa đơn: {shdon}")
-    st.text(f"Ngày-Tháng-Năm: {date}")
-    st.text(f"Tên khách: {nmua}")
+    st.markdown(f"## {'&nbsp;'*32} _Phiếu xuất kho_")
+    # st.markdown(f"{'&emsp;'*15} _{date}_")
+    st.markdown(f"<i style='margin-left: 16rem'> {date} </i>", unsafe_allow_html=True)
+    st.markdown(f"__Tên khách:__ _{nmua}_")
 
     st.dataframe(
         df.style.format({
@@ -234,9 +238,9 @@ def display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, gg
         width=800,
         hide_index=True,
     )
-    st.text(f"Giảm giá: {'{:,}'.format(ggia).replace(',', '.')} đồng")
-    st.text(f"Tổng thành tiền: {'{:,}'.format(ts).replace(',', '.')} đồng")
-    st.text(f"Tổng thành tiền chữ: {tbc}")
+    st.markdown(f"__Giảm giá:__ _{'{:,}'.format(ggia).replace(',', '.')} đồng_")
+    st.markdown(f"__Tổng thành tiền:__ _{'{:,}'.format(ts).replace(',', '.')} đồng_")
+    st.markdown(f"__Tổng thành tiền chữ:__ _{tbc}_")
     return df
 
 def pxk_excel(wb, shdon, nmua, nban, nban_dc, nban_mst, date, tbc, ggia, df):
@@ -619,7 +623,6 @@ def download_ptt():
 def main():
     tab1, tab2, tab3= st.tabs(['Phiếu Xuất Kho','VNPT', 'Viettel'])
 
-    tab1.title("Phiếu Xuất Kho")
     tab2.title("VNPT")
     tab3.title("Viettel")
 
@@ -658,9 +661,12 @@ def main():
             invoice_data = []
             for uploaded_file in xml_files:
                 shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data= pxk_data_from_xml(uploaded_file)
-
-                with st.container(border=True): 
-                    df = display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data)
+                
+                
+                with st.expander(f"__Số hóa đơn:__ :blue[___{shdon}___]",
+                        expanded=False):
+                            
+                            df = display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data)
                     
                 invoice_data.append((shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts ,ggia, df))
 
@@ -687,7 +693,7 @@ def main():
                     st.session_state['download_success_ptt'] = False
 
                 if not st.session_state['create_success']:
-                    if st.button('Tạo phiếu xuất kho và thu tiền', type='primary', key='btn', on_click=create):
+                    if st.button('Tạo phiếu ', type='primary', key='btn', on_click=create, use_container_width=True):
                         pass
                 else:
                     pxk_buffer, ptt_buffer = create_pxk(invoice_data)
