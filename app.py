@@ -663,7 +663,7 @@ def main():
                 shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data= pxk_data_from_xml(uploaded_file)
                 
                 
-                with st.expander(f"__Số hóa đơn:__ :blue[___{shdon}___]",
+                with st.expander(f"__Số hóa đơn:__ :red[___{shdon}___]",
                         expanded=False):
                             
                             df = display_pxk(shdon, nmua, nmua_dc, nban, nban_dc, nban_mst, date, tbc, ts, ggia, data)
@@ -709,8 +709,7 @@ def main():
                         buffer=ptt_buffer, 
                         file_name="PHIEU THU TIEN QUY .xlsx", 
                         key="ptt", 
-                        download=download_ptt
-                    )
+                        download=download_ptt)
                         
                         
 
