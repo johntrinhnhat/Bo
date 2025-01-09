@@ -621,7 +621,7 @@ def download_ptt():
     
 ### MAIN FUNCTION
 def main():
-    tab1, tab2, tab3= st.tabs(['Phiếu Xuất Kho','VNPT', 'Viettel'])
+    tab1, tab2, tab3= st.tabs(['👁️','VNPT', 'Viettel'])
 
     tab2.title("VNPT")
     tab3.title("Viettel")
